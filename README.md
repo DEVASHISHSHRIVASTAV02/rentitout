@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# RentItOut
 
-## Getting Started
+RentItOut is a Next.js appliance rental marketplace where:
 
-First, run the development server:
+- owners post appliance listings
+- renters discover listings and contact owners directly from the listing page
+
+RentItOut acts as a connector only. Agreements, deposit terms, insurance, transport, and handover are handled offline by the two parties.
+
+## Stack
+
+- Next.js 16 (App Router)
+- TypeScript
+- Tailwind CSS v4
+- Neon Postgres
+- Resend (emails)
+
+## Features
+
+- Email/password auth
+- Email OTP sign-in flow
+- Public listing discovery with filters
+- Listing detail page with direct owner contact details (email/phone visibility controlled by owner)
+- Owner dashboard for listing management and profile contact-visibility settings
+- Owner posting-payment records (`listing_posting_payments`)
+- Listing proof email notifications
+
+## Quick start
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Required setup
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Create `.env.local` from `.env.example`
+2. Run `db/schema.sql` in Neon SQL editor
 
-## Learn More
+Detailed steps:
 
-To learn more about Next.js, take a look at the following resources:
+- [Setup Guide](docs/SETUP.md)
+- [VPS Deployment Guide](docs/DEPLOYMENT-VPS.md)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Scripts
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `npm run dev` - development server
+- `npm run build` - production build
+- `npm run start` - production server
+- `npm run lint` - lint check
+- `npm run prod:preflight` - production readiness checks (env vars, node version, upload dir writability)
+- `npm run prod:build` - run preflight, lint, then production build
