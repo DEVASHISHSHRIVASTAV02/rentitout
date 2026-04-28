@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { useEffect, useMemo, useState } from "react";
 import { Mail, MapPin, Phone, RefreshCw, ShieldCheck, UserRound, X } from "lucide-react";
 import { ListingImageCarousel } from "@/components/listing-image-carousel";
 import { Button } from "@/components/ui/button";
@@ -12,13 +12,13 @@ import { type ContactCaptchaChallenge, type RevealedContactDetails } from "@/lib
 import { getListingDetailFields } from "@/lib/listing-details";
 import { type PublicApplianceListing } from "@/lib/types";
 
-interface BrowseContactDetailsFlowProps {
+interface ListingQuickViewFlowProps {
   listing: PublicApplianceListing;
 }
 
-export function BrowseContactDetailsFlow({ listing }: BrowseContactDetailsFlowProps) {
-  const [isBotCheckOpen, setIsBotCheckOpen] = useState(false);
-  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+export function ListingQuickViewFlow({ listing }: ListingQuickViewFlowProps) {
+  const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
+  const [isCaptchaOpen, setIsCaptchaOpen] = useState(false);
   const [challenge, setChallenge] = useState<ContactCaptchaChallenge | null>(null);
   const [revealedContact, setRevealedContact] = useState<RevealedContactDetails | null>(null);
   const [botAnswer, setBotAnswer] = useState("");
@@ -27,20 +27,24 @@ export function BrowseContactDetailsFlow({ listing }: BrowseContactDetailsFlowPr
   const [isChallengeLoading, setIsChallengeLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const detailFields = getListingDetailFields({
-    category: listing.category,
-    subCategory: listing.sub_category,
-    itemInfo: listing.item_info,
-  });
+  const detailFields = useMemo(
+    () =>
+      getListingDetailFields({
+        category: listing.category,
+        subCategory: listing.sub_category,
+        itemInfo: listing.item_info,
+      }),
+    [listing.category, listing.sub_category, listing.item_info],
+  );
 
   useEffect(() => {
-    const hasOpenModal = isBotCheckOpen || isDetailsOpen;
+    const hasOpenModal = isQuickViewOpen || isCaptchaOpen;
     document.body.classList.toggle("modal-open", hasOpenModal);
 
     return () => {
       document.body.classList.remove("modal-open");
     };
-  }, [isBotCheckOpen, isDetailsOpen]);
+  }, [isQuickViewOpen, isCaptchaOpen]);
 
   const requestChallenge = async () => {
     setIsChallengeLoading(true);
@@ -60,8 +64,25 @@ export function BrowseContactDetailsFlow({ listing }: BrowseContactDetailsFlowPr
   };
 
   const openBotCheck = async () => {
-    setIsBotCheckOpen(true);
+    setIsCaptchaOpen(true);
     await requestChallenge();
+  };
+
+  const closeBotCheck = () => {
+    setIsCaptchaOpen(false);
+    setBotError("");
+    setBotAnswer("");
+    setHoneypot("");
+  };
+
+  const closeQuickView = () => {
+    setIsQuickViewOpen(false);
+    setIsCaptchaOpen(false);
+    setChallenge(null);
+    setRevealedContact(null);
+    setBotAnswer("");
+    setBotError("");
+    setHoneypot("");
   };
 
   const verifyBotCheck = async () => {
@@ -86,10 +107,7 @@ export function BrowseContactDetailsFlow({ listing }: BrowseContactDetailsFlowPr
       });
 
       setRevealedContact(details);
-      setIsBotCheckOpen(false);
-      setIsDetailsOpen(true);
-      setBotAnswer("");
-      setHoneypot("");
+      closeBotCheck();
     } catch (error) {
       setBotError(error instanceof Error ? error.message : "Verification failed.");
     } finally {
@@ -99,15 +117,96 @@ export function BrowseContactDetailsFlow({ listing }: BrowseContactDetailsFlowPr
 
   return (
     <>
-      <Button type="button" variant="secondary" className="mt-2 w-full" onClick={openBotCheck}>
-        Contact Details
-      </Button>
+      <button
+        type="button"
+        onClick={() => setIsQuickViewOpen(true)}
+        className="w-full truncate text-left text-base font-semibold text-zinc-900 hover:underline"
+      >
+        {listing.category}
+      </button>
 
       {typeof document !== "undefined"
         ? createPortal(
             <>
-              {isBotCheckOpen ? (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/50 px-4">
+              {isQuickViewOpen ? (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/55 p-4 sm:p-6">
+                  <div className="max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-2xl border border-zinc-300 bg-white shadow-2xl">
+                    <div className="flex items-center justify-between border-b border-zinc-200 px-4 py-3 sm:px-6">
+                      <h3 className="truncate text-xl font-semibold text-zinc-950">{listing.category}</h3>
+                      <button
+                        type="button"
+                        onClick={closeQuickView}
+                        className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-200 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
+                        aria-label="Close quick view"
+                      >
+                        <X className="h-5 w-5" />
+                      </button>
+                    </div>
+
+                    <div className="grid gap-6 p-4 sm:p-6 lg:grid-cols-[1.1fr_0.9fr]">
+                      <ListingImageCarousel
+                        images={listing.image_urls}
+                        alt={`${listing.category} listing`}
+                        className="border-zinc-200"
+                        imageFit="contain"
+                        sizes="(max-width: 1024px) 100vw, 60vw"
+                      />
+
+                      <div className="space-y-2 text-sm text-zinc-700">
+                        {detailFields.map((field) => (
+                          <p key={`${field.label}-${field.value}`}>
+                            <span className="font-medium text-zinc-800">{field.label}:</span> {field.value}
+                          </p>
+                        ))}
+                        <p>
+                          <span className="font-medium text-zinc-800">Price:</span> INR{" "}
+                          {listing.price_per_month.toLocaleString("en-IN")} / month
+                        </p>
+                        <p>
+                          <span className="font-medium text-zinc-800">Minimum Agreement:</span>{" "}
+                          {listing.min_agreement_months} {listing.min_agreement_months === 1 ? "month" : "months"}
+                        </p>
+                        <p>
+                          <span className="font-medium text-zinc-800">Listing ID:</span> {listing.listing_id}
+                        </p>
+                        <p className="inline-flex items-center gap-2">
+                          <MapPin className="h-4 w-4" />
+                          {listing.city} - PIN {listing.pincode}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="border-t border-zinc-200 p-4 sm:p-6">
+                      {revealedContact ? (
+                        <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-4">
+                          <p className="text-sm font-semibold text-zinc-900">Contact Details</p>
+                          <div className="mt-3 space-y-2 text-sm text-zinc-700">
+                            <p className="flex items-center gap-2">
+                              <UserRound className="h-4 w-4" />
+                              Full Name: {revealedContact.ownerName ?? "Listing Owner"}
+                            </p>
+                            <p className="flex items-center gap-2">
+                              <Mail className="h-4 w-4" />
+                              Email: {revealedContact.contactEmail ?? "Not shared"}
+                            </p>
+                            <p className="flex items-center gap-2">
+                              <Phone className="h-4 w-4" />
+                              Phone: {revealedContact.contactPhone ?? "Not shared"}
+                            </p>
+                          </div>
+                        </div>
+                      ) : (
+                        <Button type="button" variant="secondary" className="w-full sm:w-auto" onClick={openBotCheck}>
+                          Contact Details
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+
+              {isCaptchaOpen ? (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center bg-zinc-950/60 px-4">
                   <div className="w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-5 shadow-2xl">
                     <div className="mb-4 flex items-start justify-between gap-3">
                       <div>
@@ -116,7 +215,7 @@ export function BrowseContactDetailsFlow({ listing }: BrowseContactDetailsFlowPr
                       </div>
                       <button
                         type="button"
-                        onClick={() => setIsBotCheckOpen(false)}
+                        onClick={closeBotCheck}
                         className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-zinc-200 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
                         aria-label="Close bot check"
                       >
@@ -188,78 +287,6 @@ export function BrowseContactDetailsFlow({ listing }: BrowseContactDetailsFlowPr
                       >
                         {isSubmitting ? "Verifying..." : "Continue"}
                       </Button>
-                    </div>
-                  </div>
-                </div>
-              ) : null}
-
-              {isDetailsOpen ? (
-                <div className="fixed inset-0 z-50 flex items-start justify-center bg-zinc-950/50 px-4 py-8 sm:py-12">
-                  <div className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-zinc-200 bg-white p-5 shadow-2xl sm:p-6">
-                    <div className="mb-4 flex items-start justify-between gap-3">
-                      <div>
-                        <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">Contact Details</p>
-                        <h3 className="mt-1 text-xl font-semibold text-zinc-950">{listing.category}</h3>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setIsDetailsOpen(false)}
-                        className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-zinc-200 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
-                        aria-label="Close contact details"
-                      >
-                        <X className="h-4 w-4" />
-                      </button>
-                    </div>
-
-                    <div className="space-y-4">
-                      <ListingImageCarousel
-                        images={listing.image_urls}
-                        alt={`${listing.category} listing`}
-                        className="border-zinc-200"
-                        sizes="(max-width: 1024px) 100vw, 66vw"
-                      />
-
-                      <div className="space-y-1.5 text-sm text-zinc-700">
-                        {detailFields.map((field) => (
-                          <p key={`${field.label}-${field.value}`}>
-                            <span className="font-medium text-zinc-800">{field.label}:</span> {field.value}
-                          </p>
-                        ))}
-                        <p>
-                          <span className="font-medium text-zinc-800">Price:</span> INR{" "}
-                          {listing.price_per_month.toLocaleString("en-IN")} / month
-                        </p>
-                        <p>
-                          <span className="font-medium text-zinc-800">Minimum Agreement:</span>{" "}
-                          {listing.min_agreement_months} {listing.min_agreement_months === 1 ? "month" : "months"}
-                        </p>
-                        <p>
-                          <span className="font-medium text-zinc-800">Listing ID:</span> {listing.listing_id}
-                        </p>
-                        <p className="inline-flex items-center gap-2">
-                          <MapPin className="h-4 w-4" />
-                          {listing.city} - PIN {listing.pincode}
-                        </p>
-                      </div>
-
-                      <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-4">
-                        <p className="mb-2 text-sm font-medium text-zinc-900">Owner Contact</p>
-                        <div className="space-y-2">
-                          <p className="flex items-center gap-2 text-sm text-zinc-700">
-                            <UserRound className="h-4 w-4" />
-                            {revealedContact?.ownerName ?? "Listing Owner"}
-                          </p>
-                          <p className="flex items-center gap-2 text-sm text-zinc-700">
-                            <Mail className="h-4 w-4" />
-                            {revealedContact?.contactEmail ?? "Not shared"}
-                          </p>
-                          <p className="flex items-center gap-2 text-sm text-zinc-700">
-                            <Phone className="h-4 w-4" />
-                            {revealedContact?.contactPhone ?? "Not shared"}
-                          </p>
-                        </div>
-                      </div>
-
                     </div>
                   </div>
                 </div>

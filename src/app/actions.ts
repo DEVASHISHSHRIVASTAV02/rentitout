@@ -13,6 +13,7 @@ import {
   verifySignInOtp,
 } from "@/lib/auth";
 import { SUPPORTED_CITIES } from "@/lib/cities";
+import { clearListingByIdCache, clearPublicListingsCache } from "@/lib/data";
 import { query, queryWithClient, withTransaction } from "@/lib/db";
 import { LISTABLE_ITEMS } from "@/lib/listable-items";
 import {
@@ -435,6 +436,8 @@ export async function createListingAction(formData: FormData) {
   revalidatePath("/browse");
   revalidatePath(`/listings/${createdListingId}`);
   revalidatePath("/");
+  clearPublicListingsCache();
+  clearListingByIdCache(createdListingId);
   redirect(appendQueryParam(redirectTo, "message", "Listing created"));
 }
 
@@ -568,6 +571,8 @@ export async function updateListingAction(formData: FormData) {
   revalidatePath("/browse");
   revalidatePath(`/listings/${listingId}`);
   revalidatePath("/");
+  clearPublicListingsCache();
+  clearListingByIdCache(listingId);
   redirect(appendQueryParam(redirectTo, "message", "Listing updated"));
 }
 
@@ -756,6 +761,8 @@ export async function deleteListingAction(formData: FormData) {
   revalidatePath("/my-account");
   revalidatePath("/browse");
   revalidatePath("/");
+  clearPublicListingsCache();
+  clearListingByIdCache(listingId);
   redirect("/my-account?message=Listing removed");
 }
 
@@ -785,6 +792,8 @@ export async function toggleListingStatusAction(formData: FormData) {
   revalidatePath("/my-account");
   revalidatePath("/browse");
   revalidatePath("/");
+  clearPublicListingsCache();
+  clearListingByIdCache(listingId);
   redirect("/my-account?message=Listing updated");
 }
 
@@ -834,5 +843,6 @@ export async function updateProfileAction(formData: FormData) {
 
   revalidatePath("/my-account");
   revalidatePath("/browse");
+  clearListingByIdCache();
   redirect("/my-account?message=Profile updated");
 }

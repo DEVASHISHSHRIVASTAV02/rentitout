@@ -1,7 +1,7 @@
-import { BrowseContactDetailsFlow } from "@/components/browse-contact-details-flow";
-import Link from "next/link";
 import { MapPin } from "lucide-react";
+import { BrowseContactDetailsFlow } from "@/components/browse-contact-details-flow";
 import { ListingImageCarousel } from "@/components/listing-image-carousel";
+import { ListingQuickViewFlow } from "@/components/listing-quick-view-flow";
 import { getListingDetailFields } from "@/lib/listing-details";
 import { type PublicApplianceListing } from "@/lib/types";
 
@@ -17,7 +17,7 @@ export function ListingCard({ listing }: ListingCardProps) {
   });
 
   return (
-    <article className="group min-h-[420px] overflow-hidden rounded-2xl border border-zinc-200 bg-white transition hover:border-zinc-300">
+    <article className="listing-card group relative min-h-[420px] overflow-hidden rounded-2xl border border-zinc-200 bg-white transition-all duration-200 hover:scale-[1.05] hover:border-black hover:z-10">
       <div className="flex h-full flex-col p-4">
         <ListingImageCarousel
           images={listing.image_urls}
@@ -28,9 +28,7 @@ export function ListingCard({ listing }: ListingCardProps) {
         />
 
         <div className="mt-4 min-w-0">
-          <Link href={`/listings/${listing.id}`} className="block">
-            <h3 className="truncate text-base font-semibold text-zinc-900 hover:underline">{listing.category}</h3>
-          </Link>
+          <ListingQuickViewFlow listing={listing} />
           <div className="mt-1.5 space-y-1 text-sm text-zinc-700">
             {detailFields.map((field) => (
               <p key={`${field.label}-${field.value}`}>
@@ -48,8 +46,8 @@ export function ListingCard({ listing }: ListingCardProps) {
           </div>
         </div>
 
-        <div className="mt-4 space-y-2 pt-4">
-          <p className="text-xs font-mono text-zinc-500">Listing ID: {listing.listing_id}</p>
+        <div className="mt-2 space-y-2 pt-2">
+          <p className="text-sm font-mono text-zinc-500">Listing ID: {listing.listing_id}</p>
           <div className="flex flex-wrap items-center gap-3 text-xs text-zinc-600">
             <span className="inline-flex items-center gap-1">
               <MapPin className="h-3.5 w-3.5" />

@@ -3,6 +3,7 @@
 
 create extension if not exists "pgcrypto";
 create extension if not exists "citext";
+create extension if not exists "pg_trgm";
 
 create or replace function public.set_updated_at()
 returns trigger
@@ -139,10 +140,15 @@ create index if not exists listing_owner_idx on public.listing (owner_id);
 create index if not exists listing_city_idx on public.listing (city);
 create index if not exists listing_category_idx on public.listing (category);
 create index if not exists listing_active_idx on public.listing (is_active);
+create index if not exists listing_active_created_at_idx on public.listing (is_active, created_at desc);
 create index if not exists listing_email_idx on public.listing (contact_email);
 create index if not exists listing_pincode_idx on public.listing (pincode);
 create index if not exists listing_price_per_month_idx on public.listing (price_per_month);
 create index if not exists listing_min_agreement_months_idx on public.listing (min_agreement_months);
+create index if not exists listing_listing_id_upper_idx on public.listing ((upper(listing_id)));
+create index if not exists listing_city_trgm_idx on public.listing using gin (city gin_trgm_ops);
+create index if not exists listing_category_trgm_idx on public.listing using gin (category gin_trgm_ops);
+create index if not exists listing_pincode_trgm_idx on public.listing using gin (pincode gin_trgm_ops);
 
 create table if not exists public.listing_images (
   id uuid primary key default gen_random_uuid(),

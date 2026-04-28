@@ -18,6 +18,15 @@ body {
   font-family: var(--font-manrope), sans-serif;
 }
 
+body.modal-open {
+  overflow: hidden;
+}
+
+body.modal-open .listing-card,
+body.modal-open .listing-card:hover {
+  transform: none !important;
+}
+
 h1,
 h2,
 h3,

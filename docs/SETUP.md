@@ -20,6 +20,16 @@ CONTACT_GATE_SECRET=
 RESEND_API_KEY=
 EMAIL_FROM=
 LISTING_PROOF_REVIEW_EMAIL=
+
+# Optional performance tuning
+DB_POOL_MAX=30
+DB_POOL_MIN=2
+DB_POOL_CONNECT_TIMEOUT_MS=5000
+DB_POOL_IDLE_TIMEOUT_MS=10000
+DB_POOL_MAX_USES=7500
+PUBLIC_LISTINGS_CACHE_TTL_MS=30000
+LISTING_BY_ID_CACHE_TTL_MS=30000
+IN_MEMORY_CACHE_MAX_ENTRIES=300
 ```
 
 ### Where to copy each value
@@ -31,12 +41,21 @@ LISTING_PROOF_REVIEW_EMAIL=
 - `RESEND_API_KEY`: Resend API key for transactional emails.
 - `EMAIL_FROM`: verified sender in Resend (example: `RentItOut <noreply@yourdomain.com>`).
 - `LISTING_PROOF_REVIEW_EMAIL`: optional comma-separated admin/reviewer emails for listing proof copy.
+- `DB_POOL_MAX`: max concurrent PostgreSQL connections per app process.
+- `DB_POOL_MIN`: idle connections retained in pool per app process.
+- `DB_POOL_CONNECT_TIMEOUT_MS`: DB connection wait timeout.
+- `DB_POOL_IDLE_TIMEOUT_MS`: idle connection recycle timeout.
+- `DB_POOL_MAX_USES`: rotate connections after N queries to reduce stale-connection issues.
+- `PUBLIC_LISTINGS_CACHE_TTL_MS`: in-memory cache duration for `/browse` query results.
+- `LISTING_BY_ID_CACHE_TTL_MS`: in-memory cache duration for listing detail lookup.
+- `IN_MEMORY_CACHE_MAX_ENTRIES`: maximum in-memory cache entries per app process.
 
 ## 3. Create Neon schema
 
 1. Open Neon SQL Editor.
 2. Copy full contents of `db/schema.sql`.
 3. Run it.
+4. Re-running `db/schema.sql` later is safe and also creates newly added indexes/extensions (`if not exists` guarded).
 
 This creates:
 - users + profiles tables
@@ -63,6 +82,20 @@ Open `http://localhost:3000`.
 
 1. Sign up and create an owner profile.
 2. Create a listing with image.
-3. Open that listing in another browser session and click "View Details".
-4. Verify owner email/phone visibility follows profile settings in dashboard.
-5. OTP sign-in works from the sign-in page.
+3. Open `/browse` in another browser session and confirm the listing card appears.
+4. Click the listing category title to open the quick-view modal.
+5. Click `Contact Details` inside quick view and solve captcha.
+6. Confirm contact details render inline in quick view after successful captcha.
+7. Also test the card-level `Contact Details` button (second access path).
+8. Verify owner email/phone visibility follows profile settings in dashboard.
+9. OTP sign-in works from the sign-in page.
+
+## 7. Project Milestones (Day 1 -> Current)
+
+- `2026-04-22`: Day-1 project scaffold (Next.js base app).
+- `2026-04-25`: Core RentItOut product import (auth, listing CRUD, browse, dashboard, payments table, emails).
+- `2026-04-28`: Browse/contact UX update:
+  - Category now opens a large quick-view modal.
+  - Captcha and contact details use screen-level overlays.
+  - Contact reveal is accessible from both card button and quick-view.
+  - Redundant quick-view redirect button removed.

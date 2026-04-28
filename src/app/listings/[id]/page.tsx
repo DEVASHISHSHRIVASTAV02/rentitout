@@ -49,6 +49,7 @@ export default async function ListingDetailPage({ params, searchParams }: Listin
             images={data.listing.image_urls}
             alt={`${data.listing.category} listing`}
             className="mb-4 rounded-2xl"
+            imageContainerClassName="aspect-[4/3]"
             sizes="(max-width: 1024px) 100vw, 66vw"
           />
 
@@ -66,7 +67,7 @@ export default async function ListingDetailPage({ params, searchParams }: Listin
             Minimum agreement: {data.listing.min_agreement_months}{" "}
             {data.listing.min_agreement_months === 1 ? "month" : "months"}
           </p>
-          <p className="mt-2 text-xs font-mono tracking-wide text-zinc-600">Listing ID: {data.listing.listing_id}</p>
+          <p className="mt-0 text-xs font-mono tracking-wide text-zinc-600">Listing ID: {data.listing.listing_id}</p>
 
           <div className="mt-5 space-y-3 text-sm text-zinc-700">
             <p className="inline-flex items-center gap-2">

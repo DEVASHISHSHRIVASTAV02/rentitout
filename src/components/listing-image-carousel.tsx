@@ -11,6 +11,7 @@ interface ListingImageCarouselProps {
   className?: string;
   sizes?: string;
   imageFit?: "cover" | "contain";
+  imageContainerClassName?: string;
 }
 
 function wrapIndex(next: number, total: number) {
@@ -26,6 +27,7 @@ export function ListingImageCarousel({
   className,
   sizes = "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw",
   imageFit = "cover",
+  imageContainerClassName,
 }: ListingImageCarouselProps) {
   const normalizedImages = useMemo(
     () => images.filter((image) => typeof image === "string" && image.trim().length > 0).map((image) => image.trim()),
@@ -47,7 +49,7 @@ export function ListingImageCarousel({
     <div className={cn("relative overflow-hidden rounded-xl border border-zinc-200 bg-zinc-100", className)}>
       {total > 0 ? (
         <>
-          <div className="relative aspect-[16/10] w-full">
+          <div className={cn("relative aspect-[16/10] w-full", imageContainerClassName)}>
             <Image
               src={normalizedImages[currentIndex]}
               alt={`${alt} image ${currentIndex + 1}`}
@@ -82,7 +84,7 @@ export function ListingImageCarousel({
           ) : null}
         </>
       ) : (
-        <div className="flex aspect-[16/10] w-full items-center justify-center gap-2 text-sm text-zinc-500">
+        <div className={cn("flex aspect-[16/10] w-full items-center justify-center gap-2 text-sm text-zinc-500", imageContainerClassName)}>
           <ImageOff className="h-4 w-4" />
           <span>No image</span>
         </div>

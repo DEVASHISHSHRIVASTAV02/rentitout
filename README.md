@@ -1,31 +1,45 @@
 # RentItOut
 
-RentItOut is a Next.js appliance rental marketplace where:
+RentItOut is a Next.js appliance rental marketplace where owners publish listings and renters discover options, pass a captcha check, and then view owner contact details.
 
-- owners post appliance listings
-- renters discover listings and contact owners directly from the listing page
-
-RentItOut acts as a connector only. Agreements, deposit terms, insurance, transport, and handover are handled offline by the two parties.
+RentItOut acts as a connector only. Agreements, deposit terms, insurance, transport, and handover are handled offline by both parties.
 
 ## Stack
 
 - Next.js 16 (App Router)
+- React 19
 - TypeScript
 - Tailwind CSS v4
 - Neon Postgres
 - Resend (emails)
 
-## Features
+## Current Product Features
 
-- Email/password auth
-- Email OTP sign-in flow
-- Public listing discovery with filters
-- Listing detail page with direct owner contact details (email/phone visibility controlled by owner)
-- Owner dashboard for listing management and profile contact-visibility settings
-- Owner posting-payment records (`listing_posting_payments`)
-- Listing proof email notifications
+- Email/password auth and email OTP sign-in
+- Owner dashboard with listing create/edit and profile-level contact visibility controls
+- Public browse page with category/city/price/agreement/listing-id filters and sorting
+- Listing cards with:
+  - Quick-view modal on category click (large layout with image + details)
+  - Card-level `Contact Details` button flow
+- Captcha-gated contact reveal in two access paths:
+  - From card button: captcha modal -> contact details modal
+  - From quick-view modal: captcha modal -> inline contact details section
+- Full-screen overlay modals with `X` close buttons and background interaction lock
+- Listing proof email notifications and owner posting-payment records (`listing_posting_payments`)
+- Standalone listing detail route (`/listings/[id]`) still available for direct/shared links
 
-## Quick start
+## Project History (Day 1 -> Current)
+
+- `2026-04-22` (Day 1): Initial Next.js app scaffold.
+- `2026-04-25`: Initial RentItOut import (auth, listings, dashboard, data model, browse flow).
+- `2026-04-28`: Browse UX refresh:
+  - Category click now opens quick-view modal instead of forcing navigation.
+  - Contact reveal can be started from both card and quick-view.
+  - Captcha/details overlays moved to true screen-level popups.
+  - Card hover behavior tuned and background effects suppressed while modals are open.
+  - Redundant `View Full Listing Page` action removed from contact popup.
+
+## Quick Start
 
 ```bash
 npm install
@@ -34,12 +48,12 @@ npm run dev
 
 Open `http://localhost:3000`.
 
-## Required setup
+## Required Setup
 
-1. Create `.env.local` from `.env.example`
-2. Run `db/schema.sql` in Neon SQL editor
+1. Create `.env.local` from `.env.example`.
+2. Run `db/schema.sql` in Neon SQL editor.
 
-Detailed steps:
+Detailed guides:
 
 - [Setup Guide](docs/SETUP.md)
 - [VPS Deployment Guide](docs/DEPLOYMENT-VPS.md)
