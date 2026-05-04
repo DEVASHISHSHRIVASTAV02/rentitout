@@ -1,9 +1,4 @@
 import { z } from "zod";
-import {
-  ContactGateError,
-  createContactChallenge,
-  getContactGateRequestContext,
-} from "@/lib/contact-gate-server";
 
 export const dynamic = "force-dynamic";
 
@@ -13,16 +8,14 @@ const challengeSchema = z.object({
 
 export async function POST(request: Request) {
   try {
-    const payload = challengeSchema.parse(await request.json());
-    const context = getContactGateRequestContext(request);
-    const challenge = createContactChallenge(payload.listingId, context);
-    return Response.json({ challenge });
+    challengeSchema.parse(await request.json());
+    return Response.json(
+      { error: "This endpoint is deprecated. Use /api/contact-gate/reveal with recaptchaToken." },
+      { status: 410 },
+    );
   } catch (error) {
     if (error instanceof z.ZodError) {
       return Response.json({ error: "Invalid request payload" }, { status: 400 });
-    }
-    if (error instanceof ContactGateError) {
-      return Response.json({ error: error.message }, { status: error.status });
     }
     return Response.json({ error: "Unable to create challenge right now" }, { status: 500 });
   }

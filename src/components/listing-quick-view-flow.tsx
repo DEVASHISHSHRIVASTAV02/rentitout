@@ -1,14 +1,13 @@
 "use client";
 
-import Image from "next/image";
 import { createPortal } from "react-dom";
 import { useEffect, useMemo, useState } from "react";
-import { Mail, MapPin, Phone, RefreshCw, ShieldCheck, UserRound, X } from "lucide-react";
+import { Mail, MapPin, Phone, ShieldCheck, UserRound, X } from "lucide-react";
 import { ListingImageCarousel } from "@/components/listing-image-carousel";
+import { RecaptchaV2Checkbox } from "@/components/recaptcha-v2-checkbox";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { fetchContactChallenge, revealContactDetails } from "@/lib/contact-gate-client";
-import { type ContactCaptchaChallenge, type RevealedContactDetails } from "@/lib/contact-gate-types";
+import { revealContactDetails } from "@/lib/contact-gate-client";
+import { type RevealedContactDetails } from "@/lib/contact-gate-types";
 import { getListingDetailFields } from "@/lib/listing-details";
 import { type PublicApplianceListing } from "@/lib/types";
 
@@ -19,12 +18,11 @@ interface ListingQuickViewFlowProps {
 export function ListingQuickViewFlow({ listing }: ListingQuickViewFlowProps) {
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
   const [isCaptchaOpen, setIsCaptchaOpen] = useState(false);
-  const [challenge, setChallenge] = useState<ContactCaptchaChallenge | null>(null);
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  const [recaptchaResetSignal, setRecaptchaResetSignal] = useState(0);
   const [revealedContact, setRevealedContact] = useState<RevealedContactDetails | null>(null);
-  const [botAnswer, setBotAnswer] = useState("");
   const [botError, setBotError] = useState("");
   const [honeypot, setHoneypot] = useState("");
-  const [isChallengeLoading, setIsChallengeLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const detailFields = useMemo(
@@ -46,53 +44,35 @@ export function ListingQuickViewFlow({ listing }: ListingQuickViewFlowProps) {
     };
   }, [isQuickViewOpen, isCaptchaOpen]);
 
-  const requestChallenge = async () => {
-    setIsChallengeLoading(true);
-    setBotError("");
-    setBotAnswer("");
-    setHoneypot("");
-
-    try {
-      const nextChallenge = await fetchContactChallenge(listing.id);
-      setChallenge(nextChallenge);
-    } catch (error) {
-      setChallenge(null);
-      setBotError(error instanceof Error ? error.message : "Unable to load challenge right now.");
-    } finally {
-      setIsChallengeLoading(false);
-    }
-  };
-
-  const openBotCheck = async () => {
+  const openBotCheck = () => {
     setIsCaptchaOpen(true);
-    await requestChallenge();
+    setBotError("");
+    setHoneypot("");
+    setRecaptchaToken(null);
+    setRecaptchaResetSignal((value) => value + 1);
   };
 
   const closeBotCheck = () => {
     setIsCaptchaOpen(false);
     setBotError("");
-    setBotAnswer("");
     setHoneypot("");
+    setRecaptchaToken(null);
+    setRecaptchaResetSignal((value) => value + 1);
   };
 
   const closeQuickView = () => {
     setIsQuickViewOpen(false);
     setIsCaptchaOpen(false);
-    setChallenge(null);
     setRevealedContact(null);
-    setBotAnswer("");
     setBotError("");
     setHoneypot("");
+    setRecaptchaToken(null);
+    setRecaptchaResetSignal((value) => value + 1);
   };
 
   const verifyBotCheck = async () => {
-    if (!challenge) {
-      setBotError("Challenge expired. Please generate a new one.");
-      return;
-    }
-
-    if (!botAnswer.trim()) {
-      setBotError("Please type the verification code.");
+    if (!recaptchaToken) {
+      setBotError("Please complete captcha verification.");
       return;
     }
 
@@ -101,8 +81,7 @@ export function ListingQuickViewFlow({ listing }: ListingQuickViewFlowProps) {
     try {
       const details = await revealContactDetails({
         listingId: listing.id,
-        challengeId: challenge.challengeId,
-        answer: botAnswer,
+        recaptchaToken,
         website: honeypot,
       });
 
@@ -110,6 +89,8 @@ export function ListingQuickViewFlow({ listing }: ListingQuickViewFlowProps) {
       closeBotCheck();
     } catch (error) {
       setBotError(error instanceof Error ? error.message : "Verification failed.");
+      setRecaptchaToken(null);
+      setRecaptchaResetSignal((value) => value + 1);
     } finally {
       setIsSubmitting(false);
     }
@@ -226,35 +207,10 @@ export function ListingQuickViewFlow({ listing }: ListingQuickViewFlowProps) {
                     <div className="space-y-3">
                       <p className="inline-flex items-center gap-2 text-sm text-zinc-700">
                         <ShieldCheck className="h-4 w-4" />
-                        Enter the code exactly as shown. It expires quickly and is case-sensitive.
+                        Complete reCAPTCHA verification before continuing.
                       </p>
                       <label className="space-y-1 text-sm text-zinc-700">
-                        <span className="relative block overflow-hidden rounded-md border border-zinc-300 bg-zinc-100 px-3 py-2">
-                          {isChallengeLoading ? (
-                            <span className="block py-5 text-center text-sm text-zinc-600">Loading challenge...</span>
-                          ) : challenge ? (
-                            <Image
-                              src={challenge.captchaSvgDataUrl}
-                              alt="Verification code"
-                              width={250}
-                              height={84}
-                              unoptimized
-                              className="mx-auto h-[72px] w-full select-none rounded object-contain"
-                              draggable={false}
-                            />
-                          ) : (
-                            <span className="block py-5 text-center text-sm text-zinc-600">Challenge unavailable</span>
-                          )}
-                        </span>
-                        <Input
-                          value={botAnswer}
-                          onChange={(event) => setBotAnswer(event.target.value)}
-                          autoCapitalize="none"
-                          autoCorrect="off"
-                          spellCheck={false}
-                          placeholder="Type code (exact case)"
-                          disabled={isSubmitting}
-                        />
+                        <RecaptchaV2Checkbox onTokenChange={setRecaptchaToken} resetSignal={recaptchaResetSignal} />
                         <input
                           type="text"
                           value={honeypot}
@@ -271,18 +227,8 @@ export function ListingQuickViewFlow({ listing }: ListingQuickViewFlowProps) {
                     <div className="mt-4 flex flex-wrap items-center justify-end gap-2">
                       <Button
                         type="button"
-                        variant="ghost"
-                        onClick={requestChallenge}
-                        disabled={isChallengeLoading || isSubmitting}
-                        className="inline-flex w-full items-center justify-center gap-1 sm:w-auto"
-                      >
-                        <RefreshCw className="h-4 w-4" />
-                        New Question
-                      </Button>
-                      <Button
-                        type="button"
                         onClick={verifyBotCheck}
-                        disabled={!challenge || isSubmitting}
+                        disabled={isSubmitting}
                         className="w-full sm:w-auto"
                       >
                         {isSubmitting ? "Verifying..." : "Continue"}

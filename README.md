@@ -1,6 +1,6 @@
 # RentItOut
 
-RentItOut is a Next.js appliance rental marketplace where owners publish listings and renters discover options, pass a captcha check, and then view owner contact details.
+RentItOut is a Next.js appliance rental marketplace where owners publish listings and renters discover options, pass a Google reCAPTCHA check, and then view owner contact details.
 
 RentItOut acts as a connector only. Agreements, deposit terms, insurance, transport, and handover are handled offline by both parties.
 
@@ -21,9 +21,9 @@ RentItOut acts as a connector only. Agreements, deposit terms, insurance, transp
 - Listing cards with:
   - Quick-view modal on category click (large layout with image + details)
   - Card-level `Contact Details` button flow
-- Captcha-gated contact reveal in two access paths:
-  - From card button: captcha modal -> contact details modal
-  - From quick-view modal: captcha modal -> inline contact details section
+- reCAPTCHA-gated contact reveal in two access paths:
+  - From card button: reCAPTCHA modal -> contact details modal
+  - From quick-view modal: reCAPTCHA modal -> inline contact details section
 - Full-screen overlay modals with `X` close buttons and background interaction lock
 - Listing proof email notifications and owner posting-payment records (`listing_posting_payments`)
 - Standalone listing detail route (`/listings/[id]`) still available for direct/shared links
@@ -38,6 +38,7 @@ RentItOut acts as a connector only. Agreements, deposit terms, insurance, transp
   - Captcha/details overlays moved to true screen-level popups.
   - Card hover behavior tuned and background effects suppressed while modals are open.
   - Redundant `View Full Listing Page` action removed from contact popup.
+- `2026-05-04`: Contact reveal bot check migrated from custom SVG captcha to Google reCAPTCHA v2 with server-side token verification.
 
 ## Quick Start
 

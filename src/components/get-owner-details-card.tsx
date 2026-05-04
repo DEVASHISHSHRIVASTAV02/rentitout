@@ -1,12 +1,11 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
-import { Mail, Phone, RefreshCw, ShieldCheck, UserRound, X } from "lucide-react";
+import { Mail, Phone, ShieldCheck, UserRound, X } from "lucide-react";
+import { RecaptchaV2Checkbox } from "@/components/recaptcha-v2-checkbox";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { fetchContactChallenge, revealContactDetails } from "@/lib/contact-gate-client";
-import { type ContactCaptchaChallenge, type RevealedContactDetails } from "@/lib/contact-gate-types";
+import { revealContactDetails } from "@/lib/contact-gate-client";
+import { type RevealedContactDetails } from "@/lib/contact-gate-types";
 
 interface GetOwnerDetailsCardProps {
   listingId: string;
@@ -15,44 +14,32 @@ interface GetOwnerDetailsCardProps {
 
 export function GetOwnerDetailsCard({ listingId, ownerName }: GetOwnerDetailsCardProps) {
   const [isBotCheckOpen, setIsBotCheckOpen] = useState(false);
-  const [challenge, setChallenge] = useState<ContactCaptchaChallenge | null>(null);
-  const [botAnswer, setBotAnswer] = useState("");
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  const [recaptchaResetSignal, setRecaptchaResetSignal] = useState(0);
   const [botError, setBotError] = useState("");
   const [honeypot, setHoneypot] = useState("");
   const [revealed, setRevealed] = useState<RevealedContactDetails | null>(null);
-  const [isChallengeLoading, setIsChallengeLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const requestChallenge = async () => {
-    setIsChallengeLoading(true);
+  const openBotCheck = () => {
+    setIsBotCheckOpen(true);
     setBotError("");
-    setBotAnswer("");
     setHoneypot("");
-
-    try {
-      const nextChallenge = await fetchContactChallenge(listingId);
-      setChallenge(nextChallenge);
-    } catch (error) {
-      setChallenge(null);
-      setBotError(error instanceof Error ? error.message : "Unable to load challenge right now.");
-    } finally {
-      setIsChallengeLoading(false);
-    }
+    setRecaptchaToken(null);
+    setRecaptchaResetSignal((value) => value + 1);
   };
 
-  const openBotCheck = async () => {
-    setIsBotCheckOpen(true);
-    await requestChallenge();
+  const closeBotCheck = () => {
+    setIsBotCheckOpen(false);
+    setBotError("");
+    setHoneypot("");
+    setRecaptchaToken(null);
+    setRecaptchaResetSignal((value) => value + 1);
   };
 
   const verifyBotCheck = async () => {
-    if (!challenge) {
-      setBotError("Challenge expired. Please request a new one.");
-      return;
-    }
-
-    if (!botAnswer.trim()) {
-      setBotError("Please type the verification code.");
+    if (!recaptchaToken) {
+      setBotError("Please complete captcha verification.");
       return;
     }
 
@@ -61,16 +48,15 @@ export function GetOwnerDetailsCard({ listingId, ownerName }: GetOwnerDetailsCar
     try {
       const details = await revealContactDetails({
         listingId,
-        challengeId: challenge.challengeId,
-        answer: botAnswer,
+        recaptchaToken,
         website: honeypot,
       });
       setRevealed(details);
-      setIsBotCheckOpen(false);
-      setBotAnswer("");
-      setHoneypot("");
+      closeBotCheck();
     } catch (error) {
       setBotError(error instanceof Error ? error.message : "Verification failed.");
+      setRecaptchaToken(null);
+      setRecaptchaResetSignal((value) => value + 1);
     } finally {
       setIsSubmitting(false);
     }
@@ -115,7 +101,7 @@ export function GetOwnerDetailsCard({ listingId, ownerName }: GetOwnerDetailsCar
               </div>
               <button
                 type="button"
-                onClick={() => setIsBotCheckOpen(false)}
+                onClick={closeBotCheck}
                 className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-zinc-200 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
                 aria-label="Close bot check"
               >
@@ -126,35 +112,10 @@ export function GetOwnerDetailsCard({ listingId, ownerName }: GetOwnerDetailsCar
             <div className="space-y-3">
               <p className="inline-flex items-center gap-2 text-sm text-zinc-700">
                 <ShieldCheck className="h-4 w-4" />
-                Enter the code exactly as shown. It expires quickly and is case-sensitive.
+                Complete reCAPTCHA verification before continuing.
               </p>
               <label className="space-y-1 text-sm text-zinc-700">
-                <span className="relative block overflow-hidden rounded-md border border-zinc-300 bg-zinc-100 px-3 py-2">
-                  {isChallengeLoading ? (
-                    <span className="block py-5 text-center text-sm text-zinc-600">Loading challenge...</span>
-                  ) : challenge ? (
-                    <Image
-                      src={challenge.captchaSvgDataUrl}
-                      alt="Verification code"
-                      width={250}
-                      height={84}
-                      unoptimized
-                      className="mx-auto h-[72px] w-full select-none rounded object-contain"
-                      draggable={false}
-                    />
-                  ) : (
-                    <span className="block py-5 text-center text-sm text-zinc-600">Challenge unavailable</span>
-                  )}
-                </span>
-                <Input
-                  value={botAnswer}
-                  onChange={(event) => setBotAnswer(event.target.value)}
-                  autoCapitalize="none"
-                  autoCorrect="off"
-                  spellCheck={false}
-                  placeholder="Type code (exact case)"
-                  disabled={isSubmitting}
-                />
+                <RecaptchaV2Checkbox onTokenChange={setRecaptchaToken} resetSignal={recaptchaResetSignal} />
                 <input
                   type="text"
                   value={honeypot}
@@ -171,18 +132,8 @@ export function GetOwnerDetailsCard({ listingId, ownerName }: GetOwnerDetailsCar
             <div className="mt-4 flex flex-wrap items-center justify-end gap-2">
               <Button
                 type="button"
-                variant="ghost"
-                onClick={requestChallenge}
-                disabled={isChallengeLoading || isSubmitting}
-                className="inline-flex w-full items-center justify-center gap-1 sm:w-auto"
-              >
-                <RefreshCw className="h-4 w-4" />
-                New Question
-              </Button>
-              <Button
-                type="button"
                 onClick={verifyBotCheck}
-                disabled={!challenge || isSubmitting}
+                disabled={isSubmitting}
                 className="w-full sm:w-auto"
               >
                 {isSubmitting ? "Verifying..." : "Continue"}

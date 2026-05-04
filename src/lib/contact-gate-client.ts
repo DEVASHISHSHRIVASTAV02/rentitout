@@ -1,4 +1,4 @@
-import { type ContactCaptchaChallenge, type RevealedContactDetails } from "@/lib/contact-gate-types";
+import { type RevealedContactDetails } from "@/lib/contact-gate-types";
 
 interface ContactGateErrorPayload {
   error?: string;
@@ -14,34 +14,15 @@ async function readErrorMessage(response: Response) {
   }
 }
 
-export async function fetchContactChallenge(listingId: string): Promise<ContactCaptchaChallenge> {
-  const response = await fetch("/api/contact-gate/challenge", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ listingId }),
-  });
-
-  if (!response.ok) {
-    throw new Error(await readErrorMessage(response));
-  }
-
-  const payload = (await response.json()) as { challenge: ContactCaptchaChallenge };
-  return payload.challenge;
-}
-
 interface RevealContactInput {
   listingId: string;
-  challengeId: string;
-  answer: string;
+  recaptchaToken: string;
   website?: string;
 }
 
 export async function revealContactDetails({
   listingId,
-  challengeId,
-  answer,
+  recaptchaToken,
   website = "",
 }: RevealContactInput): Promise<RevealedContactDetails> {
   const response = await fetch("/api/contact-gate/reveal", {
@@ -49,7 +30,7 @@ export async function revealContactDetails({
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ listingId, challengeId, answer, website }),
+    body: JSON.stringify({ listingId, recaptchaToken, website }),
   });
 
   if (!response.ok) {

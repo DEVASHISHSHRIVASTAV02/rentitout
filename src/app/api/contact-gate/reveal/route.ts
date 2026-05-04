@@ -3,15 +3,14 @@ import {
   ContactGateError,
   getContactGateRequestContext,
   getListingContactDetailsForReveal,
-  verifyContactChallenge,
+  verifyRecaptchaToken,
 } from "@/lib/contact-gate-server";
 
 export const dynamic = "force-dynamic";
 
 const revealSchema = z.object({
   listingId: z.string().uuid(),
-  challengeId: z.string().uuid(),
-  answer: z.string().trim().min(1).max(32),
+  recaptchaToken: z.string().trim().min(1).max(4096),
   website: z.string().optional().default(""),
 });
 
@@ -24,14 +23,7 @@ export async function POST(request: Request) {
     }
 
     const context = getContactGateRequestContext(request);
-    verifyContactChallenge(
-      {
-        listingId: payload.listingId,
-        challengeId: payload.challengeId,
-        answer: payload.answer,
-      },
-      context,
-    );
+    await verifyRecaptchaToken(payload.recaptchaToken, context);
 
     const details = await getListingContactDetailsForReveal(payload.listingId);
     if (!details) {

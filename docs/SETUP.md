@@ -15,7 +15,8 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 DATABASE_URL=
 AUTH_OTP_SECRET=
-CONTACT_GATE_SECRET=
+NEXT_PUBLIC_RECAPTCHA_SITE_KEY=
+RECAPTCHA_SECRET_KEY=
 
 RESEND_API_KEY=
 EMAIL_FROM=
@@ -36,7 +37,8 @@ IN_MEMORY_CACHE_MAX_ENTRIES=300
 
 - `DATABASE_URL`: Neon connection string from your project dashboard.
 - `AUTH_OTP_SECRET`: random long secret for OTP hashing (use at least 32 chars).
-- `CONTACT_GATE_SECRET`: optional but recommended dedicated secret for contact captcha signing.
+- `NEXT_PUBLIC_RECAPTCHA_SITE_KEY`: Google reCAPTCHA v2 site key (public, browser-side).
+- `RECAPTCHA_SECRET_KEY`: Google reCAPTCHA secret key (server-side only).
 - `NEXT_PUBLIC_APP_URL`: local `http://localhost:3000`, production should be your final domain.
 - `RESEND_API_KEY`: Resend API key for transactional emails.
 - `EMAIL_FROM`: verified sender in Resend (example: `RentItOut <noreply@yourdomain.com>`).
@@ -84,8 +86,8 @@ Open `http://localhost:3000`.
 2. Create a listing with image.
 3. Open `/browse` in another browser session and confirm the listing card appears.
 4. Click the listing category title to open the quick-view modal.
-5. Click `Contact Details` inside quick view and solve captcha.
-6. Confirm contact details render inline in quick view after successful captcha.
+5. Click `Contact Details` inside quick view and solve reCAPTCHA.
+6. Confirm contact details render inline in quick view after successful verification.
 7. Also test the card-level `Contact Details` button (second access path).
 8. Verify owner email/phone visibility follows profile settings in dashboard.
 9. OTP sign-in works from the sign-in page.
@@ -99,3 +101,4 @@ Open `http://localhost:3000`.
   - Captcha and contact details use screen-level overlays.
   - Contact reveal is accessible from both card button and quick-view.
   - Redundant quick-view redirect button removed.
+- `2026-05-04`: Contact reveal verification switched to Google reCAPTCHA v2 with backend token verification.

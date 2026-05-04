@@ -49,7 +49,8 @@ Required values:
 NEXT_PUBLIC_APP_URL=https://yourdomain.com
 DATABASE_URL=postgresql://...
 AUTH_OTP_SECRET=your-long-random-secret
-CONTACT_GATE_SECRET=your-long-random-secret
+NEXT_PUBLIC_RECAPTCHA_SITE_KEY=your-recaptcha-site-key
+RECAPTCHA_SECRET_KEY=your-recaptcha-secret-key
 RESEND_API_KEY=...
 EMAIL_FROM=RentItOut <noreply@yourdomain.com>
 LISTING_PROOF_REVIEW_EMAIL=
@@ -141,8 +142,8 @@ Back up this directory along with your database.
 - Verify both contact access paths:
   - Card-level `Contact Details` button
   - Quick-view `Contact Details` button
-- Verify captcha challenge appears as a screen-level popup and closes with `X`
-- Verify contact details reveal correctly after successful captcha
+- Verify reCAPTCHA appears as a screen-level popup and closes with `X`
+- Verify contact details reveal correctly after successful reCAPTCHA verification
 - Verify OTP/listing emails are delivered
 
 ## 12. Throughput tuning notes
@@ -165,3 +166,4 @@ pm2 status
 - `2026-04-22`: Day-1 Next.js scaffold committed.
 - `2026-04-25`: RentItOut core import committed.
 - `2026-04-28`: Browse UX shift to quick-view + captcha-gated inline contact reveal with modal-first flow.
+- `2026-05-04`: Contact reveal bot check migrated to Google reCAPTCHA v2.
