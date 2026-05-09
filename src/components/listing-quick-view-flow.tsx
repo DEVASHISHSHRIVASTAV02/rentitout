@@ -101,7 +101,7 @@ export function ListingQuickViewFlow({ listing }: ListingQuickViewFlowProps) {
       <button
         type="button"
         onClick={() => setIsQuickViewOpen(true)}
-        className="w-full truncate text-left text-base font-semibold text-zinc-900 hover:underline"
+        className="w-full truncate text-left text-base font-semibold text-white hover:text-white/90 hover:underline"
       >
         {listing.category}
       </button>
@@ -177,7 +177,7 @@ export function ListingQuickViewFlow({ listing }: ListingQuickViewFlowProps) {
                           </div>
                         </div>
                       ) : (
-                        <Button type="button" variant="secondary" className="w-full sm:w-auto" onClick={openBotCheck}>
+                        <Button type="button" variant="primary" className="w-full sm:w-auto" onClick={openBotCheck}>
                           Contact Details
                         </Button>
                       )}

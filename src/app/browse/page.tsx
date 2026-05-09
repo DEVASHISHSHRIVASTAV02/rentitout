@@ -1,4 +1,5 @@
 import { ApplianceQuickButtons } from "@/components/appliance-quick-buttons";
+import { AccountCreatedPopup } from "@/components/account-created-popup";
 import { BrowseFiltersForm } from "@/components/browse-filters-form";
 import { ListingCard } from "@/components/listing-card";
 import { SortSelectForm } from "@/components/sort-select-form";
@@ -44,6 +45,10 @@ export default async function BrowsePage({ searchParams }: BrowsePageProps) {
   const listingId = listingIdParam.trim().toUpperCase();
   const message = typeof query.message === "string" ? query.message : "";
   const error = typeof query.error === "string" ? query.error : "";
+  const normalizedMessage = message.trim().toLowerCase();
+  const hasAccountCreatedMessage = normalizedMessage === "account created";
+  const hasAccountDeletedMessage = normalizedMessage === "account deleted successfully";
+  const nonPopupMessage = hasAccountCreatedMessage || hasAccountDeletedMessage ? "" : message;
 
   const parsedMinPrice = Number(minPriceParam);
   const parsedMaxPrice = Number(maxPriceParam);
@@ -80,7 +85,14 @@ export default async function BrowsePage({ searchParams }: BrowsePageProps) {
         </p>
       </div>
 
-      {message ? <Alert message={message} type="success" /> : null}
+      {hasAccountCreatedMessage ? <AccountCreatedPopup /> : null}
+      {hasAccountDeletedMessage ? (
+        <AccountCreatedPopup
+          title="Account Deleted Successfully"
+          description="Your account and all associated listings/info have been deleted permanently."
+        />
+      ) : null}
+      {nonPopupMessage ? <Alert message={nonPopupMessage} type="success" /> : null}
       {error ? <Alert message={error} type="error" /> : null}
 
       <ApplianceQuickButtons />

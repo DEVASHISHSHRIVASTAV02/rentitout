@@ -101,6 +101,14 @@ interface DeleteListingImageRow {
   file_size_bytes: number | null;
 }
 
+interface DeleteAccountListingImageRow {
+  image_url: string;
+}
+
+interface DeleteAccountArchivedImageRow {
+  archived_image_url: string;
+}
+
 function formatAuthDbError(error: unknown) {
   const message = error instanceof Error ? error.message : String(error ?? "");
   if (message.toLowerCase().includes("database_url")) {
@@ -304,6 +312,91 @@ export async function verifyOtpAction(formData: FormData) {
 export async function signOutAction() {
   await signOut();
   redirect("/");
+}
+
+export async function deleteAccountAction() {
+  const user = await requireUser();
+  let listingImageUrls: string[] = [];
+  let archivedImageUrls: string[] = [];
+
+  try {
+    await withTransaction(async (client) => {
+      const { rows: listingImageRows } = await queryWithClient<DeleteAccountListingImageRow>(
+        client,
+        `
+          select li.image_url
+          from listing l
+          inner join listing_images li on li.listing_id = l.listing_id
+          where l.owner_id = $1
+        `,
+        [user.id],
+      );
+      listingImageUrls = listingImageRows.map((row) => row.image_url);
+
+      const { rows: archivedImageRows } = await queryWithClient<DeleteAccountArchivedImageRow>(
+        client,
+        `
+          select dli.archived_image_url
+          from deleted_listing dl
+          inner join deleted_listing_images dli on dli.deleted_listing_id = dl.id
+          where dl.owner_id = $1
+             or dl.deleted_by_user_id = $1
+        `,
+        [user.id],
+      );
+      archivedImageUrls = archivedImageRows.map((row) => row.archived_image_url);
+
+      await queryWithClient(
+        client,
+        `
+          delete from deleted_listing
+          where owner_id = $1
+             or deleted_by_user_id = $1
+        `,
+        [user.id],
+      );
+
+      const { rowCount } = await queryWithClient(
+        client,
+        `
+          delete from users
+          where id = $1
+        `,
+        [user.id],
+      );
+
+      if (!rowCount) {
+        throw new Error("Could not delete account");
+      }
+    });
+  } catch {
+    redirect(`/my-account?error=${encodeURIComponent("Could not delete account")}`);
+  }
+
+  if (listingImageUrls.length > 0) {
+    try {
+      await removeListingImages(listingImageUrls);
+    } catch {
+      // Best effort cleanup for listing image files after account removal.
+    }
+  }
+
+  if (archivedImageUrls.length > 0) {
+    try {
+      await removeDeletedListingArchiveImages(archivedImageUrls);
+    } catch {
+      // Best effort cleanup for deleted listing archive files after account removal.
+    }
+  }
+
+  revalidatePath("/browse");
+  revalidatePath("/my-account");
+  revalidatePath("/");
+  clearPublicListingsCache();
+  clearListingByIdCache();
+
+  await signOut();
+  redirect("/browse?message=Account deleted successfully");
 }
 
 export async function createListingAction(formData: FormData) {

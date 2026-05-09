@@ -4,9 +4,9 @@ import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { signUpAction } from "@/app/actions";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RequiredMark } from "@/components/ui/required-mark";
+import { SubmitCooldownButton } from "@/components/ui/submit-cooldown-button";
 
 const authCardClass =
   "rounded-3xl border border-zinc-200/80 bg-white p-7 shadow-[0_12px_28px_-18px_rgba(15,23,42,0.45)] sm:p-8";
@@ -92,9 +92,9 @@ export function SignUpForm() {
 
       {passwordsMismatch ? <p className="text-xs text-red-600">Passwords do not match</p> : null}
 
-      <Button type="submit" className="mt-2 w-full" disabled={passwordsMismatch}>
+      <SubmitCooldownButton className="mt-2 w-full" disabled={passwordsMismatch}>
         Create Account
-      </Button>
+      </SubmitCooldownButton>
 
       <p className="text-center text-xs leading-5 text-zinc-500">
         By clicking Create Account, you agree with RentItOut&apos;s{" "}

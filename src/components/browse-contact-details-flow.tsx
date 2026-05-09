@@ -80,7 +80,7 @@ export function BrowseContactDetailsFlow({ listing }: BrowseContactDetailsFlowPr
 
   return (
     <>
-      <Button type="button" variant="secondary" className="mt-2 w-full" onClick={openBotCheck}>
+      <Button type="button" variant="primary" className="mt-2 w-full" onClick={openBotCheck}>
         Contact Details
       </Button>
 

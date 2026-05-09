@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { requestOtpAction, signInAction, verifyOtpAction } from "@/app/actions";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RequiredMark } from "@/components/ui/required-mark";
+import { SubmitCooldownButton } from "@/components/ui/submit-cooldown-button";
 
 type SignInMode = "password" | "otp";
 
@@ -47,9 +47,9 @@ export function SignInForm({ next, otpEmail }: SignInFormProps) {
                   </span>
                   <Input name="otp" type="text" required inputMode="numeric" placeholder="6-digit OTP" />
                 </label>
-                <Button type="submit" className="mt-2 w-full">
+                <SubmitCooldownButton className="mt-2 w-full">
                   Verify OTP
-                </Button>
+                </SubmitCooldownButton>
               </form>
             </div>
           ) : (
@@ -62,9 +62,9 @@ export function SignInForm({ next, otpEmail }: SignInFormProps) {
                 </span>
                 <Input name="email" type="email" required autoComplete="email" />
               </label>
-              <Button type="submit" className="mt-2 w-full">
+              <SubmitCooldownButton className="mt-2 w-full">
                 Send OTP
-              </Button>
+              </SubmitCooldownButton>
             </form>
           )}
         </div>
@@ -101,9 +101,9 @@ export function SignInForm({ next, otpEmail }: SignInFormProps) {
           </span>
           <Input name="password" type="password" required autoComplete="current-password" />
         </label>
-        <Button type="submit" className="mt-2 w-full">
+        <SubmitCooldownButton className="mt-2 w-full">
           Sign In
-        </Button>
+        </SubmitCooldownButton>
       </form>
 
       <p className="text-center text-sm text-zinc-600">
