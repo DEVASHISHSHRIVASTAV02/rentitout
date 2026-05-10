@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { revealContactDetails } from "@/lib/contact-gate-client";
 import { type RevealedContactDetails } from "@/lib/contact-gate-types";
 import { getListingDetailFields } from "@/lib/listing-details";
+import { fetchListingImages } from "@/lib/listing-images-client";
 import { type PublicApplianceListing } from "@/lib/types";
 
 interface BrowseContactDetailsFlowProps {
@@ -24,6 +25,9 @@ export function BrowseContactDetailsFlow({ listing }: BrowseContactDetailsFlowPr
   const [botError, setBotError] = useState("");
   const [honeypot, setHoneypot] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [resolvedImageUrls, setResolvedImageUrls] = useState(listing.image_urls);
+  const [hasLoadedFullImages, setHasLoadedFullImages] = useState(false);
+  const [isLoadingFullImages, setIsLoadingFullImages] = useState(false);
 
   const detailFields = getListingDetailFields({
     category: listing.category,
@@ -39,6 +43,25 @@ export function BrowseContactDetailsFlow({ listing }: BrowseContactDetailsFlowPr
       document.body.classList.remove("modal-open");
     };
   }, [isBotCheckOpen, isDetailsOpen]);
+
+  const loadFullImageUrls = async () => {
+    if (hasLoadedFullImages || isLoadingFullImages) {
+      return;
+    }
+
+    setIsLoadingFullImages(true);
+    try {
+      const imageUrls = await fetchListingImages(listing.id);
+      if (imageUrls.length > 0) {
+        setResolvedImageUrls(imageUrls);
+      }
+    } catch {
+      // Keep thumbnail fallback when full image fetch fails.
+    } finally {
+      setHasLoadedFullImages(true);
+      setIsLoadingFullImages(false);
+    }
+  };
 
   const openBotCheck = () => {
     setIsBotCheckOpen(true);
@@ -66,6 +89,7 @@ export function BrowseContactDetailsFlow({ listing }: BrowseContactDetailsFlowPr
       setRevealedContact(details);
       setIsBotCheckOpen(false);
       setIsDetailsOpen(true);
+      void loadFullImageUrls();
       setHoneypot("");
       setRecaptchaToken(null);
       setRecaptchaResetSignal((value) => value + 1);
@@ -165,7 +189,7 @@ export function BrowseContactDetailsFlow({ listing }: BrowseContactDetailsFlowPr
 
                     <div className="space-y-4">
                       <ListingImageCarousel
-                        images={listing.image_urls}
+                        images={resolvedImageUrls}
                         alt={`${listing.category} listing`}
                         className="border-zinc-200"
                         sizes="(max-width: 1024px) 100vw, 66vw"

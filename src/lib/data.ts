@@ -13,11 +13,21 @@ export interface ListingFilters {
   maxPrice?: number;
   minAgreementMonths?: number;
   sortBy?: "price_low_to_high" | "price_high_to_low";
+  page?: number;
+  pageSize?: number;
 }
 
 export interface ListingByIdResult {
   listing: ApplianceListing;
   owner: Profile | null;
+}
+
+export interface PublicListingsPageResult {
+  listings: PublicApplianceListing[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
 }
 
 interface CacheEntry<T> {
@@ -26,13 +36,16 @@ interface CacheEntry<T> {
 }
 
 declare global {
-  var __RentItOutPublicListingsCache: Map<string, CacheEntry<PublicApplianceListing[]>> | undefined;
+  var __RentItOutPublicListingsCache: Map<string, CacheEntry<PublicListingsPageResult>> | undefined;
   var __RentItOutListingByIdCache: Map<string, CacheEntry<ListingByIdResult | null>> | undefined;
+  var __RentItOutListingImagesByIdCache: Map<string, CacheEntry<string[]>> | undefined;
 }
 
 const DEFAULT_PUBLIC_LISTINGS_CACHE_TTL_MS = 30000;
 const DEFAULT_LISTING_BY_ID_CACHE_TTL_MS = 30000;
 const DEFAULT_IN_MEMORY_CACHE_MAX_ENTRIES = 300;
+const DEFAULT_PUBLIC_LISTINGS_PAGE_SIZE = 18;
+const MAX_PUBLIC_LISTINGS_PAGE_SIZE = 60;
 
 function readPositiveInt(value: string | undefined, fallback: number) {
   const parsed = Number.parseInt(value ?? "", 10);
@@ -44,7 +57,7 @@ function readPositiveInt(value: string | undefined, fallback: number) {
 
 function getPublicListingsCache() {
   if (!global.__RentItOutPublicListingsCache) {
-    global.__RentItOutPublicListingsCache = new Map<string, CacheEntry<PublicApplianceListing[]>>();
+    global.__RentItOutPublicListingsCache = new Map<string, CacheEntry<PublicListingsPageResult>>();
   }
   return global.__RentItOutPublicListingsCache;
 }
@@ -54,6 +67,13 @@ function getListingByIdCache() {
     global.__RentItOutListingByIdCache = new Map<string, CacheEntry<ListingByIdResult | null>>();
   }
   return global.__RentItOutListingByIdCache;
+}
+
+function getListingImagesByIdCache() {
+  if (!global.__RentItOutListingImagesByIdCache) {
+    global.__RentItOutListingImagesByIdCache = new Map<string, CacheEntry<string[]>>();
+  }
+  return global.__RentItOutListingImagesByIdCache;
 }
 
 function readFromCache<T>(store: Map<string, CacheEntry<T>>, key: string): T | null {
@@ -121,6 +141,8 @@ function buildPublicListingsCacheKey(filters: ListingFilters) {
     maxPrice: filters.maxPrice ?? null,
     minAgreementMonths: filters.minAgreementMonths ?? null,
     sortBy: filters.sortBy ?? "",
+    page: filters.page ?? 1,
+    pageSize: filters.pageSize ?? DEFAULT_PUBLIC_LISTINGS_PAGE_SIZE,
   });
 }
 
@@ -130,11 +152,14 @@ export function clearPublicListingsCache() {
 
 export function clearListingByIdCache(listingId?: string) {
   const store = getListingByIdCache();
+  const imageStore = getListingImagesByIdCache();
   if (!listingId) {
     store.clear();
+    imageStore.clear();
     return;
   }
   store.delete(listingId);
+  imageStore.delete(listingId);
 }
 
 function parsePincodeFilter(value: string) {
@@ -145,7 +170,21 @@ function parsePincodeFilter(value: string) {
     .slice(0, 5);
 }
 
-export async function getPublicListings(filters: ListingFilters = {}): Promise<PublicApplianceListing[]> {
+function normalizePage(value: number | undefined) {
+  if (!Number.isInteger(value) || !value || value < 1) {
+    return 1;
+  }
+  return value;
+}
+
+function normalizePageSize(value: number | undefined) {
+  if (!Number.isInteger(value) || !value || value < 1) {
+    return DEFAULT_PUBLIC_LISTINGS_PAGE_SIZE;
+  }
+  return Math.min(value, MAX_PUBLIC_LISTINGS_PAGE_SIZE);
+}
+
+export async function getPublicListings(filters: ListingFilters = {}): Promise<PublicListingsPageResult> {
   const publicListingsCacheTtlMs = readPositiveInt(
     process.env.PUBLIC_LISTINGS_CACHE_TTL_MS,
     DEFAULT_PUBLIC_LISTINGS_CACHE_TTL_MS,
@@ -154,7 +193,13 @@ export async function getPublicListings(filters: ListingFilters = {}): Promise<P
     process.env.IN_MEMORY_CACHE_MAX_ENTRIES,
     DEFAULT_IN_MEMORY_CACHE_MAX_ENTRIES,
   );
-  const publicListingsCacheKey = buildPublicListingsCacheKey(filters);
+  const requestedPage = normalizePage(filters.page);
+  const pageSize = normalizePageSize(filters.pageSize);
+  const publicListingsCacheKey = buildPublicListingsCacheKey({
+    ...filters,
+    page: requestedPage,
+    pageSize,
+  });
   const cached = readFromCache(getPublicListingsCache(), publicListingsCacheKey);
   if (cached) {
     return cached;
@@ -216,22 +261,92 @@ export async function getPublicListings(filters: ListingFilters = {}): Promise<P
         ? "l.price_per_month desc, l.created_at desc"
         : "l.created_at desc";
 
-  const { rows } = await query<PublicApplianceListing>(
+  const { rows: countRows } = await query<{ total_count: string }>(
+    `
+      select count(*)::text as total_count
+      from listing l
+      where ${whereClauses.join(" and ")}
+    `,
+    values,
+  );
+
+  const totalCount = Number.parseInt(countRows[0]?.total_count ?? "0", 10) || 0;
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+  const page = Math.min(requestedPage, totalPages);
+  const offset = (page - 1) * pageSize;
+  const paginationValues = [...values, pageSize, offset];
+  const limitPlaceholder = `$${values.length + 1}`;
+  const offsetPlaceholder = `$${values.length + 2}`;
+
+  let rows: PublicApplianceListing[] = [];
+  if (totalCount > 0) {
+    const listingResult = await query<PublicApplianceListing>(
+      `
+        select
+          l.id,
+          l.listing_id,
+          l.owner_id,
+          l.category,
+          l.sub_category,
+          l.item_info,
+          l.price_per_month,
+          l.min_agreement_months,
+          l.city,
+          l.pincode,
+          l.is_active,
+          l.created_at,
+          l.updated_at,
+          case
+            when thumbnail.image_url is null then '{}'::text[]
+            else array[thumbnail.image_url]
+          end as image_urls
+        from listing l
+        left join lateral (
+          select li.image_url
+          from listing_images li
+          where li.listing_id = l.listing_id
+          order by li.sort_order
+          limit 1
+        ) thumbnail on true
+        where ${whereClauses.join(" and ")}
+        order by ${orderByClause}
+        limit ${limitPlaceholder}
+        offset ${offsetPlaceholder}
+      `,
+      paginationValues,
+    );
+    rows = listingResult.rows;
+  }
+
+  const result: PublicListingsPageResult = {
+    listings: rows,
+    totalCount,
+    page,
+    pageSize,
+    totalPages,
+  };
+
+  writeToCache(getPublicListingsCache(), publicListingsCacheKey, result, publicListingsCacheTtlMs, inMemoryCacheMaxEntries);
+  return result;
+}
+
+export async function getPublicListingImagesById(id: string): Promise<string[] | null> {
+  const listingByIdCacheTtlMs = readPositiveInt(
+    process.env.LISTING_BY_ID_CACHE_TTL_MS,
+    DEFAULT_LISTING_BY_ID_CACHE_TTL_MS,
+  );
+  const inMemoryCacheMaxEntries = readPositiveInt(
+    process.env.IN_MEMORY_CACHE_MAX_ENTRIES,
+    DEFAULT_IN_MEMORY_CACHE_MAX_ENTRIES,
+  );
+  const cached = readFromCache(getListingImagesByIdCache(), id);
+  if (cached) {
+    return cached;
+  }
+
+  const { rows } = await query<{ image_urls: string[] }>(
     `
       select
-        l.id,
-        l.listing_id,
-        l.owner_id,
-        l.category,
-        l.sub_category,
-        l.item_info,
-        l.price_per_month,
-        l.min_agreement_months,
-        l.city,
-        l.pincode,
-        l.is_active,
-        l.created_at,
-        l.updated_at,
         coalesce(images.image_urls, '{}'::text[]) as image_urls
       from listing l
       left join lateral (
@@ -239,14 +354,32 @@ export async function getPublicListings(filters: ListingFilters = {}): Promise<P
         from listing_images li
         where li.listing_id = l.listing_id
       ) images on true
-      where ${whereClauses.join(" and ")}
-      order by ${orderByClause}
+      where l.id::text = $1
+        and l.is_active = true
+      limit 1
     `,
-    values,
+    [id],
   );
 
-  writeToCache(getPublicListingsCache(), publicListingsCacheKey, rows, publicListingsCacheTtlMs, inMemoryCacheMaxEntries);
-  return rows;
+  const imageUrls = rows[0]?.image_urls;
+  if (!imageUrls) {
+    return null;
+  }
+
+  const normalizedImageUrls = imageUrls
+    .filter((imageUrl) => typeof imageUrl === "string")
+    .map((imageUrl) => imageUrl.trim())
+    .filter((imageUrl) => imageUrl.length > 0);
+
+  writeToCache(
+    getListingImagesByIdCache(),
+    id,
+    normalizedImageUrls,
+    listingByIdCacheTtlMs,
+    inMemoryCacheMaxEntries,
+  );
+
+  return normalizedImageUrls;
 }
 
 export async function getListingById(id: string): Promise<ListingByIdResult | null> {

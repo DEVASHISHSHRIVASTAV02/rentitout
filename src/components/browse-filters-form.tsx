@@ -71,6 +71,7 @@ export function BrowseFiltersForm({
   return (
     <form className="space-y-4">
       <input type="hidden" name="sort" value={sortOrder} />
+      <input type="hidden" name="page" value="1" />
       <div>
         <p className="inline-flex items-center gap-2 text-sm font-semibold text-zinc-900">
           <Filter className="h-4 w-4" />

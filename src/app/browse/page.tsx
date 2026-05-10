@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ApplianceQuickButtons } from "@/components/appliance-quick-buttons";
 import { AccountCreatedPopup } from "@/components/account-created-popup";
 import { BrowseFiltersForm } from "@/components/browse-filters-form";
@@ -7,6 +8,7 @@ import { Alert } from "@/components/ui/alert";
 import { getPublicListings } from "@/lib/data";
 
 const SORT_OPTIONS = ["price_low_to_high", "price_high_to_low"] as const;
+const BROWSE_PAGE_SIZE = 18;
 
 interface BrowsePageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -43,6 +45,9 @@ export default async function BrowsePage({ searchParams }: BrowsePageProps) {
   const maxPriceParam = typeof query.maxPrice === "string" ? query.maxPrice : "";
   const listingIdParam = typeof query.listingId === "string" ? query.listingId : "";
   const listingId = listingIdParam.trim().toUpperCase();
+  const pageParam = typeof query.page === "string" ? query.page : "1";
+  const parsedPage = Number.parseInt(pageParam, 10);
+  const currentPage = Number.isInteger(parsedPage) && parsedPage > 0 ? parsedPage : 1;
   const message = typeof query.message === "string" ? query.message : "";
   const error = typeof query.error === "string" ? query.error : "";
   const normalizedMessage = message.trim().toLowerCase();
@@ -62,7 +67,7 @@ export default async function BrowsePage({ searchParams }: BrowsePageProps) {
     minPrice !== undefined && maxPrice !== undefined ? Math.max(minPrice, maxPrice) : maxPrice;
   const minAgreementMonths = Number(agreementMin);
 
-  const listings = await getPublicListings({
+  const listingsPage = await getPublicListings({
     city,
     category,
     subCategory: subCategory || undefined,
@@ -73,7 +78,42 @@ export default async function BrowsePage({ searchParams }: BrowsePageProps) {
     maxPrice: normalizedMaxPrice,
     minAgreementMonths,
     sortBy: sortOrder,
+    page: currentPage,
+    pageSize: BROWSE_PAGE_SIZE,
   });
+  const listings = listingsPage.listings;
+
+  const buildPageHref = (targetPage: number) => {
+    const baseParams = new URLSearchParams();
+    for (const [key, rawValue] of Object.entries(query)) {
+      if (key === "page" || key === "message" || key === "error") {
+        continue;
+      }
+      if (Array.isArray(rawValue)) {
+        for (const value of rawValue) {
+          baseParams.append(key, value);
+        }
+        continue;
+      }
+      if (typeof rawValue === "string" && rawValue.trim().length > 0) {
+        baseParams.set(key, rawValue);
+      }
+    }
+
+    if (targetPage > 1) {
+      baseParams.set("page", String(targetPage));
+    } else {
+      baseParams.delete("page");
+    }
+
+    const queryString = baseParams.toString();
+    return queryString ? `/browse?${queryString}` : "/browse";
+  };
+
+  const hasPreviousPage = listingsPage.page > 1;
+  const hasNextPage = listingsPage.page < listingsPage.totalPages;
+  const firstVisibleIndex = listingsPage.totalCount === 0 ? 0 : (listingsPage.page - 1) * listingsPage.pageSize + 1;
+  const lastVisibleIndex = Math.min(listingsPage.totalCount, listingsPage.page * listingsPage.pageSize);
 
   return (
     <div className="mx-auto w-full max-w-screen-2xl min-w-0 space-y-6 px-4 py-8 sm:px-6 sm:py-12">
@@ -126,7 +166,10 @@ export default async function BrowsePage({ searchParams }: BrowsePageProps) {
         </aside>
 
         <div className="min-w-0 lg:col-span-3">
-          <div className="mb-3 flex justify-start sm:justify-end">
+          <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <p className="text-xs uppercase tracking-[0.14em] text-zinc-500">
+              Showing {firstVisibleIndex}-{lastVisibleIndex} of {listingsPage.totalCount}
+            </p>
             <SortSelectForm
               city={city}
               category={category}
@@ -152,6 +195,32 @@ export default async function BrowsePage({ searchParams }: BrowsePageProps) {
               ))}
             </div>
           )}
+
+          {listingsPage.totalCount > 0 ? (
+            <nav aria-label="Pagination" className="mt-5 flex items-center justify-between gap-3">
+              <Link
+                href={buildPageHref(listingsPage.page - 1)}
+                className={[
+                  "inline-flex items-center justify-center rounded-xl border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold text-zinc-900 transition",
+                  hasPreviousPage ? "hover:bg-zinc-50" : "pointer-events-none opacity-50",
+                ].join(" ")}
+              >
+                Previous
+              </Link>
+              <p className="text-sm text-zinc-600">
+                Page {listingsPage.page} of {listingsPage.totalPages}
+              </p>
+              <Link
+                href={buildPageHref(listingsPage.page + 1)}
+                className={[
+                  "inline-flex items-center justify-center rounded-xl border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold text-zinc-900 transition",
+                  hasNextPage ? "hover:bg-zinc-50" : "pointer-events-none opacity-50",
+                ].join(" ")}
+              >
+                Next
+              </Link>
+            </nav>
+          ) : null}
         </div>
       </section>
     </div>

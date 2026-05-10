@@ -1,7 +1,7 @@
 "use client";
 
 import { createPortal } from "react-dom";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Mail, MapPin, Phone, ShieldCheck, UserRound, X } from "lucide-react";
 import { ListingImageCarousel } from "@/components/listing-image-carousel";
 import { RecaptchaV2Checkbox } from "@/components/recaptcha-v2-checkbox";
@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { revealContactDetails } from "@/lib/contact-gate-client";
 import { type RevealedContactDetails } from "@/lib/contact-gate-types";
 import { getListingDetailFields } from "@/lib/listing-details";
+import { fetchListingImages } from "@/lib/listing-images-client";
 import { type PublicApplianceListing } from "@/lib/types";
 
 interface ListingQuickViewFlowProps {
@@ -24,6 +25,9 @@ export function ListingQuickViewFlow({ listing }: ListingQuickViewFlowProps) {
   const [botError, setBotError] = useState("");
   const [honeypot, setHoneypot] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [resolvedImageUrls, setResolvedImageUrls] = useState(listing.image_urls);
+  const [hasLoadedFullImages, setHasLoadedFullImages] = useState(false);
+  const [isLoadingFullImages, setIsLoadingFullImages] = useState(false);
 
   const detailFields = useMemo(
     () =>
@@ -43,6 +47,25 @@ export function ListingQuickViewFlow({ listing }: ListingQuickViewFlowProps) {
       document.body.classList.remove("modal-open");
     };
   }, [isQuickViewOpen, isCaptchaOpen]);
+
+  const ensureFullImageUrls = useCallback(async () => {
+    if (hasLoadedFullImages || isLoadingFullImages) {
+      return;
+    }
+
+    setIsLoadingFullImages(true);
+    try {
+      const imageUrls = await fetchListingImages(listing.id);
+      if (imageUrls.length > 0) {
+        setResolvedImageUrls(imageUrls);
+      }
+    } catch {
+      // Keep thumbnail fallback when full image fetch fails.
+    } finally {
+      setHasLoadedFullImages(true);
+      setIsLoadingFullImages(false);
+    }
+  }, [hasLoadedFullImages, isLoadingFullImages, listing.id]);
 
   const openBotCheck = () => {
     setIsCaptchaOpen(true);
@@ -100,7 +123,10 @@ export function ListingQuickViewFlow({ listing }: ListingQuickViewFlowProps) {
     <>
       <button
         type="button"
-        onClick={() => setIsQuickViewOpen(true)}
+        onClick={() => {
+          setIsQuickViewOpen(true);
+          void ensureFullImageUrls();
+        }}
         className="w-full truncate text-left text-base font-semibold text-white hover:text-white/90 hover:underline"
       >
         {listing.category}
@@ -126,7 +152,7 @@ export function ListingQuickViewFlow({ listing }: ListingQuickViewFlowProps) {
 
                     <div className="grid gap-6 p-4 sm:p-6 lg:grid-cols-[1.1fr_0.9fr]">
                       <ListingImageCarousel
-                        images={listing.image_urls}
+                        images={resolvedImageUrls}
                         alt={`${listing.category} listing`}
                         className="border-zinc-200"
                         imageFit="contain"

@@ -40,6 +40,7 @@ export function SortSelectForm({
       <input type="hidden" name="minPrice" value={minPrice} />
       <input type="hidden" name="maxPrice" value={maxPrice} />
       <input type="hidden" name="agreementMin" value={agreementMin} />
+      <input type="hidden" name="page" value="1" />
 
       <label className="w-full sm:max-w-[220px]">
         <span className="mb-1 block text-xs font-medium uppercase tracking-[0.14em] text-zinc-500">Sort By</span>
