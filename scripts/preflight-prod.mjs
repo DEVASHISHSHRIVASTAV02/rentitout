@@ -80,6 +80,17 @@ function normalizeUrl(input) {
   }
 }
 
+function readEmailAddress(rawInput) {
+  const value = String(rawInput ?? "").trim();
+  if (!value) {
+    return "";
+  }
+
+  const bracketMatch = value.match(/<([^>]+)>/);
+  const candidate = bracketMatch?.[1] ?? value;
+  return candidate.trim().toLowerCase();
+}
+
 async function verifyWritableDirectory(targetDirectory) {
   await fs.mkdir(targetDirectory, { recursive: true });
 
@@ -120,6 +131,16 @@ async function main() {
   for (const key of OPTIONAL_ENV_VARS) {
     const value = (env[key] ?? "").trim();
     printStatus(true, `Optional environment variable ${key} ${value ? "is set" : "is not set"}`);
+  }
+
+  const fromEmailAddress = readEmailAddress(env.EMAIL_FROM ?? "");
+  const usingResendDevSender = fromEmailAddress.endsWith("@resend.dev");
+  printStatus(
+    !usingResendDevSender,
+    `EMAIL_FROM uses a custom sender domain in production (found: ${fromEmailAddress || "empty"})`,
+  );
+  if (usingResendDevSender) {
+    hasErrors = true;
   }
 
   const appUrlValue = (env.NEXT_PUBLIC_APP_URL ?? "").trim();

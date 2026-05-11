@@ -50,6 +50,8 @@ export function ListingImageCarousel({
   imageFit = "cover",
   imageContainerClassName,
 }: ListingImageCarouselProps) {
+  const [failedImages, setFailedImages] = useState<Record<string, true>>({});
+
   const normalizedImages = useMemo(
     () =>
       images
@@ -58,7 +60,8 @@ export function ListingImageCarousel({
         .filter((image) => image.length > 0),
     [images],
   );
-  const total = normalizedImages.length;
+  const displayImages = normalizedImages.filter((image) => !(image in failedImages));
+  const total = displayImages.length;
   const [activeIndex, setActiveIndex] = useState(0);
   const currentIndex = total > 0 ? wrapIndex(activeIndex, total) : 0;
 
@@ -76,11 +79,18 @@ export function ListingImageCarousel({
         <>
           <div className={cn("relative aspect-[16/10] w-full", imageContainerClassName)}>
             <Image
-              src={normalizedImages[currentIndex]}
+              src={displayImages[currentIndex]}
               alt={`${alt} image ${currentIndex + 1}`}
               fill
               sizes={sizes}
               unoptimized
+              onError={() => {
+                const failedSrc = displayImages[currentIndex];
+                if (!failedSrc) {
+                  return;
+                }
+                setFailedImages((current) => ({ ...current, [failedSrc]: true }));
+              }}
               className={imageFit === "contain" ? "object-contain" : "object-cover"}
             />
           </div>

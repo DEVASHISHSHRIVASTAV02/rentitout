@@ -209,7 +209,9 @@ export function CreateListingModal({ isSignedIn, defaultContactEmail, autoOpen =
                   </span>
                   <MultiImageUploadInput required />
                 </label>
-                <p className="text-xs text-zinc-500">Upload up to 4 images. At least 1 image is mandatory.</p>
+                <p className="text-xs text-zinc-500">
+                  Upload up to 4 images (JPG, PNG, WEBP). At least 1 image is mandatory.
+                </p>
               </section>
 
               <section className="space-y-3 rounded-xl border border-zinc-200 bg-zinc-50 p-4">

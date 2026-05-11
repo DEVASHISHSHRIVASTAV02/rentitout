@@ -195,8 +195,8 @@ export function CreateListingForm({
           </label>
           <p className="text-xs text-zinc-500">
             {editMode
-              ? "Upload up to 4 images only if you want to replace existing photos."
-              : "Upload up to 4 images. At least 1 image is mandatory."}
+              ? "Upload up to 4 images (JPG, PNG, WEBP) only if you want to replace existing photos."
+              : "Upload up to 4 images (JPG, PNG, WEBP). At least 1 image is mandatory."}
           </p>
         </section>
 

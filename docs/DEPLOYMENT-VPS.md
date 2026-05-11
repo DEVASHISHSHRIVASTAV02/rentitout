@@ -65,6 +65,10 @@ LISTING_BY_ID_CACHE_TTL_MS=30000
 IN_MEMORY_CACHE_MAX_ENTRIES=300
 ```
 
+Important:
+- Do not use `onboarding@resend.dev` or any `@resend.dev` sender in production.
+- Resend must have your domain verified and `EMAIL_FROM` must use that verified domain, otherwise OTP delivery will fail with `403 validation_error`.
+
 ## 5. Prepare database schema
 
 Run `db/schema.sql` in Neon SQL Editor for your production database.
@@ -78,6 +82,12 @@ npm run prod:build
 ```
 
 `prod:preflight` checks Node version, required env vars, URL format, and writable upload directory.
+
+For regular updates after go-live, you can use the one-command deploy script:
+
+```bash
+npm run deploy:prod
+```
 
 ## 7. Start app with PM2
 

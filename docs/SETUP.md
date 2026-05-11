@@ -72,6 +72,10 @@ This creates:
 3. Set `EMAIL_FROM` to a verified sender.
 4. Optional: set `LISTING_PROOF_REVIEW_EMAIL` to receive listing proof copies.
 
+Important:
+- If Resend is not domain-verified yet (or `EMAIL_FROM` uses `@resend.dev`), OTP emails will fail for real users with a `403 validation_error`.
+- Production sender should look like `RentItOut <noreply@yourdomain.com>`.
+
 ## 5. Run the app
 
 ```bash

@@ -27,6 +27,12 @@ interface OtpEmailInput {
   expiresInMinutes: number;
 }
 
+interface ResendErrorPayload {
+  name?: string;
+  message?: string;
+  statusCode?: number;
+}
+
 function getEmailEnv() {
   return {
     apiKey: process.env.RESEND_API_KEY ?? "",
@@ -41,6 +47,50 @@ function sanitizeRecipients(recipients: Array<string | null | undefined>) {
     .flatMap((entry) => (entry ?? "").split(","))
     .map((entry) => entry.trim())
     .filter((entry, index, list) => entry.length > 0 && list.indexOf(entry) === index);
+}
+
+function parseResendErrorPayload(payloadText: string) {
+  try {
+    const parsed = JSON.parse(payloadText) as ResendErrorPayload;
+    if (parsed && typeof parsed === "object") {
+      return parsed;
+    }
+  } catch {
+    // Ignore parse errors and use the plain payload text as fallback.
+  }
+
+  return null;
+}
+
+function getResendSendErrorMessage(status: number, payloadText: string) {
+  const parsedPayload = parseResendErrorPayload(payloadText);
+  const providerMessage = (parsedPayload?.message ?? payloadText).trim();
+  const normalizedProviderMessage = providerMessage.toLowerCase();
+
+  if (
+    status === 403 &&
+    normalizedProviderMessage.includes("you can only send testing emails to your own email address")
+  ) {
+    return "OTP email is blocked because Resend is still in test sender mode. Verify your domain in Resend and set EMAIL_FROM to that domain.";
+  }
+
+  if (status === 422 && normalizedProviderMessage.includes("invalid `from` field")) {
+    return "Email sender format is invalid. Set EMAIL_FROM as Name <email@yourdomain.com> using a verified Resend domain.";
+  }
+
+  if (status === 401) {
+    return "Email provider authentication failed. Check RESEND_API_KEY.";
+  }
+
+  if (status === 429) {
+    return "Email provider is rate-limiting requests. Please try again shortly.";
+  }
+
+  if (status >= 500) {
+    return "Email provider is temporarily unavailable. Please try again shortly.";
+  }
+
+  return providerMessage || "Email could not be sent at this time.";
 }
 
 async function sendEmail({ to, subject, html, text }: SendEmailInput) {
@@ -65,8 +115,9 @@ async function sendEmail({ to, subject, html, text }: SendEmailInput) {
   });
 
   if (!response.ok) {
-    const payload = await response.text().catch(() => "");
-    throw new Error(`Email send failed: ${response.status} ${payload}`);
+    const payloadText = await response.text().catch(() => "");
+    const failureMessage = getResendSendErrorMessage(response.status, payloadText);
+    throw new Error(failureMessage);
   }
 
   return { sent: true, skipped: false };

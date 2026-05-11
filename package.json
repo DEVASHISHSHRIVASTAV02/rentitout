@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "prod:preflight": "node scripts/preflight-prod.mjs",
-    "prod:build": "npm run prod:preflight && npm run lint && npm run build"
+    "prod:build": "npm run prod:preflight && npm run lint && npm run build",
+    "deploy:prod": "bash scripts/deploy-prod.sh"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

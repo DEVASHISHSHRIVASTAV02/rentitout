@@ -67,3 +67,4 @@ Detailed guides:
 - `npm run lint` - lint check
 - `npm run prod:preflight` - production readiness checks (env vars, node version, upload dir writability)
 - `npm run prod:build` - run preflight, lint, then production build
+- `npm run deploy:prod` - one-command VPS deploy (`git pull`, `npm ci`, `prod:build`, PM2 restart/save)

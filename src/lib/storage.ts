@@ -63,20 +63,25 @@ function resolvePublicFilePath(publicUrl: string, expectedAbsoluteRoot: string) 
 }
 
 function getFileExtension(file: File) {
-  const fileName = file.name || "listing-image";
-  const extension = path.extname(fileName);
-  if (extension) {
-    return extension.toLowerCase();
-  }
-
-  switch (file.type) {
+  const fileType = file.type.trim().toLowerCase();
+  switch (fileType) {
+    case "image/jpeg":
+    case "image/jpg":
+      return ".jpg";
     case "image/png":
       return ".png";
     case "image/webp":
       return ".webp";
     default:
-      return ".jpg";
+      break;
   }
+
+  const fileName = file.name || "listing-image";
+  const extension = path.extname(fileName);
+  if (extension) {
+    return extension.toLowerCase();
+  }
+  return ".jpg";
 }
 
 export async function saveListingImage(file: File, userId: string) {

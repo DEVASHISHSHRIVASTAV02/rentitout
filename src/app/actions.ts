@@ -74,6 +74,7 @@ const otpVerifySchema = z.object({
 const MAX_LISTING_IMAGES = 4;
 const MAX_LISTING_IMAGE_SIZE_BYTES = 8 * 1024 * 1024;
 const ALLOWED_IMAGE_MIME_TYPES = new Set(["image/jpeg", "image/jpg", "image/png", "image/webp"]);
+const ALLOWED_IMAGE_FILE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp"]);
 const MAX_LISTING_ID_GENERATION_ATTEMPTS = 40;
 
 interface DeleteListingRow {
@@ -111,9 +112,30 @@ interface DeleteAccountArchivedImageRow {
 
 function formatAuthDbError(error: unknown) {
   const message = error instanceof Error ? error.message : String(error ?? "");
-  if (message.toLowerCase().includes("database_url")) {
+  const normalizedMessage = message.toLowerCase();
+
+  if (normalizedMessage.includes("database_url")) {
     return "Database is not configured. Set DATABASE_URL in .env.local and restart the dev server.";
   }
+  if (normalizedMessage.includes("resend is still in test sender mode")) {
+    return "OTP email is not live yet. Verify your domain in Resend and set EMAIL_FROM to an address on that domain.";
+  }
+  if (normalizedMessage.includes("email sender format is invalid")) {
+    return "EMAIL_FROM is invalid. Use Name <email@yourdomain.com> with a verified Resend domain.";
+  }
+  if (normalizedMessage.includes("email provider authentication failed")) {
+    return "OTP email service authentication failed. Please check RESEND_API_KEY.";
+  }
+  if (normalizedMessage.includes("email provider is rate-limiting requests")) {
+    return "Too many OTP requests right now. Please wait and try again.";
+  }
+  if (normalizedMessage.includes("email provider is temporarily unavailable")) {
+    return "OTP email service is temporarily unavailable. Please try again shortly.";
+  }
+  if (normalizedMessage.includes("email could not be sent")) {
+    return "OTP email could not be sent. Please try again.";
+  }
+
   return message || "Authentication failed";
 }
 
@@ -173,6 +195,15 @@ function isFileEntry(value: FormDataEntryValue): value is File {
   return typeof value !== "string";
 }
 
+function getNormalizedFileExtension(fileName: string) {
+  const trimmedName = fileName.trim();
+  const extensionIndex = trimmedName.lastIndexOf(".");
+  if (extensionIndex < 0) {
+    return "";
+  }
+  return trimmedName.slice(extensionIndex).toLowerCase();
+}
+
 function getListingImageFiles(formData: FormData) {
   return formData.getAll("images").filter(isFileEntry).filter((file) => file.size > 0);
 }
@@ -189,8 +220,15 @@ function validateListingImageFiles(files: File[], required: boolean) {
     if (file.size > MAX_LISTING_IMAGE_SIZE_BYTES) {
       return "Each image must be 8MB or smaller";
     }
-    if (file.type && !ALLOWED_IMAGE_MIME_TYPES.has(file.type.toLowerCase())) {
-      return "Only JPG, PNG, or WEBP images are allowed";
+
+    const normalizedMime = file.type.trim().toLowerCase();
+    const normalizedExtension = getNormalizedFileExtension(file.name);
+    const hasAllowedMime = normalizedMime.length > 0 && ALLOWED_IMAGE_MIME_TYPES.has(normalizedMime);
+    const hasAllowedExtension =
+      normalizedExtension.length > 0 && ALLOWED_IMAGE_FILE_EXTENSIONS.has(normalizedExtension);
+
+    if (!hasAllowedMime && !hasAllowedExtension) {
+      return "Only JPG, PNG, or WEBP images are allowed (HEIC is not supported)";
     }
   }
 
