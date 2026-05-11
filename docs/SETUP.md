@@ -95,6 +95,7 @@ Open `http://localhost:3000`.
 7. Also test the card-level `Contact Details` button (second access path).
 8. Verify owner email/phone visibility follows profile settings in dashboard.
 9. OTP sign-in works from the sign-in page.
+10. Forgot-password flow works: request reset OTP, set new password, and sign in with new password.
 
 ## 7. Project Milestones (Day 1 -> Current)
 

@@ -6,7 +6,9 @@ import { z } from "zod";
 import {
   ensureProfile,
   requireUser,
+  requestPasswordResetOtp,
   requestSignInOtp,
+  resetPasswordWithOtp,
   signInWithPassword,
   signOut,
   signUpWithPassword,
@@ -70,6 +72,24 @@ const otpVerifySchema = z.object({
   otp: z.string().min(4).max(10),
   next: z.string().optional(),
 });
+
+const passwordResetRequestSchema = z.object({
+  email: z.string().email(),
+  next: z.string().optional(),
+});
+
+const passwordResetConfirmSchema = z
+  .object({
+    email: z.string().email(),
+    otp: z.string().min(4).max(10),
+    newPassword: z.string().min(8).max(72),
+    confirmNewPassword: z.string().min(8).max(72),
+    next: z.string().optional(),
+  })
+  .refine((data) => data.newPassword === data.confirmNewPassword, {
+    path: ["confirmNewPassword"],
+    message: "Passwords do not match",
+  });
 
 const MAX_LISTING_IMAGES = 4;
 const MAX_LISTING_IMAGE_SIZE_BYTES = 8 * 1024 * 1024;
@@ -345,6 +365,72 @@ export async function verifyOtpAction(formData: FormData) {
   }
 
   redirect(next.startsWith("/") ? next : "/my-account");
+}
+
+export async function requestPasswordResetOtpAction(formData: FormData) {
+  const parsed = passwordResetRequestSchema.safeParse({
+    email: formData.get("email"),
+    next: formData.get("next"),
+  });
+
+  if (!parsed.success) {
+    const issue = parsed.error.issues[0]?.message ?? "Invalid email";
+    redirect(`/auth/sign-in?error=${encodeURIComponent(issue)}`);
+  }
+
+  const next = parsed.data.next?.toString() ?? "/my-account";
+  const email = parsed.data.email;
+
+  try {
+    await requestPasswordResetOtp(email);
+  } catch (error) {
+    const message = formatAuthDbError(error);
+    redirect(
+      `/auth/sign-in?error=${encodeURIComponent(message)}&next=${encodeURIComponent(next)}&resetEmail=${encodeURIComponent(email)}`,
+    );
+  }
+
+  redirect(
+    `/auth/sign-in?message=${encodeURIComponent("Password reset OTP sent to your email")}&next=${encodeURIComponent(next)}&resetEmail=${encodeURIComponent(email)}`,
+  );
+}
+
+export async function resetPasswordWithOtpAction(formData: FormData) {
+  const parsed = passwordResetConfirmSchema.safeParse({
+    email: formData.get("email"),
+    otp: formData.get("otp"),
+    newPassword: formData.get("newPassword"),
+    confirmNewPassword: formData.get("confirmNewPassword"),
+    next: formData.get("next"),
+  });
+
+  if (!parsed.success) {
+    const issue = parsed.error.issues[0]?.message ?? "Invalid reset details";
+    const fallbackEmail = formData.get("email")?.toString().trim() ?? "";
+    const next = formData.get("next")?.toString().trim() || "/my-account";
+    const resetEmailParam = fallbackEmail ? `&resetEmail=${encodeURIComponent(fallbackEmail)}` : "";
+    redirect(`/auth/sign-in?error=${encodeURIComponent(issue)}&next=${encodeURIComponent(next)}${resetEmailParam}`);
+  }
+
+  const next = parsed.data.next?.toString() ?? "/my-account";
+  const email = parsed.data.email;
+
+  try {
+    await resetPasswordWithOtp({
+      email,
+      otp: parsed.data.otp,
+      newPassword: parsed.data.newPassword,
+    });
+  } catch (error) {
+    const message = formatAuthDbError(error);
+    redirect(
+      `/auth/sign-in?error=${encodeURIComponent(message)}&next=${encodeURIComponent(next)}&resetEmail=${encodeURIComponent(email)}`,
+    );
+  }
+
+  redirect(
+    `/auth/sign-in?message=${encodeURIComponent("Password updated. Sign in with your new password.")}&next=${encodeURIComponent(next)}`,
+  );
 }
 
 export async function signOutAction() {

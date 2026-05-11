@@ -25,6 +25,7 @@ interface OtpEmailInput {
   email: string;
   otp: string;
   expiresInMinutes: number;
+  purpose?: "sign_in" | "password_reset";
 }
 
 interface ResendErrorPayload {
@@ -124,18 +125,23 @@ async function sendEmail({ to, subject, html, text }: SendEmailInput) {
 }
 
 export async function sendOtpEmail(input: OtpEmailInput) {
-  const subject = "Your RentItOut sign-in OTP";
+  const isPasswordReset = input.purpose === "password_reset";
+  const subject = isPasswordReset ? "Your RentItOut password reset OTP" : "Your RentItOut sign-in OTP";
+  const introLine = isPasswordReset ? "Use this OTP to reset your RentItOut password:" : "Use this OTP to sign in to RentItOut:";
   const text = [
-    "Use this OTP to sign in to RentItOut:",
+    introLine,
     input.otp,
     "",
     `This OTP expires in ${input.expiresInMinutes} minutes.`,
     "If you did not request this, you can ignore this email.",
   ].join("\n");
 
+  const heading = isPasswordReset ? "RentItOut Password Reset OTP" : "RentItOut Sign-in OTP";
+  const intro = isPasswordReset ? "Use this OTP to reset your password:" : "Use this OTP to sign in:";
+
   const html = `
-    <h2>RentItOut Sign-in OTP</h2>
-    <p>Use this OTP to sign in:</p>
+    <h2>${heading}</h2>
+    <p>${intro}</p>
     <p style="font-size: 24px; font-weight: 700; letter-spacing: 2px;">${input.otp}</p>
     <p>This OTP expires in ${input.expiresInMinutes} minutes.</p>
     <p>If you did not request this, you can ignore this email.</p>

@@ -14,6 +14,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
   const message = typeof query.message === "string" ? query.message : "";
   const next = typeof query.next === "string" ? query.next : "/my-account";
   const otpEmail = typeof query.otpEmail === "string" ? query.otpEmail : "";
+  const resetEmail = typeof query.resetEmail === "string" ? query.resetEmail : "";
 
   const user = await getCurrentUser();
 
@@ -32,7 +33,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
       {message ? <Alert message={message} type="success" /> : null}
       {error ? <Alert message={error} type="error" /> : null}
 
-      <SignInForm next={next} otpEmail={otpEmail} />
+      <SignInForm next={next} otpEmail={otpEmail} resetEmail={resetEmail} />
 
       <p className="text-center text-sm text-zinc-600">
         New here?{" "}

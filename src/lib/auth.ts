@@ -6,6 +6,7 @@ import { sendOtpEmail } from "@/lib/email";
 import { clearUserSession, createUserSession, getSessionUser } from "@/lib/session";
 
 const OTP_TTL_MINUTES = 10;
+type OtpPurpose = "sign_in" | "password_reset";
 
 export interface AuthUser {
   id: string;
@@ -149,7 +150,7 @@ export async function signOut() {
   await clearUserSession();
 }
 
-export async function requestSignInOtp(emailInput: string) {
+async function requestOtpForPurpose(emailInput: string, purpose: OtpPurpose) {
   const email = normalizeEmail(emailInput);
   const { rows } = await query<{ id: string }>("select id from users where lower(email) = $1 limit 1", [email]);
   const user = rows[0];
@@ -167,18 +168,18 @@ export async function requestSignInOtp(emailInput: string) {
         update email_otps
         set consumed_at = now()
         where user_id = $1
-          and purpose = 'sign_in'
+          and purpose = $2
           and consumed_at is null
       `,
-      [user.id],
+      [user.id, purpose],
     );
 
     await client.query(
       `
         insert into email_otps (user_id, email, otp_hash, purpose, expires_at)
-        values ($1, $2, $3, 'sign_in', $4)
+        values ($1, $2, $3, $4, $5)
       `,
-      [user.id, email, otpHash, expiresAt.toISOString()],
+      [user.id, email, otpHash, purpose, expiresAt.toISOString()],
     );
 
     await client.query(
@@ -191,13 +192,10 @@ export async function requestSignInOtp(emailInput: string) {
     );
   });
 
-  const result = await sendOtpEmail({ email, otp, expiresInMinutes: OTP_TTL_MINUTES });
-  if (!result.sent) {
-    throw new Error("OTP email service is not configured");
-  }
+  return { email, otp };
 }
 
-export async function verifySignInOtp(input: { email: string; otp: string }) {
+async function consumeOtpForPurpose(input: { email: string; otp: string }, purpose: OtpPurpose) {
   const email = normalizeEmail(input.email);
   const normalizedOtp = input.otp.trim();
   const otpHash = hashOtp(email, normalizedOtp);
@@ -207,14 +205,14 @@ export async function verifySignInOtp(input: { email: string; otp: string }) {
       select id
       from email_otps
       where lower(email) = $1
-        and purpose = 'sign_in'
+        and purpose = $2
         and consumed_at is null
         and expires_at > now()
         and attempt_count < max_attempts
       order by created_at desc
       limit 1
     `,
-    [email],
+    [email, purpose],
   );
 
   const otpRow = rows[0];
@@ -251,6 +249,35 @@ export async function verifySignInOtp(input: { email: string; otp: string }) {
     throw new Error("Invalid OTP");
   }
 
+  return { email };
+}
+
+export async function requestSignInOtp(emailInput: string) {
+  const { email, otp } = await requestOtpForPurpose(emailInput, "sign_in");
+
+  const result = await sendOtpEmail({ email, otp, expiresInMinutes: OTP_TTL_MINUTES, purpose: "sign_in" });
+  if (!result.sent) {
+    throw new Error("OTP email service is not configured");
+  }
+}
+
+export async function requestPasswordResetOtp(emailInput: string) {
+  const { email, otp } = await requestOtpForPurpose(emailInput, "password_reset");
+
+  const result = await sendOtpEmail({
+    email,
+    otp,
+    expiresInMinutes: OTP_TTL_MINUTES,
+    purpose: "password_reset",
+  });
+  if (!result.sent) {
+    throw new Error("OTP email service is not configured");
+  }
+}
+
+export async function verifySignInOtp(input: { email: string; otp: string }) {
+  const { email } = await consumeOtpForPurpose(input, "sign_in");
+
   const { rows: userRows } = await query<{ id: string; email: string; full_name: string | null }>(
     `
       select u.id, u.email, coalesce(p.full_name, u.full_name) as full_name
@@ -269,4 +296,55 @@ export async function verifySignInOtp(input: { email: string; otp: string }) {
 
   await createUserSession(user.id);
   return toAuthUser(user);
+}
+
+export async function resetPasswordWithOtp(input: { email: string; otp: string; newPassword: string }) {
+  if (input.newPassword.length < 8 || input.newPassword.length > 72) {
+    throw new Error("Password must be between 8 and 72 characters");
+  }
+
+  const { email } = await consumeOtpForPurpose(
+    {
+      email: input.email,
+      otp: input.otp,
+    },
+    "password_reset",
+  );
+  const passwordHash = await hash(input.newPassword, 12);
+
+  await withTransaction(async (client) => {
+    const { rows } = await client.query<{ id: string }>(
+      `
+        select id
+        from users
+        where lower(email) = $1
+        limit 1
+      `,
+      [email],
+    );
+
+    const user = rows[0];
+    if (!user) {
+      throw new Error("Account no longer exists");
+    }
+
+    await client.query(
+      `
+        update users
+        set password_hash = $1
+        where id = $2
+      `,
+      [passwordHash, user.id],
+    );
+
+    await client.query(
+      `
+        update sessions
+        set revoked_at = now()
+        where user_id = $1
+          and revoked_at is null
+      `,
+      [user.id],
+    );
+  });
 }

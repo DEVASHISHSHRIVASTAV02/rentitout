@@ -16,6 +16,7 @@ RentItOut acts as a connector only. Agreements, deposit terms, insurance, transp
 ## Current Product Features
 
 - Email/password auth and email OTP sign-in
+- Forgot-password reset via email OTP and new-password confirmation
 - Owner dashboard with listing create/edit and profile-level contact visibility controls
 - Public browse page with category/city/price/agreement/listing-id filters and sorting
 - Listing cards with:
