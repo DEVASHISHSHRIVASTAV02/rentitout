@@ -14,6 +14,27 @@ interface ListingImageCarouselProps {
   imageContainerClassName?: string;
 }
 
+function normalizeListingImageSrc(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return "";
+  }
+
+  if (trimmed.startsWith("/")) {
+    return trimmed;
+  }
+
+  try {
+    const parsed = new URL(trimmed);
+    if (parsed.pathname.startsWith("/uploads/")) {
+      return `${parsed.pathname}${parsed.search}`;
+    }
+    return trimmed;
+  } catch {
+    return trimmed;
+  }
+}
+
 function wrapIndex(next: number, total: number) {
   if (total <= 0) {
     return 0;
@@ -30,7 +51,11 @@ export function ListingImageCarousel({
   imageContainerClassName,
 }: ListingImageCarouselProps) {
   const normalizedImages = useMemo(
-    () => images.filter((image) => typeof image === "string" && image.trim().length > 0).map((image) => image.trim()),
+    () =>
+      images
+        .filter((image) => typeof image === "string" && image.trim().length > 0)
+        .map(normalizeListingImageSrc)
+        .filter((image) => image.length > 0),
     [images],
   );
   const total = normalizedImages.length;
@@ -55,6 +80,7 @@ export function ListingImageCarousel({
               alt={`${alt} image ${currentIndex + 1}`}
               fill
               sizes={sizes}
+              unoptimized
               className={imageFit === "contain" ? "object-contain" : "object-cover"}
             />
           </div>
