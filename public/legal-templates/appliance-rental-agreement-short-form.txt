@@ -1,0 +1,105 @@
+RENTITOUT TEMPLATE
+APPLIANCE RENTAL AGREEMENT (SHORT FORM)
+Version Date: May 11, 2026
+
+IMPORTANT NOTICE
+This template is a general starting point and is not legal advice.
+Get legal review before signing, especially for high-value rentals.
+
+Agreement Date: [DATE]
+Place: [CITY, STATE]
+
+1) PARTIES
+Owner/Lessor
+Name: [OWNER NAME]
+Address: [OWNER ADDRESS]
+Phone: [OWNER PHONE]
+Email: [OWNER EMAIL]
+
+Renter/Lessee
+Name: [RENTER NAME]
+Address: [RENTER ADDRESS]
+Phone: [RENTER PHONE]
+Email: [RENTER EMAIL]
+
+2) APPLIANCE DETAILS
+Item: [CATEGORY + BRAND + MODEL]
+Serial Number: [SERIAL NO.]
+Accessories Included: [LIST]
+Initial Condition: [GOOD/FAIR + NOTES]
+
+3) TERM
+Start Date: [DATE]
+End Date: [DATE]
+Renewal Terms (if any): [DETAILS]
+
+4) RENT AND DEPOSIT
+Monthly Rent: INR [AMOUNT]
+Due Date: [DATE EACH MONTH]
+Security Deposit: INR [AMOUNT]
+Payment Mode: [UPI/BANK/CASH DETAILS]
+Late Fee (after [X] days): INR [AMOUNT] or [PERCENTAGE]% (choose one)
+
+5) DELIVERY AND RETURN
+Delivery Date/Address: [DETAILS]
+Return Date/Address: [DETAILS]
+Pickup Charges Borne By: [OWNER/RENTER/BOTH]
+
+6) USE AND CARE
+Renter will:
+- use appliance lawfully and with reasonable care,
+- not sub-rent, sell, or transfer appliance,
+- not relocate appliance without Owner's written approval,
+- report defects/failure promptly.
+
+7) REPAIRS
+- Normal wear and tear repairs by: [OWNER/RENTER]
+- Damage from misuse/negligence by: Renter
+- Service response timeline: [X] days
+
+8) DEPOSIT ADJUSTMENT
+Owner may deduct from deposit for:
+- unpaid rent/late fee,
+- damage beyond normal wear and tear,
+- missing accessories,
+- recovery/transport costs due to breach.
+Deposit settlement timeline: within [X] days after return and inspection.
+
+9) EARLY TERMINATION
+Either Party may terminate by giving [X] days written notice.
+If Renter terminates before lock-in period (if any), early-exit fee: [DETAILS].
+
+10) DEFAULT
+If Renter does not pay or return appliance on time, Owner may terminate and recover appliance through legal process.
+
+11) LIABILITY
+Renter is responsible for third-party claims/loss caused by Renter's misuse or unlawful use.
+
+12) LAW AND DISPUTES
+Governing Law: India
+Jurisdiction/Seat: [CITY, STATE]
+Arbitration (if applicable): [YES/NO + DETAILS]
+
+13) ENTIRE AGREEMENT
+This document and any attached checklist/photos form the complete agreement between Parties.
+
+OWNER SIGNATURE
+Signature: ______________________
+Name: [OWNER NAME]
+Date: [DATE]
+
+RENTER SIGNATURE
+Signature: ______________________
+Name: [RENTER NAME]
+Date: [DATE]
+
+WITNESS 1
+Signature: ______________________
+Name: [WITNESS NAME]
+Date: [DATE]
+
+WITNESS 2
+Signature: ______________________
+Name: [WITNESS NAME]
+Date: [DATE]
+

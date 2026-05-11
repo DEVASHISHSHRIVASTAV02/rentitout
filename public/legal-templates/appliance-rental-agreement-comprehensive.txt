@@ -1,0 +1,250 @@
+RENTITOUT TEMPLATE
+APPLIANCE RENTAL AGREEMENT (COMPREHENSIVE)
+Version Date: May 11, 2026
+
+IMPORTANT NOTICE
+This template is a general starting point and is not legal advice.
+Use only after review by a qualified advocate in your state/jurisdiction.
+Replace all bracketed placeholders before signing.
+
+-----------------------------------------
+1. PARTIES
+-----------------------------------------
+This Appliance Rental Agreement ("Agreement") is made on [DATE] at [CITY, STATE] between:
+
+Owner/Lessor
+Name: [OWNER FULL NAME]
+Address: [OWNER ADDRESS]
+Phone: [OWNER PHONE]
+Email: [OWNER EMAIL]
+ID Proof Type/No.: [ID DETAILS]
+
+Renter/Lessee
+Name: [RENTER FULL NAME]
+Address: [RENTER ADDRESS]
+Phone: [RENTER PHONE]
+Email: [RENTER EMAIL]
+ID Proof Type/No.: [ID DETAILS]
+
+Owner and Renter are together referred to as the "Parties".
+
+-----------------------------------------
+2. PURPOSE AND ITEM DETAILS
+-----------------------------------------
+2.1 Owner agrees to rent to Renter the appliance(s) described in Schedule A.
+2.2 Renter accepts the appliance(s) for temporary personal/business use as stated in this Agreement.
+2.3 Appliance location of use: [FULL ADDRESS WHERE APPLIANCE WILL BE USED].
+
+-----------------------------------------
+3. TERM
+-----------------------------------------
+3.1 Start Date: [START DATE]
+3.2 End Date: [END DATE]
+3.3 Minimum lock-in period (if any): [LOCK-IN PERIOD OR "NONE"].
+3.4 Renewal:
+    a) Renewal requires written confirmation (WhatsApp/email acceptable if both agree).
+    b) Revised rent for renewal period: [REVISED AMOUNT OR FORMULA].
+3.5 Holdover:
+    If Renter keeps appliance after End Date without renewal, Owner may charge holdover rent at:
+    [AMOUNT OR PERCENTAGE] per [DAY/WEEK/MONTH].
+
+-----------------------------------------
+4. RENT, DEPOSIT, AND PAYMENTS
+-----------------------------------------
+4.1 Monthly Rent: INR [AMOUNT] payable on or before [DUE DATE EACH MONTH].
+4.2 Security Deposit: INR [AMOUNT], received on [DATE/MODE], refundable subject to Clause 10.
+4.3 Payment mode:
+    Bank/UPI details: [PAYMENT DETAILS]
+4.4 Late fee:
+    If payment is delayed beyond [GRACE PERIOD] days, late fee applies at INR [AMOUNT]
+    or [PERCENTAGE]% of overdue amount, whichever is higher/lower (choose one).
+4.5 Taxes and statutory charges:
+    [OWNER/RENTER/BOTH] will bear applicable taxes, cess, stamp duty, and compliance charges.
+4.6 No set-off:
+    Renter will not withhold rent for any claim unless expressly agreed in writing.
+
+-----------------------------------------
+5. DELIVERY, INSTALLATION, AND ACCESSORIES
+-----------------------------------------
+5.1 Delivery date: [DATE]
+5.2 Delivery address: [FULL ADDRESS]
+5.3 Delivery charges: [OWNER/RENTER/BOTH] to bear INR [AMOUNT].
+5.4 Installation:
+    Installation by [OWNER/TECHNICIAN/RENTER] by [DATE].
+5.5 Included accessories/spare parts/manuals are listed in Schedule A.
+5.6 Handover condition and photographs are documented in Schedule B.
+
+-----------------------------------------
+6. OWNERSHIP AND USE RESTRICTIONS
+-----------------------------------------
+6.1 Title to appliance remains with Owner at all times.
+6.2 Renter will:
+    a) Use appliance only for lawful purpose.
+    b) Operate according to user manual and normal safety standards.
+    c) Not sub-rent, pledge, sell, transfer, or create third-party interest.
+    d) Not remove serial labels, safety labels, or manufacturer marks.
+6.3 Renter will not relocate appliance without Owner's prior written consent.
+6.4 Renter will provide reasonable access for inspection/maintenance with prior notice.
+
+-----------------------------------------
+7. MAINTENANCE, REPAIRS, AND SERVICE
+-----------------------------------------
+7.1 Routine cleaning and day-to-day care: Renter responsibility.
+7.2 Major repair due to normal wear and tear: [OWNER/RENTER] responsibility.
+7.3 Damage due to misuse, negligence, voltage issues, water ingress, or unauthorized repair:
+    Renter responsibility.
+7.4 If appliance fails:
+    a) Renter must notify Owner within [X] hours.
+    b) Owner will inspect/arrange service within [X] business days.
+7.5 Replacement option:
+    If repair exceeds [X] days, Owner will [PROVIDE REPLACEMENT/PRO-RATA REFUND/NONE].
+
+-----------------------------------------
+8. RISK, LOSS, AND INSURANCE
+-----------------------------------------
+8.1 Risk of theft, fire, accidental damage, or third-party damage after delivery:
+    [OWNER/RENTER/BOTH AS SPECIFIED].
+8.2 Insurance:
+    a) Existing policy details (if any): [INSURANCE DETAILS]
+    b) Party responsible for premium: [OWNER/RENTER].
+8.3 Renter will notify Owner immediately in case of theft/loss/fire and file police complaint/FIR where required.
+
+-----------------------------------------
+9. REPRESENTATIONS AND WARRANTIES
+-----------------------------------------
+9.1 Owner represents that:
+    a) Owner has lawful title/right to rent appliance.
+    b) Appliance is functional as per handover condition in Schedule B.
+9.2 Except as expressly stated, appliance is provided on "as-is" basis.
+9.3 Renter has inspected or had full opportunity to inspect appliance before acceptance.
+
+-----------------------------------------
+10. RETURN, PICKUP, AND DEPOSIT SETTLEMENT
+-----------------------------------------
+10.1 Return date/time: [DATE/TIME]
+10.2 Pickup by: [OWNER/RENTER/THIRD PARTY]
+10.3 Pickup charges: [OWNER/RENTER/BOTH], amount INR [AMOUNT].
+10.4 Return condition:
+     Appliance must be returned in comparable condition subject to normal wear and tear.
+10.5 Deposit deductions permitted for:
+     a) Unpaid rent/late fees.
+     b) Documented physical damage beyond normal wear and tear.
+     c) Missing accessories listed in Schedule A.
+     d) Transport/recovery costs due to breach.
+10.6 Deposit settlement timeline:
+     Owner will share adjustment statement within [X] days and refund balance within [X] days after return.
+
+-----------------------------------------
+11. DEFAULT AND EARLY TERMINATION
+-----------------------------------------
+11.1 Events of default include:
+     a) Non-payment beyond [X] days after due date.
+     b) Unauthorized sub-rental/transfer.
+     c) Misuse causing serious damage/risk.
+     d) Refusal to return appliance after term expiry.
+11.2 Cure period:
+     Defaulting Party may cure within [X] days of written notice, unless breach is non-curable.
+11.3 Termination:
+     Non-defaulting Party may terminate after cure period and claim contractual remedies.
+11.4 Early termination by Renter (without Owner breach):
+     [NOTICE PERIOD], and early-exit charge of INR [AMOUNT] or [FORMULA], unless waived.
+11.5 Repossession:
+     On lawful termination/default, Owner may recover appliance using legal process.
+
+-----------------------------------------
+12. INDEMNITY AND LIMITATION OF LIABILITY
+-----------------------------------------
+12.1 Renter indemnifies Owner against third-party claims, losses, and costs arising from:
+     misuse, unauthorized relocation, unlawful use, or breach by Renter.
+12.2 Owner indemnifies Renter for claims arising from Owner's lack of title/authority.
+12.3 Neither Party is liable for indirect or consequential losses except where prohibited by law.
+
+-----------------------------------------
+13. FORCE MAJEURE
+-----------------------------------------
+13.1 Neither Party is liable for delay/failure caused by events beyond reasonable control
+     (natural disaster, war, government restrictions, strike, grid failures, etc.).
+13.2 Affected Party must notify the other Party promptly with expected duration.
+
+-----------------------------------------
+14. NOTICES
+-----------------------------------------
+14.1 Legal/contract notices to the addresses/emails listed in Clause 1.
+14.2 Notice sent by email/registered post/courier/confirmed messaging app record will be valid.
+
+-----------------------------------------
+15. GOVERNING LAW AND DISPUTE RESOLUTION
+-----------------------------------------
+15.1 Governing law: Laws of India.
+15.2 Negotiation period:
+     Parties will attempt amicable settlement for [X] days after written dispute notice.
+15.3 Arbitration (optional, choose if applicable):
+     a) Seat/Venue: [CITY]
+     b) Number of arbitrators: [ONE/THREE]
+     c) Language: English
+     d) Applicable statute: Arbitration and Conciliation Act, 1996 (as amended)
+15.4 Courts:
+     Subject to arbitration clause (if selected), courts at [CITY/STATE] have jurisdiction.
+
+-----------------------------------------
+16. GENERAL PROVISIONS
+-----------------------------------------
+16.1 Entire agreement:
+     This Agreement and schedules form the complete understanding between Parties.
+16.2 Amendment:
+     Any change must be in writing and signed/accepted by both Parties.
+16.3 Assignment:
+     Renter cannot assign rights/obligations without Owner's written consent.
+16.4 Severability:
+     If one clause is invalid, remaining clauses remain enforceable.
+16.5 Counterparts:
+     Agreement may be signed physically or electronically in counterparts.
+
+-----------------------------------------
+17. SIGNATURES
+-----------------------------------------
+Owner Signature: _______________________
+Name: [OWNER NAME]
+Date: [DATE]
+Place: [PLACE]
+
+Renter Signature: ______________________
+Name: [RENTER NAME]
+Date: [DATE]
+Place: [PLACE]
+
+Witness 1 Signature: ___________________
+Name: [WITNESS 1 NAME]
+Address: [WITNESS 1 ADDRESS]
+Date: [DATE]
+
+Witness 2 Signature: ___________________
+Name: [WITNESS 2 NAME]
+Address: [WITNESS 2 ADDRESS]
+Date: [DATE]
+
+==================================================
+SCHEDULE A - APPLIANCE DETAILS
+==================================================
+Item Type/Category: [APPLIANCE CATEGORY]
+Brand/Model: [BRAND + MODEL]
+Serial Number: [SERIAL NUMBER]
+Color/Variant: [DETAILS]
+Manufacture Year: [YEAR]
+Purchase Invoice No./Date: [DETAILS]
+Declared Current Market Value: INR [AMOUNT]
+Included Accessories: [LIST]
+Known Existing Defects (if any): [LIST OR "NONE"]
+Meter Reading/Cycle Count (if applicable): [DETAILS]
+
+==================================================
+SCHEDULE B - HANDOVER CONDITION SNAPSHOT
+==================================================
+Handover Date: [DATE]
+Physical condition summary: [DETAILS]
+Functional test result: [PASS/OBSERVATIONS]
+Photograph references (file names/links): [DETAILS]
+Delivered by: [NAME]
+Received by: [NAME]
+Signatures: [OWNER/RENTER]
+

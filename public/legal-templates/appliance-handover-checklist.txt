@@ -1,0 +1,104 @@
+RENTITOUT TEMPLATE
+APPLIANCE HANDOVER AND CONDITION CHECKLIST
+Version Date: May 11, 2026
+
+This checklist should be attached to the rental agreement and signed at both handover and return.
+
+-----------------------------------------
+A) AGREEMENT REFERENCE
+-----------------------------------------
+Agreement Date: [DATE]
+Owner Name: [OWNER NAME]
+Renter Name: [RENTER NAME]
+Appliance: [CATEGORY + BRAND + MODEL]
+Serial Number: [SERIAL NO.]
+
+-----------------------------------------
+B) PRE-HANDOVER CHECK (OWNER + RENTER)
+-----------------------------------------
+Date/Time: [DATE/TIME]
+Location: [ADDRESS]
+
+Physical Condition
+[ ] Outer body has no major cracks
+[ ] Display panel/buttons working
+[ ] Power cable and plug intact
+[ ] Doors/lids/hinges handle properly
+[ ] No unusual rust/leak marks
+[ ] No foul smell or burn marks
+
+Functional Check
+[ ] Powers on normally
+[ ] Basic function test completed
+[ ] Noise/vibration level acceptable
+[ ] Safety features present and functional
+
+Accessories Provided
+[ ] Remote
+[ ] Adapter/Cable
+[ ] User manual
+[ ] Inlet/Outlet pipes
+[ ] Stand/base kit
+[ ] Other: [LIST]
+
+Meter/Cycle/Runtime Reading (if applicable): [DETAILS]
+Known defects at handover: [NONE / DETAILS]
+
+Photo Evidence
+Photo file names/links:
+1. [PHOTO 1]
+2. [PHOTO 2]
+3. [PHOTO 3]
+4. [PHOTO 4]
+
+-----------------------------------------
+C) DURING-TERM NOTES (OPTIONAL LOG)
+-----------------------------------------
+Service/repair event date: [DATE]
+Issue reported: [DETAILS]
+Service done by: [NAME/COMPANY]
+Cost paid by: [OWNER/RENTER]
+Notes: [DETAILS]
+
+-----------------------------------------
+D) RETURN CHECK (OWNER + RENTER)
+-----------------------------------------
+Return Date/Time: [DATE/TIME]
+Return Location: [ADDRESS]
+
+Physical Condition at Return
+[ ] No new visible damage
+[ ] Normal wear and tear only
+[ ] New scratches/cracks/dents
+[ ] Missing accessories
+[ ] Cleaning required beyond normal use
+
+Functional Check at Return
+[ ] Powers on
+[ ] Main functions operate normally
+[ ] Repair needed before next use
+
+Difference from Handover Condition
+[DETAILS OR "NONE"]
+
+Proposed Deposit Deductions (if any)
+Unpaid rent: INR [AMOUNT]
+Damage cost: INR [AMOUNT]
+Missing accessories: INR [AMOUNT]
+Other deductions: INR [AMOUNT]
+Total deductions: INR [AMOUNT]
+Deposit refund balance: INR [AMOUNT]
+Refund due date: [DATE]
+
+-----------------------------------------
+E) FINAL SIGN-OFF
+-----------------------------------------
+Owner confirms details above are accurate to the best of knowledge.
+Renter confirms inspection and acknowledgment of recorded condition.
+
+Owner Signature: _____________________   Date: [DATE]
+Renter Signature: ____________________   Date: [DATE]
+
+Witness 1 Signature: _________________   Date: [DATE]
+Witness 2 Signature: _________________   Date: [DATE]
+

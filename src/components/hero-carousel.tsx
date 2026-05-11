@@ -97,7 +97,7 @@ const heroCards: HeroCard[] = [
     icon: FileCheck2,
     backgroundClass: "border-lime-200 bg-gradient-to-br from-lime-200 via-green-100 to-white",
     primaryAction: {
-      href: "/agreements",
+      href: "/rental-agreement-templates",
       label: "Go to Agreements",
       className: "bg-lime-700 text-white hover:bg-lime-600",
     },

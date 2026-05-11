@@ -10,6 +10,7 @@ const RentItOutLinks = [
   { label: "Team", href: "#linkholder-team" },
   { label: "Our story", href: "#linkholder-our-story" },
   { label: "Benifits of RentItOut", href: "#linkholder-benifits" },
+  { label: "Rental Agreement Templates", href: "/rental-agreement-templates" },
 ];
 
 const policyLinks = [

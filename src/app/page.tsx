@@ -17,9 +17,11 @@ export default function Home() {
         </div>
         <ApplianceQuickButtons />
 
-        <div className="pt-5">
-          <h2 className="text-xl font-semibold text-zinc-950 sm:text-2xl">Cities</h2>
-          <CityQuickButtons className="mt-2" />
+        <div className="relative left-1/2 right-1/2 mt-5 w-screen -translate-x-1/2 bg-black pt-12 pb-14 sm:pt-16 sm:pb-20">
+          <div className="mx-auto w-full max-w-screen-2xl min-w-0 px-4 sm:px-6">
+            <h2 className="text-xl font-semibold text-white sm:text-2xl">Cities</h2>
+            <CityQuickButtons className="mt-[0.9rem]" />
+          </div>
         </div>
 
         <MarketplaceComparisonCard />

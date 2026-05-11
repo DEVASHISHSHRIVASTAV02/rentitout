@@ -39,12 +39,12 @@ export function CityQuickButtons({ className }: CityQuickButtonsProps) {
             key={city}
             href={getBrowseCityHref(city)}
             className={cn(
-              "group rounded-2xl border border-zinc-200 bg-white p-2 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md",
+              "group rounded-2xl bg-black p-2 shadow-sm transition-all hover:-translate-y-0.5 hover:bg-zinc-900 hover:shadow-md",
               tiltClass,
             )}
           >
             <div className="space-y-2">
-              <div className="overflow-hidden rounded-xl border border-zinc-200">
+              <div className="overflow-hidden rounded-xl">
                 <Image
                   src={card.image}
                   alt={`${card.monument} in ${city}`}
@@ -53,8 +53,8 @@ export function CityQuickButtons({ className }: CityQuickButtonsProps) {
                   className="h-28 w-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />
               </div>
-              <div className="px-1 pb-1">
-                <p className="text-sm font-semibold text-zinc-900 sm:text-base">{city}</p>
+              <div className="px-1 pb-1 text-center">
+                <p className="text-sm font-semibold text-white sm:text-base">{city}</p>
               </div>
             </div>
           </Link>
