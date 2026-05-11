@@ -127,7 +127,7 @@ export function ListingQuickViewFlow({ listing }: ListingQuickViewFlowProps) {
           setIsQuickViewOpen(true);
           void ensureFullImageUrls();
         }}
-        className="w-full truncate text-left text-base font-semibold text-white hover:text-white/90 hover:underline"
+        className="w-full truncate text-left text-base font-semibold text-zinc-900 hover:text-zinc-700 hover:underline"
       >
         {listing.category}
       </button>

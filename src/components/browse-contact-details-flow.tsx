@@ -104,7 +104,12 @@ export function BrowseContactDetailsFlow({ listing }: BrowseContactDetailsFlowPr
 
   return (
     <>
-      <Button type="button" variant="primary" className="mt-2 w-full" onClick={openBotCheck}>
+      <Button
+        type="button"
+        variant="primary"
+        className="mt-1 w-full"
+        onClick={openBotCheck}
+      >
         Contact Details
       </Button>
 
@@ -247,3 +252,4 @@ export function BrowseContactDetailsFlow({ listing }: BrowseContactDetailsFlowPr
     </>
   );
 }
+
