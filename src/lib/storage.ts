@@ -3,11 +3,20 @@ import { promises as fs } from "fs";
 import crypto from "crypto";
 
 function resolveAppRootDir() {
+  const currentWorkingDir = path.resolve(process.cwd());
   const fromEnv = process.env.APP_ROOT?.trim();
-  if (fromEnv) {
-    return path.resolve(fromEnv);
+  if (!fromEnv) {
+    return currentWorkingDir;
   }
-  return process.cwd();
+
+  const resolvedFromEnv = path.resolve(fromEnv);
+  if (resolvedFromEnv !== currentWorkingDir) {
+    console.warn(
+      `[storage] APP_ROOT (${resolvedFromEnv}) does not match process.cwd() (${currentWorkingDir}). Using process.cwd() for upload storage.`,
+    );
+  }
+
+  return currentWorkingDir;
 }
 
 const APP_ROOT_DIR = resolveAppRootDir();

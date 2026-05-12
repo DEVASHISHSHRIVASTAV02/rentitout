@@ -14,26 +14,54 @@ function getFileSignature(file: File) {
   return `${file.name}-${file.size}-${file.lastModified}`;
 }
 
+function canMutateFileInputList() {
+  if (typeof DataTransfer === "undefined") {
+    return false;
+  }
+
+  try {
+    const dataTransfer = new DataTransfer();
+    return typeof dataTransfer.items.add === "function";
+  } catch {
+    return false;
+  }
+}
+
+const CAN_MUTATE_FILE_INPUT_LIST = canMutateFileInputList();
+
 export function MultiImageUploadInput({ name = "images", required = false, maxFiles = 4 }: MultiImageUploadInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [limitMessage, setLimitMessage] = useState("");
 
   const syncInputFiles = (files: File[]) => {
-    if (!inputRef.current || typeof DataTransfer === "undefined") {
-      return;
+    if (!inputRef.current || !CAN_MUTATE_FILE_INPUT_LIST) {
+      return false;
     }
 
-    const dataTransfer = new DataTransfer();
-    for (const file of files) {
-      dataTransfer.items.add(file);
+    try {
+      const dataTransfer = new DataTransfer();
+      for (const file of files) {
+        dataTransfer.items.add(file);
+      }
+      inputRef.current.files = dataTransfer.files;
+      return true;
+    } catch {
+      return false;
     }
-    inputRef.current.files = dataTransfer.files;
   };
 
   const handleFileSelection = (event: ChangeEvent<HTMLInputElement>) => {
     const incomingFiles = Array.from(event.currentTarget.files ?? []);
     if (incomingFiles.length === 0) {
+      return;
+    }
+
+    if (!CAN_MUTATE_FILE_INPUT_LIST) {
+      const cappedFiles = incomingFiles.slice(0, maxFiles);
+      const capped = incomingFiles.length > maxFiles;
+      setSelectedFiles(cappedFiles);
+      setLimitMessage(capped ? `You can upload up to ${maxFiles} images only.` : "");
       return;
     }
 
@@ -58,11 +86,18 @@ export function MultiImageUploadInput({ name = "images", required = false, maxFi
 
     setSelectedFiles(merged);
     setLimitMessage(capped ? `You can upload up to ${maxFiles} images only.` : "");
-    event.currentTarget.value = "";
-    syncInputFiles(merged);
+    const didSyncFiles = syncInputFiles(merged);
+    if (didSyncFiles) {
+      event.currentTarget.value = "";
+    }
   };
 
   const removeFile = (index: number) => {
+    if (!CAN_MUTATE_FILE_INPUT_LIST) {
+      setLimitMessage("Reselect your images to change this list on your device.");
+      return;
+    }
+
     const nextFiles = selectedFiles.filter((_, currentIndex) => currentIndex !== index);
     setSelectedFiles(nextFiles);
     setLimitMessage("");
@@ -99,6 +134,10 @@ export function MultiImageUploadInput({ name = "images", required = false, maxFi
             </span>
           ))}
         </div>
+      ) : null}
+
+      {!CAN_MUTATE_FILE_INPUT_LIST ? (
+        <p className="text-xs text-zinc-500">On this device, select all images in a single pick.</p>
       ) : null}
 
       {limitMessage ? <p className="text-xs text-rose-700">{limitMessage}</p> : null}

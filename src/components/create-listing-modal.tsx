@@ -85,7 +85,7 @@ export function CreateListingModal({ isSignedIn, defaultContactEmail, autoOpen =
               </button>
             </div>
 
-            <form action={createListingAction} className="space-y-5">
+            <form action={createListingAction} encType="multipart/form-data" className="space-y-5">
               <input type="hidden" name="redirectTo" value="/browse" />
 
               <section className="space-y-3 rounded-xl border border-zinc-200 bg-zinc-50 p-4">

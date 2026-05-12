@@ -79,6 +79,7 @@ export function CreateListingForm({
   return (
     <form
       action={formAction}
+      encType="multipart/form-data"
       onSubmit={() => setIsSubmitting(true)}
       className="space-y-4 rounded-2xl border border-zinc-200 bg-white p-4 sm:space-y-5 sm:p-6"
     >
