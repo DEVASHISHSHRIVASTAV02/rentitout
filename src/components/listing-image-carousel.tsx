@@ -21,6 +21,14 @@ function normalizeListingImageSrc(value: string) {
     return "";
   }
 
+  if (trimmed.startsWith("/api/uploads/")) {
+    return trimmed;
+  }
+
+  if (trimmed.startsWith("/uploads/")) {
+    return `/api${trimmed}`;
+  }
+
   if (trimmed.startsWith("/")) {
     return trimmed;
   }
@@ -28,7 +36,7 @@ function normalizeListingImageSrc(value: string) {
   try {
     const parsed = new URL(trimmed);
     if (parsed.pathname.startsWith("/uploads/")) {
-      return `${parsed.pathname}${parsed.search}`;
+      return `/api${parsed.pathname}${parsed.search}`;
     }
     return trimmed;
   } catch {
