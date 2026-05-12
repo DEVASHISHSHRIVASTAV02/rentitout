@@ -7,13 +7,20 @@ import { MarketplaceComparisonCard } from "@/components/marketplace-comparison-c
 import { buildPageMetadata } from "@/lib/seo";
 import { SEO_CITY_CATEGORY_INTENTS } from "@/lib/seo-landing-pages";
 
-export const metadata: Metadata = buildPageMetadata({
+const homeMetadata = buildPageMetadata({
   title: "Rent Appliances by City",
   description:
     "Explore appliance rentals across major cities with quick category links, city shortcuts, and renter-owner connection tools.",
   path: "/",
   keywords: ["home appliance rental", "rent in Delhi", "rent in Mumbai", "rental marketplace India"],
 });
+
+export const metadata: Metadata = {
+  ...homeMetadata,
+  title: {
+    absolute: "RentItOut | Rent appliances",
+  },
+};
 
 export default function Home() {
   return (
