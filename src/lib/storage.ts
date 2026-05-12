@@ -1,6 +1,7 @@
 import path from "path";
 import { promises as fs } from "fs";
 import crypto from "crypto";
+import sharp from "sharp";
 
 function resolveAppRootDir() {
   const fromEnv = process.env.APP_ROOT?.trim();
@@ -17,6 +18,11 @@ const LISTING_IMAGES_RELATIVE_ROOT = path.join("uploads", "listing-images");
 const DELETED_LISTING_IMAGES_RELATIVE_ROOT = path.join("uploads", "deleted-listing-images");
 const LISTING_IMAGES_ABSOLUTE_ROOT = path.join(PUBLIC_ROOT_DIR, LISTING_IMAGES_RELATIVE_ROOT);
 const DELETED_LISTING_IMAGES_ABSOLUTE_ROOT = path.join(PUBLIC_ROOT_DIR, DELETED_LISTING_IMAGES_RELATIVE_ROOT);
+const MAX_UPLOAD_IMAGE_DIMENSION = 1920;
+const MAX_UPLOAD_IMAGE_PIXELS = 32_000_000;
+const JPEG_QUALITY = 78;
+const PNG_QUALITY = 82;
+const WEBP_QUALITY = 76;
 
 export interface ListingImageArchiveInput {
   imageUrl: string;
@@ -94,6 +100,64 @@ function getFileExtension(file: File) {
   return ".jpg";
 }
 
+function normalizeOutputFormat(extension: string): "jpeg" | "png" | "webp" {
+  const normalized = extension.trim().toLowerCase();
+  if (normalized === ".png") {
+    return "png";
+  }
+  if (normalized === ".webp") {
+    return "webp";
+  }
+  return "jpeg";
+}
+
+async function compressListingImageBuffer(inputBuffer: Buffer, extension: string) {
+  const outputFormat = normalizeOutputFormat(extension);
+  let pipeline = sharp(inputBuffer, { limitInputPixels: MAX_UPLOAD_IMAGE_PIXELS })
+    .rotate()
+    .resize({
+      width: MAX_UPLOAD_IMAGE_DIMENSION,
+      height: MAX_UPLOAD_IMAGE_DIMENSION,
+      fit: "inside",
+      withoutEnlargement: true,
+    });
+
+  switch (outputFormat) {
+    case "jpeg":
+      pipeline = pipeline.jpeg({
+        quality: JPEG_QUALITY,
+        mozjpeg: true,
+        chromaSubsampling: "4:2:0",
+      });
+      break;
+    case "png":
+      pipeline = pipeline.png({
+        quality: PNG_QUALITY,
+        compressionLevel: 9,
+        effort: 8,
+        palette: true,
+      });
+      break;
+    case "webp":
+      pipeline = pipeline.webp({
+        quality: WEBP_QUALITY,
+        effort: 6,
+      });
+      break;
+    default:
+      break;
+  }
+
+  const compressedBuffer = await pipeline.toBuffer();
+  if (compressedBuffer.length === 0) {
+    throw new Error("Compressed image output is empty");
+  }
+  if (compressedBuffer.length > inputBuffer.length) {
+    return inputBuffer;
+  }
+  return compressedBuffer;
+}
+
 export async function saveListingImage(file: File, listingPublicId: string, sortOrder: number) {
   if (file.size <= 0) {
     return null;
@@ -108,8 +172,9 @@ export async function saveListingImage(file: File, listingPublicId: string, sort
   const absoluteFilePath = path.join(absoluteDir, finalName);
 
   await fs.mkdir(absoluteDir, { recursive: true });
-  const arrayBuffer = await file.arrayBuffer();
-  await fs.writeFile(absoluteFilePath, Buffer.from(arrayBuffer));
+  const inputBuffer = Buffer.from(await file.arrayBuffer());
+  const outputBuffer = await compressListingImageBuffer(inputBuffer, extension);
+  await fs.writeFile(absoluteFilePath, outputBuffer);
 
   return `/${relativeDir.replace(/\\/g, "/")}/${finalName}`;
 }

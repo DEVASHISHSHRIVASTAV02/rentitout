@@ -196,8 +196,8 @@ export function CreateListingForm({
           </label>
           <p className="text-xs text-zinc-500">
             {editMode
-              ? "Upload JPG, PNG, or WEBP images to add more photos. Existing photos stay, with a maximum of 4 total."
-              : "Upload up to 4 images (JPG, PNG, WEBP). At least 1 image is mandatory."}
+              ? "Upload JPG, PNG, or WEBP images up to 8 MB each to add more photos. Existing photos stay, with a maximum of 4 total."
+              : "Upload up to 4 images (JPG, PNG, WEBP), 8 MB max per image. At least 1 image is mandatory."}
           </p>
         </section>
 
