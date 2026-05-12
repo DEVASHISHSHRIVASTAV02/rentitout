@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Manrope, Sora } from "next/font/google";
+import { EarlyPhaseNotice } from "@/components/early-phase-notice";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { APP_BASE_URL, SITE_NAME } from "@/lib/seo";
@@ -56,6 +57,17 @@ export const metadata: Metadata = {
       "Browse verified appliance rental listings by city, category, budget, and agreement duration on RentItOut.",
     images: ["/favicon.ico"],
   },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
 };
 
 export default function RootLayout({
@@ -68,6 +80,7 @@ export default function RootLayout({
       <body className="min-h-full overflow-x-hidden bg-white text-zinc-900">
         <div className="relative flex min-h-screen flex-col">
           <SiteHeader />
+          <EarlyPhaseNotice />
           <main className="flex-1">{children}</main>
           <SiteFooter />
         </div>

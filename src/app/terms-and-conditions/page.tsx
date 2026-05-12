@@ -14,15 +14,16 @@ export default function TermsAndConditionsPage() {
       <header className="space-y-2 border-b border-zinc-200 pb-6">
         <p className="text-xs uppercase tracking-[0.16em] text-zinc-500">Legal</p>
         <h1 className="text-3xl font-semibold text-zinc-950">Terms and Conditions</h1>
-        <p className="text-sm text-zinc-600">Last updated: April 25, 2026</p>
+        <p className="text-sm text-zinc-600">Last updated: May 12, 2026</p>
       </header>
 
       <article className="mt-8 space-y-6 text-sm leading-7 text-zinc-700">
         <section className="space-y-2">
           <h2 className="text-lg font-semibold text-zinc-950">1. Platform role</h2>
           <p>
-            RentItOut is a connector platform where owners publish appliance listings and renters can discover listings
-            and contact owners. RentItOut is not a party to offline rental agreements between users.
+            RentItOut is an early-stage connector platform currently operated by an individual founder and not yet
+            incorporated as a registered company entity. Owners publish appliance listings, renters discover listings
+            and contact owners, and RentItOut is not a party to offline rental agreements between users.
           </p>
         </section>
 

@@ -129,7 +129,7 @@ export function SiteFooter() {
         </section>
       </div>
       <div className="border-t border-zinc-800 px-4 py-4 text-center text-xs text-zinc-400 sm:px-6">
-        {new Date().getFullYear()} RentItOut. All rights reserved.
+        {new Date().getFullYear()} RentItOut. Early-access marketplace platform.
       </div>
     </footer>
   );

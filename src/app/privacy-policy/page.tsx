@@ -14,7 +14,7 @@ export default function PrivacyPolicyPage() {
       <header className="space-y-2 border-b border-zinc-200 pb-6">
         <p className="text-xs uppercase tracking-[0.16em] text-zinc-500">Legal</p>
         <h1 className="text-3xl font-semibold text-zinc-950">Privacy Policy</h1>
-        <p className="text-sm text-zinc-600">Last updated: April 25, 2026</p>
+        <p className="text-sm text-zinc-600">Last updated: May 12, 2026</p>
       </header>
 
       <article className="mt-8 space-y-6 text-sm leading-7 text-zinc-700">
@@ -22,7 +22,8 @@ export default function PrivacyPolicyPage() {
           <h2 className="text-lg font-semibold text-zinc-950">1. About this policy</h2>
           <p>
             This policy explains how RentItOut collects, uses, and protects personal information when you use our
-            website and services.
+            website and services. RentItOut is currently in an early launch phase and operated by an individual founder
+            (not yet a registered company entity).
           </p>
         </section>
 
