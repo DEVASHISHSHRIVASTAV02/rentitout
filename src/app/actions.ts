@@ -260,8 +260,10 @@ function validateListingImageFiles(files: File[], required: boolean) {
   return null;
 }
 
-async function saveListingImages(files: File[], userId: string) {
-  const saved = await Promise.all(files.map((file) => saveListingImage(file, userId)));
+async function saveListingImages(files: File[], listingPublicId: string, startSortOrder = 0) {
+  const saved = await Promise.all(
+    files.map((file, index) => saveListingImage(file, listingPublicId, startSortOrder + index)),
+  );
   return saved.filter((entry): entry is string => typeof entry === "string" && entry.length > 0);
 }
 
@@ -564,12 +566,8 @@ export async function createListingAction(formData: FormData) {
     redirectWithError(imageValidationError);
   }
 
-  const imageUrls = await saveListingImages(imageFiles, user.id);
-  if (imageUrls.length === 0 || imageUrls.length !== imageFiles.length) {
-    redirectWithError("Could not process uploaded images");
-  }
-
   let createdListingId = "";
+  let createdImageUrls: string[] = [];
   try {
     createdListingId = await withTransaction(async (client) => {
       let createdListing: { id: string; listing_id: string } | undefined;
@@ -636,7 +634,12 @@ export async function createListingAction(formData: FormData) {
         throw new Error("Could not generate a unique listing ID");
       }
 
-      for (const [sortOrder, imageUrl] of imageUrls.entries()) {
+      createdImageUrls = await saveListingImages(imageFiles, createdListing.listing_id, 0);
+      if (createdImageUrls.length === 0 || createdImageUrls.length !== imageFiles.length) {
+        throw new Error("Could not process uploaded images");
+      }
+
+      for (const [sortOrder, imageUrl] of createdImageUrls.entries()) {
         await queryWithClient(
           client,
           `
@@ -650,6 +653,13 @@ export async function createListingAction(formData: FormData) {
       return createdListing.id;
     });
   } catch (error) {
+    if (createdImageUrls.length > 0) {
+      try {
+        await removeListingImages(createdImageUrls);
+      } catch {
+        // Best effort cleanup for newly uploaded files when listing creation fails.
+      }
+    }
     const message = error instanceof Error ? error.message : "Could not create listing";
     redirectWithError(message);
   }
@@ -742,14 +752,7 @@ export async function updateListingAction(formData: FormData) {
     }
   }
 
-  let appendedImageUrls: string[] | null = null;
-  if (imageFiles.length > 0) {
-    const imageUrls = await saveListingImages(imageFiles, user.id);
-    if (imageUrls.length === 0 || imageUrls.length !== imageFiles.length) {
-      redirectWithError("Could not process uploaded images");
-    }
-    appendedImageUrls = imageUrls;
-  }
+  let appendedImageUrls: string[] = [];
 
   try {
     await withTransaction(async (client) => {
@@ -789,7 +792,7 @@ export async function updateListingAction(formData: FormData) {
         throw new Error("Could not update listing");
       }
 
-      if (!appendedImageUrls) {
+      if (imageFiles.length === 0) {
         return;
       }
 
@@ -805,26 +808,29 @@ export async function updateListingAction(formData: FormData) {
         [existingListing.listing_id],
       );
       const currentImageCount = Number.parseInt(imageStatsRows[0]?.total_images ?? "0", 10) || 0;
-      if (currentImageCount + appendedImageUrls.length > MAX_LISTING_IMAGES) {
+      if (currentImageCount + imageFiles.length > MAX_LISTING_IMAGES) {
         throw new Error(`A listing can have at most ${MAX_LISTING_IMAGES} images`);
       }
       const maxSortOrder = imageStatsRows[0]?.max_sort_order ?? -1;
-      let nextSortOrder = maxSortOrder + 1;
+      const firstSortOrder = maxSortOrder + 1;
+      appendedImageUrls = await saveListingImages(imageFiles, existingListing.listing_id, firstSortOrder);
+      if (appendedImageUrls.length === 0 || appendedImageUrls.length !== imageFiles.length) {
+        throw new Error("Could not process uploaded images");
+      }
 
-      for (const imageUrl of appendedImageUrls) {
+      for (const [offset, imageUrl] of appendedImageUrls.entries()) {
         await queryWithClient(
           client,
           `
             insert into listing_images (listing_id, image_url, sort_order)
             values ($1, $2, $3)
           `,
-          [existingListing.listing_id, imageUrl, nextSortOrder],
+          [existingListing.listing_id, imageUrl, firstSortOrder + offset],
         );
-        nextSortOrder += 1;
       }
     });
   } catch (error) {
-    if (appendedImageUrls && appendedImageUrls.length > 0) {
+    if (appendedImageUrls.length > 0) {
       try {
         await removeListingImages(appendedImageUrls);
       } catch {

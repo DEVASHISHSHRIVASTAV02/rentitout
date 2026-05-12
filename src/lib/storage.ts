@@ -33,8 +33,8 @@ export interface ArchivedListingImage {
   fileSizeBytes: number | null;
 }
 
-function sanitizeFilename(value: string) {
-  return value.replace(/[^a-zA-Z0-9.\-_]/g, "-");
+function sanitizeDirectoryName(value: string) {
+  return value.replace(/[^a-zA-Z0-9\-_]/g, "-");
 }
 
 function normalizePublicUrl(value: string) {
@@ -94,15 +94,16 @@ function getFileExtension(file: File) {
   return ".jpg";
 }
 
-export async function saveListingImage(file: File, userId: string) {
+export async function saveListingImage(file: File, listingPublicId: string, sortOrder: number) {
   if (file.size <= 0) {
     return null;
   }
 
   const extension = getFileExtension(file);
-  const basename = sanitizeFilename(path.basename(file.name || "listing-image", path.extname(file.name || "")));
-  const finalName = `${crypto.randomUUID()}-${basename || "image"}${extension}`;
-  const relativeDir = path.join(LISTING_IMAGES_RELATIVE_ROOT, userId);
+  const slotNumber = Math.max(1, sortOrder + 1);
+  const safeListingId = sanitizeDirectoryName(listingPublicId) || "listing";
+  const finalName = `${slotNumber}-${crypto.randomUUID()}${extension}`;
+  const relativeDir = path.join(LISTING_IMAGES_RELATIVE_ROOT, safeListingId);
   const absoluteDir = path.join(PUBLIC_ROOT_DIR, relativeDir);
   const absoluteFilePath = path.join(absoluteDir, finalName);
 
@@ -118,7 +119,7 @@ export async function archiveListingImagesForDeletion(listingPublicId: string, i
     return [];
   }
 
-  const safeListingId = sanitizeFilename(listingPublicId) || "listing";
+  const safeListingId = sanitizeDirectoryName(listingPublicId) || "listing";
   const archiveBatchId = crypto.randomUUID();
   const relativeArchiveDir = path.join(DELETED_LISTING_IMAGES_RELATIVE_ROOT, safeListingId, archiveBatchId);
   const absoluteArchiveDir = path.join(PUBLIC_ROOT_DIR, relativeArchiveDir);
@@ -131,8 +132,9 @@ export async function archiveListingImagesForDeletion(listingPublicId: string, i
   try {
     for (const image of images) {
       const sourceAbsolutePath = resolvePublicFilePath(image.imageUrl, LISTING_IMAGES_ABSOLUTE_ROOT);
-      const sourceFilename = sanitizeFilename(path.basename(sourceAbsolutePath)) || `${crypto.randomUUID()}.jpg`;
-      const destinationFilename = `${String(image.sortOrder).padStart(2, "0")}-${sourceFilename}`;
+      const sourceExtension = path.extname(sourceAbsolutePath).toLowerCase() || ".jpg";
+      const slotNumber = Math.max(1, image.sortOrder + 1);
+      const destinationFilename = `${slotNumber}-${crypto.randomUUID()}${sourceExtension}`;
       const destinationAbsolutePath = path.join(absoluteArchiveDir, destinationFilename);
 
       if (!isPathInsideDirectory(destinationAbsolutePath, DELETED_LISTING_IMAGES_ABSOLUTE_ROOT)) {
