@@ -267,6 +267,24 @@ async function saveListingImages(files: File[], listingPublicId: string, startSo
   return saved.filter((entry): entry is string => typeof entry === "string" && entry.length > 0);
 }
 
+async function hasAnyPersistedListingImageUrl(imageUrls: string[]) {
+  const uniqueImageUrls = Array.from(new Set(imageUrls.filter((entry) => entry.trim().length > 0)));
+  if (uniqueImageUrls.length === 0) {
+    return false;
+  }
+
+  const { rows } = await query<{ persisted_count: string }>(
+    `
+      select count(*)::text as persisted_count
+      from listing_images
+      where image_url = any($1::text[])
+    `,
+    [uniqueImageUrls],
+  );
+  const persistedCount = Number.parseInt(rows[0]?.persisted_count ?? "0", 10) || 0;
+  return persistedCount > 0;
+}
+
 export async function signUpAction(formData: FormData) {
   const parsed = signUpSchema.safeParse({
     email: formData.get("email"),
@@ -655,9 +673,12 @@ export async function createListingAction(formData: FormData) {
   } catch (error) {
     if (createdImageUrls.length > 0) {
       try {
-        await removeListingImages(createdImageUrls);
+        const hasPersistedImageRows = await hasAnyPersistedListingImageUrl(createdImageUrls);
+        if (!hasPersistedImageRows) {
+          await removeListingImages(createdImageUrls);
+        }
       } catch {
-        // Best effort cleanup for newly uploaded files when listing creation fails.
+        // Best effort cleanup check for newly uploaded files when listing creation fails.
       }
     }
     const message = error instanceof Error ? error.message : "Could not create listing";
@@ -832,9 +853,12 @@ export async function updateListingAction(formData: FormData) {
   } catch (error) {
     if (appendedImageUrls.length > 0) {
       try {
-        await removeListingImages(appendedImageUrls);
+        const hasPersistedImageRows = await hasAnyPersistedListingImageUrl(appendedImageUrls);
+        if (!hasPersistedImageRows) {
+          await removeListingImages(appendedImageUrls);
+        }
       } catch {
-        // Best effort cleanup for newly uploaded files when update transaction fails.
+        // Best effort cleanup check for newly uploaded files when update transaction fails.
       }
     }
     const message = error instanceof Error ? error.message : "Could not update listing";
