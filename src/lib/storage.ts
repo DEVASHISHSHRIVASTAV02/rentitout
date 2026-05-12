@@ -152,9 +152,6 @@ async function compressListingImageBuffer(inputBuffer: Buffer, extension: string
   if (compressedBuffer.length === 0) {
     throw new Error("Compressed image output is empty");
   }
-  if (compressedBuffer.length > inputBuffer.length) {
-    return inputBuffer;
-  }
   return compressedBuffer;
 }
 
