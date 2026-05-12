@@ -2,7 +2,16 @@ import path from "path";
 import { promises as fs } from "fs";
 import crypto from "crypto";
 
-const PUBLIC_ROOT_DIR = path.join(process.cwd(), "public");
+function resolveAppRootDir() {
+  const fromEnv = process.env.APP_ROOT?.trim();
+  if (fromEnv) {
+    return path.resolve(fromEnv);
+  }
+  return process.cwd();
+}
+
+const APP_ROOT_DIR = resolveAppRootDir();
+const PUBLIC_ROOT_DIR = path.join(APP_ROOT_DIR, "public");
 const LISTING_IMAGES_RELATIVE_ROOT = path.join("uploads", "listing-images");
 const DELETED_LISTING_IMAGES_RELATIVE_ROOT = path.join("uploads", "deleted-listing-images");
 const LISTING_IMAGES_ABSOLUTE_ROOT = path.join(PUBLIC_ROOT_DIR, LISTING_IMAGES_RELATIVE_ROOT);

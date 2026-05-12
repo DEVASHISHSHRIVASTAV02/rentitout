@@ -21,7 +21,7 @@ echo "==> Running production build pipeline"
 npm run prod:build
 
 echo "==> Restarting PM2 app"
-pm2 restart ecosystem.config.cjs --update-env || pm2 start ecosystem.config.cjs
+pm2 startOrRestart ecosystem.config.cjs --update-env || pm2 start ecosystem.config.cjs --update-env
 pm2 save
 
 echo "==> PM2 status"
