@@ -18,7 +18,7 @@ const homeMetadata = buildPageMetadata({
 export const metadata: Metadata = {
   ...homeMetadata,
   title: {
-    absolute: "RentItOut | Rent appliances",
+    absolute: "RentItOut | Rent Appliances in Your City",
   },
 };
 
