@@ -86,10 +86,7 @@ export function MultiImageUploadInput({ name = "images", required = false, maxFi
 
     setSelectedFiles(merged);
     setLimitMessage(capped ? `You can upload up to ${maxFiles} images only.` : "");
-    const didSyncFiles = syncInputFiles(merged);
-    if (didSyncFiles) {
-      event.currentTarget.value = "";
-    }
+    syncInputFiles(merged);
   };
 
   const removeFile = (index: number) => {
