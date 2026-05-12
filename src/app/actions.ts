@@ -130,6 +130,11 @@ interface DeleteAccountArchivedImageRow {
   archived_image_url: string;
 }
 
+interface ListingImageStatsRow {
+  total_images: string;
+  max_sort_order: number | null;
+}
+
 function formatAuthDbError(error: unknown) {
   const message = error instanceof Error ? error.message : String(error ?? "");
   const normalizedMessage = message.toLowerCase();
@@ -715,13 +720,35 @@ export async function updateListingAction(formData: FormData) {
     redirectWithError(imageValidationError);
   }
 
-  let replacementImageUrls: string[] | null = null;
+  if (imageFiles.length > 0) {
+    const { rows: imageStatsRows } = await query<ListingImageStatsRow>(
+      `
+        select
+          count(*)::text as total_images,
+          max(sort_order) as max_sort_order
+        from listing_images
+        where listing_id = $1
+      `,
+      [existingListing.listing_id],
+    );
+    const currentImageCount = Number.parseInt(imageStatsRows[0]?.total_images ?? "0", 10) || 0;
+    const incomingImageCount = imageFiles.length;
+    if (currentImageCount + incomingImageCount > MAX_LISTING_IMAGES) {
+      const remainingSlots = Math.max(0, MAX_LISTING_IMAGES - currentImageCount);
+      if (remainingSlots <= 0) {
+        redirectWithError(`You already have ${MAX_LISTING_IMAGES} images. Remove this listing and recreate to change photos.`);
+      }
+      redirectWithError(`You can add only ${remainingSlots} more image${remainingSlots === 1 ? "" : "s"}.`);
+    }
+  }
+
+  let appendedImageUrls: string[] | null = null;
   if (imageFiles.length > 0) {
     const imageUrls = await saveListingImages(imageFiles, user.id);
     if (imageUrls.length === 0 || imageUrls.length !== imageFiles.length) {
       redirectWithError("Could not process uploaded images");
     }
-    replacementImageUrls = imageUrls;
+    appendedImageUrls = imageUrls;
   }
 
   try {
@@ -762,24 +789,48 @@ export async function updateListingAction(formData: FormData) {
         throw new Error("Could not update listing");
       }
 
-      if (!replacementImageUrls) {
+      if (!appendedImageUrls) {
         return;
       }
 
-      await queryWithClient(client, "delete from listing_images where listing_id = $1", [existingListing.listing_id]);
+      const { rows: imageStatsRows } = await queryWithClient<ListingImageStatsRow>(
+        client,
+        `
+          select
+            count(*)::text as total_images,
+            max(sort_order) as max_sort_order
+          from listing_images
+          where listing_id = $1
+        `,
+        [existingListing.listing_id],
+      );
+      const currentImageCount = Number.parseInt(imageStatsRows[0]?.total_images ?? "0", 10) || 0;
+      if (currentImageCount + appendedImageUrls.length > MAX_LISTING_IMAGES) {
+        throw new Error(`A listing can have at most ${MAX_LISTING_IMAGES} images`);
+      }
+      const maxSortOrder = imageStatsRows[0]?.max_sort_order ?? -1;
+      let nextSortOrder = maxSortOrder + 1;
 
-      for (const [sortOrder, imageUrl] of replacementImageUrls.entries()) {
+      for (const imageUrl of appendedImageUrls) {
         await queryWithClient(
           client,
           `
             insert into listing_images (listing_id, image_url, sort_order)
             values ($1, $2, $3)
           `,
-          [existingListing.listing_id, imageUrl, sortOrder],
+          [existingListing.listing_id, imageUrl, nextSortOrder],
         );
+        nextSortOrder += 1;
       }
     });
   } catch (error) {
+    if (appendedImageUrls && appendedImageUrls.length > 0) {
+      try {
+        await removeListingImages(appendedImageUrls);
+      } catch {
+        // Best effort cleanup for newly uploaded files when update transaction fails.
+      }
+    }
     const message = error instanceof Error ? error.message : "Could not update listing";
     redirectWithError(message);
   }
