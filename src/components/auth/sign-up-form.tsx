@@ -9,7 +9,7 @@ import { RequiredMark } from "@/components/ui/required-mark";
 import { SubmitCooldownButton } from "@/components/ui/submit-cooldown-button";
 
 const authCardClass =
-  "rounded-3xl border border-zinc-200/80 bg-white p-7 shadow-[0_12px_28px_-18px_rgba(15,23,42,0.45)] sm:p-8";
+  "rounded-3xl border border-zinc-200/80 bg-white p-5 shadow-[0_12px_28px_-18px_rgba(15,23,42,0.45)] sm:p-7";
 
 function PasswordInput({
   label,

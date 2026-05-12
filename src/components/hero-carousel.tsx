@@ -163,7 +163,7 @@ export function HeroCarousel() {
                 <div className="pointer-events-none absolute -bottom-20 left-16 h-64 w-64 rounded-full bg-white/35 blur-3xl" />
 
                 <div className="relative space-y-5">
-                  <div className="inline-flex items-center gap-2 rounded-full border border-zinc-900/10 bg-white/75 px-3 py-1 text-[11px] tracking-[0.14em] text-zinc-700 backdrop-blur-sm sm:px-4 sm:text-xs sm:tracking-[0.2em]">
+                  <div className="inline-flex max-w-full flex-wrap items-center gap-2 rounded-full border border-zinc-900/10 bg-white/75 px-3 py-1 text-[11px] leading-tight tracking-[0.14em] text-zinc-700 backdrop-blur-sm sm:px-4 sm:text-xs sm:tracking-[0.2em]">
                     <Icon className="h-3.5 w-3.5" />
                     <span>{card.badge}</span>
                   </div>
@@ -201,7 +201,7 @@ export function HeroCarousel() {
         </div>
       </div>
 
-      <div className="mt-4 flex items-center justify-between gap-4">
+      <div className="mt-4 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
         <div className="flex items-center gap-2">
           {heroCards.map((card, index) => (
             <button
@@ -220,7 +220,7 @@ export function HeroCarousel() {
           ))}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 self-end sm:self-auto">
           <button
             type="button"
             onClick={showPrevious}

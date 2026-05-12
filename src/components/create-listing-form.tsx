@@ -80,13 +80,13 @@ export function CreateListingForm({
     <form
       action={formAction}
       onSubmit={() => setIsSubmitting(true)}
-      className="space-y-5 rounded-2xl border border-zinc-200 bg-white p-5 sm:p-6"
+      className="space-y-4 rounded-2xl border border-zinc-200 bg-white p-4 sm:space-y-5 sm:p-6"
     >
       <input type="hidden" name="redirectTo" value={redirectTo} />
       {editMode ? <input type="hidden" name="listingId" value={initialValues?.id} /> : null}
 
       <fieldset disabled={isSubmitting} className="space-y-5">
-        <section className="space-y-3 rounded-xl border border-zinc-200 bg-zinc-50 p-4">
+        <section className="space-y-3 rounded-xl border border-zinc-200 bg-zinc-50 p-3.5 sm:p-4">
           <p className="text-sm font-semibold text-zinc-900">Item Info</p>
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="space-y-1 text-sm text-zinc-700">
@@ -149,7 +149,7 @@ export function CreateListingForm({
           </div>
         </section>
 
-        <section className="space-y-3 rounded-xl border border-zinc-200 bg-zinc-50 p-4">
+        <section className="space-y-3 rounded-xl border border-zinc-200 bg-zinc-50 p-3.5 sm:p-4">
           <p className="text-sm font-semibold text-zinc-900">Pricing & Agreement</p>
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="space-y-1 text-sm text-zinc-700">
@@ -184,7 +184,7 @@ export function CreateListingForm({
           </div>
         </section>
 
-        <section className="space-y-3 rounded-xl border border-zinc-200 bg-zinc-50 p-4">
+        <section className="space-y-3 rounded-xl border border-zinc-200 bg-zinc-50 p-3.5 sm:p-4">
           <p className="text-sm font-semibold text-zinc-900">Pictures</p>
           <label className="space-y-1 text-sm text-zinc-700">
             <span>
@@ -200,7 +200,7 @@ export function CreateListingForm({
           </p>
         </section>
 
-        <section className="space-y-3 rounded-xl border border-zinc-200 bg-zinc-50 p-4">
+        <section className="space-y-3 rounded-xl border border-zinc-200 bg-zinc-50 p-3.5 sm:p-4">
           <p className="text-sm font-semibold text-zinc-900">Address Details</p>
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="space-y-1 text-sm text-zinc-700">
@@ -237,7 +237,7 @@ export function CreateListingForm({
           </div>
         </section>
 
-        <section className="space-y-3 rounded-xl border border-zinc-200 bg-zinc-50 p-4">
+        <section className="space-y-3 rounded-xl border border-zinc-200 bg-zinc-50 p-3.5 sm:p-4">
           <p className="text-sm font-semibold text-zinc-900">Contact Details</p>
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="space-y-1 text-sm text-zinc-700">
@@ -284,7 +284,7 @@ export function CreateListingForm({
 
       {isSubmitting ? (
         <div className="fixed inset-0 z-[70] flex items-center justify-center bg-zinc-950/55 px-4">
-          <div className="inline-flex items-center gap-3 rounded-xl border border-zinc-200 bg-white px-4 py-3 shadow-2xl">
+          <div className="inline-flex max-w-md items-center gap-3 rounded-xl border border-zinc-200 bg-white px-4 py-3 shadow-2xl">
             <LoaderCircle className="h-5 w-5 animate-spin text-zinc-700" />
             <p className="text-sm font-medium text-zinc-900">{submitProgressLabel}</p>
           </div>

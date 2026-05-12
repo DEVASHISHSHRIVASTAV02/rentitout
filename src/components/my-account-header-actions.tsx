@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AlertTriangle, MoreVertical, X } from "lucide-react";
 import { deleteAccountAction, signOutAction } from "@/app/actions";
 import { MyAccountListingPopup } from "@/components/my-account-listing-popup";
@@ -14,6 +14,14 @@ export function MyAccountHeaderActions({ defaultContactEmail }: MyAccountHeaderA
   const menuRef = useRef<HTMLDetailsElement>(null);
   const [isSignOutConfirmOpen, setIsSignOutConfirmOpen] = useState(false);
   const [isDeleteAccountConfirmOpen, setIsDeleteAccountConfirmOpen] = useState(false);
+  const hasOpenModal = isSignOutConfirmOpen || isDeleteAccountConfirmOpen;
+
+  useEffect(() => {
+    document.body.classList.toggle("modal-open", hasOpenModal);
+    return () => {
+      document.body.classList.remove("modal-open");
+    };
+  }, [hasOpenModal]);
 
   const closeActionsMenu = () => {
     menuRef.current?.removeAttribute("open");
@@ -59,8 +67,8 @@ export function MyAccountHeaderActions({ defaultContactEmail }: MyAccountHeaderA
       </details>
 
       {isSignOutConfirmOpen ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/50 px-4">
-          <div className="w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-5 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-zinc-950/50 px-4 py-6 sm:items-center">
+          <div className="max-h-[92vh] w-full max-w-md overflow-y-auto rounded-2xl border border-zinc-200 bg-white p-5 shadow-2xl">
             <div className="mb-4 flex items-start justify-between gap-3">
               <div>
                 <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">Confirm</p>
@@ -98,8 +106,8 @@ export function MyAccountHeaderActions({ defaultContactEmail }: MyAccountHeaderA
       ) : null}
 
       {isDeleteAccountConfirmOpen ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/50 px-4">
-          <div className="w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-5 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-zinc-950/50 px-4 py-6 sm:items-center">
+          <div className="max-h-[92vh] w-full max-w-md overflow-y-auto rounded-2xl border border-zinc-200 bg-white p-5 shadow-2xl">
             <div className="mb-4 flex items-start justify-between gap-3">
               <div>
                 <p className="inline-flex items-center gap-1 text-xs uppercase tracking-[0.18em] text-rose-700">

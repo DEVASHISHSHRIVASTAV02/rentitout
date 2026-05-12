@@ -15,7 +15,7 @@ import { SubmitCooldownButton } from "@/components/ui/submit-cooldown-button";
 type SignInMode = "password" | "otp" | "passwordReset";
 
 const authCardClass =
-  "rounded-3xl border border-zinc-200/80 bg-white p-7 shadow-[0_12px_28px_-18px_rgba(15,23,42,0.45)] sm:p-8";
+  "rounded-3xl border border-zinc-200/80 bg-white p-5 shadow-[0_12px_28px_-18px_rgba(15,23,42,0.45)] sm:p-7";
 
 interface SignInFormProps {
   next: string;
@@ -44,8 +44,9 @@ export function SignInForm({ next, otpEmail, resetEmail }: SignInFormProps) {
           {hasRequestedOtp ? (
             <div className="mt-5 space-y-4">
               <p className="text-sm leading-relaxed text-zinc-700">
-                OTP was sent to <span className="font-medium text-zinc-900">{normalizedOtpEmail}</span>. Enter OTP
-                below and click Verify OTP to sign in.
+                OTP was sent to{" "}
+                <span className="break-all font-medium text-zinc-900">{normalizedOtpEmail}</span>. Enter OTP below
+                and click Verify OTP to sign in.
               </p>
 
               <form action={verifyOtpAction} className="space-y-4">
@@ -106,8 +107,8 @@ export function SignInForm({ next, otpEmail, resetEmail }: SignInFormProps) {
           {hasRequestedPasswordResetOtp ? (
             <div className="mt-5 space-y-4">
               <p className="text-sm leading-relaxed text-zinc-700">
-                OTP was sent to <span className="font-medium text-zinc-900">{normalizedResetEmail}</span>. Enter OTP
-                and choose a new password.
+                OTP was sent to <span className="break-all font-medium text-zinc-900">{normalizedResetEmail}</span>.
+                Enter OTP and choose a new password.
               </p>
 
               <form action={resetPasswordWithOtpAction} className="space-y-4">

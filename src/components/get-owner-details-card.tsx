@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Mail, Phone, ShieldCheck, UserRound, X } from "lucide-react";
 import { RecaptchaV2Checkbox } from "@/components/recaptcha-v2-checkbox";
 import { Button } from "@/components/ui/button";
@@ -62,6 +62,13 @@ export function GetOwnerDetailsCard({ listingId, ownerName }: GetOwnerDetailsCar
     }
   };
 
+  useEffect(() => {
+    document.body.classList.toggle("modal-open", isBotCheckOpen);
+    return () => {
+      document.body.classList.remove("modal-open");
+    };
+  }, [isBotCheckOpen]);
+
   return (
     <>
       <div className="space-y-3 rounded-2xl border border-zinc-200 bg-white p-5">
@@ -69,7 +76,7 @@ export function GetOwnerDetailsCard({ listingId, ownerName }: GetOwnerDetailsCar
         {!revealed ? (
           <>
             <p className="text-xs text-zinc-600">Complete verification to view owner contact details.</p>
-            <Button variant="secondary" onClick={openBotCheck}>
+            <Button variant="secondary" className="w-full sm:w-auto" onClick={openBotCheck}>
               Get Details
             </Button>
           </>
@@ -81,19 +88,19 @@ export function GetOwnerDetailsCard({ listingId, ownerName }: GetOwnerDetailsCar
             </p>
             <p className="flex items-center gap-2 text-sm text-zinc-700">
               <Mail className="h-4 w-4" />
-              {revealed.contactEmail ?? "Not shared"}
+              <span className="break-all">{revealed.contactEmail ?? "Not shared"}</span>
             </p>
             <p className="flex items-center gap-2 text-sm text-zinc-700">
               <Phone className="h-4 w-4" />
-              {revealed.contactPhone ?? "Not shared"}
+              <span className="break-words">{revealed.contactPhone ?? "Not shared"}</span>
             </p>
           </div>
         )}
       </div>
 
       {isBotCheckOpen ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/50 px-4">
-          <div className="w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-5 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-zinc-950/50 px-4 py-6 sm:items-center">
+          <div className="max-h-[92vh] w-full max-w-md overflow-y-auto rounded-2xl border border-zinc-200 bg-white p-5 shadow-2xl">
             <div className="mb-4 flex items-start justify-between gap-3">
               <div>
                 <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">Verify</p>
@@ -115,7 +122,9 @@ export function GetOwnerDetailsCard({ listingId, ownerName }: GetOwnerDetailsCar
                 Complete reCAPTCHA verification before continuing.
               </p>
               <label className="space-y-1 text-sm text-zinc-700">
-                <RecaptchaV2Checkbox onTokenChange={setRecaptchaToken} resetSignal={recaptchaResetSignal} />
+                <div className="overflow-x-auto">
+                  <RecaptchaV2Checkbox onTokenChange={setRecaptchaToken} resetSignal={recaptchaResetSignal} />
+                </div>
                 <input
                   type="text"
                   value={honeypot}

@@ -107,7 +107,7 @@ export function BrowseContactDetailsFlow({ listing }: BrowseContactDetailsFlowPr
       <Button
         type="button"
         variant="primary"
-        className="mt-1 w-full"
+        className="w-full"
         onClick={openBotCheck}
       >
         Contact Details
@@ -224,7 +224,7 @@ export function BrowseContactDetailsFlow({ listing }: BrowseContactDetailsFlowPr
                       </div>
 
                       <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-4">
-                        <p className="mb-2 text-sm font-medium text-zinc-900">Owner Contact</p>
+                        <p className="mb-2 text-sm font-medium text-zinc-900">Owner&apos;s Contact Details</p>
                         <div className="space-y-2">
                           <p className="flex items-center gap-2 text-sm text-zinc-700">
                             <UserRound className="h-4 w-4" />

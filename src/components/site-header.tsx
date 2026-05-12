@@ -27,8 +27,8 @@ export async function SiteHeader() {
           ) : (
             <Link href="/auth/sign-in">
               <Button
-                variant="secondary"
-                className="h-8 border-white bg-white px-2.5 text-[11px] text-black hover:bg-zinc-100 sm:h-9 sm:px-3 sm:text-sm"
+                variant="primary"
+                className="h-8 px-2.5 text-[11px] sm:h-9 sm:px-3 sm:text-sm"
               >
                 Sign In
               </Button>

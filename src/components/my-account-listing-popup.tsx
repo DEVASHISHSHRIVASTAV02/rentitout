@@ -1,7 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { CreateListingForm } from "@/components/create-listing-form";
 import { Button } from "@/components/ui/button";
@@ -24,8 +24,15 @@ export function MyAccountListingPopup({
   const [isOpen, setIsOpen] = useState(false);
   const isBrowser = typeof document !== "undefined";
 
+  useEffect(() => {
+    document.body.classList.toggle("modal-open", isOpen);
+    return () => {
+      document.body.classList.remove("modal-open");
+    };
+  }, [isOpen]);
+
   const modalContent = isOpen ? (
-    <div className="fixed inset-0 z-50 flex items-start justify-center bg-zinc-950/50 px-4 py-8 sm:py-12">
+    <div className="fixed inset-0 z-50 flex items-start justify-center bg-zinc-950/50 px-4 py-5 sm:py-8">
       <div className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-2xl border border-zinc-200 bg-white p-5 shadow-2xl sm:p-6">
         <div className="mb-4 flex items-start justify-between gap-3">
           <div>

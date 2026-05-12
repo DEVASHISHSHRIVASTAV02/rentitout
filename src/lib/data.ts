@@ -210,8 +210,8 @@ export async function getPublicListings(filters: ListingFilters = {}): Promise<P
   let index = 1;
 
   if (filters.city) {
-    whereClauses.push(`l.city ilike $${index++}`);
-    values.push(`%${filters.city}%`);
+    whereClauses.push(`lower(l.city) = lower($${index++})`);
+    values.push(filters.city.trim());
   }
   if (filters.category && filters.category !== "All") {
     whereClauses.push(`l.category = $${index++}`);

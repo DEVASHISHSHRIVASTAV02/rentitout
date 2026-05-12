@@ -2,6 +2,9 @@ interface ListingImagesErrorPayload {
   error?: string;
 }
 
+const listingImagesCache = new Map<string, string[]>();
+const listingImagesInFlight = new Map<string, Promise<string[]>>();
+
 async function readErrorMessage(response: Response) {
   const fallback = "Unable to load listing images";
   try {
@@ -13,15 +16,35 @@ async function readErrorMessage(response: Response) {
 }
 
 export async function fetchListingImages(listingId: string): Promise<string[]> {
-  const response = await fetch(`/api/listings/${encodeURIComponent(listingId)}/images`, {
-    method: "GET",
-    cache: "no-store",
-  });
-
-  if (!response.ok) {
-    throw new Error(await readErrorMessage(response));
+  const cached = listingImagesCache.get(listingId);
+  if (cached) {
+    return cached;
   }
 
-  const payload = (await response.json()) as { images: string[] };
-  return payload.images;
+  const existingInFlight = listingImagesInFlight.get(listingId);
+  if (existingInFlight) {
+    return existingInFlight;
+  }
+
+  const request = (async () => {
+    const response = await fetch(`/api/listings/${encodeURIComponent(listingId)}/images`, {
+      method: "GET",
+    });
+
+    if (!response.ok) {
+      throw new Error(await readErrorMessage(response));
+    }
+
+    const payload = (await response.json()) as { images: string[] };
+    const images = payload.images.filter((entry) => typeof entry === "string" && entry.trim().length > 0);
+    listingImagesCache.set(listingId, images);
+    return images;
+  })();
+
+  listingImagesInFlight.set(listingId, request);
+  try {
+    return await request;
+  } finally {
+    listingImagesInFlight.delete(listingId);
+  }
 }

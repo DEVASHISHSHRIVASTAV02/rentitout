@@ -141,14 +141,38 @@ create index if not exists listing_city_idx on public.listing (city);
 create index if not exists listing_category_idx on public.listing (category);
 create index if not exists listing_active_idx on public.listing (is_active);
 create index if not exists listing_active_created_at_idx on public.listing (is_active, created_at desc);
+create index if not exists listing_active_category_created_at_idx
+  on public.listing (category, created_at desc)
+  where is_active = true;
+create index if not exists listing_active_city_lower_created_at_idx
+  on public.listing ((lower(city)), created_at desc)
+  where is_active = true;
+create index if not exists listing_active_category_price_created_at_idx
+  on public.listing (category, price_per_month, created_at desc)
+  where is_active = true;
+create index if not exists listing_active_city_lower_price_created_at_idx
+  on public.listing ((lower(city)), price_per_month, created_at desc)
+  where is_active = true;
+create index if not exists listing_active_pincode_created_at_idx
+  on public.listing (pincode, created_at desc)
+  where is_active = true;
 create index if not exists listing_email_idx on public.listing (contact_email);
 create index if not exists listing_pincode_idx on public.listing (pincode);
 create index if not exists listing_price_per_month_idx on public.listing (price_per_month);
 create index if not exists listing_min_agreement_months_idx on public.listing (min_agreement_months);
+create index if not exists listing_active_min_agreement_created_at_idx
+  on public.listing (min_agreement_months, created_at desc)
+  where is_active = true;
 create index if not exists listing_listing_id_upper_idx on public.listing ((upper(listing_id)));
+create index if not exists listing_active_sub_category_lower_idx
+  on public.listing ((lower(sub_category)))
+  where is_active = true and sub_category is not null;
 create index if not exists listing_city_trgm_idx on public.listing using gin (city gin_trgm_ops);
 create index if not exists listing_category_trgm_idx on public.listing using gin (category gin_trgm_ops);
 create index if not exists listing_pincode_trgm_idx on public.listing using gin (pincode gin_trgm_ops);
+create index if not exists listing_item_info_trgm_idx
+  on public.listing using gin (item_info gin_trgm_ops)
+  where item_info is not null;
 
 create table if not exists public.listing_images (
   id uuid primary key default gen_random_uuid(),

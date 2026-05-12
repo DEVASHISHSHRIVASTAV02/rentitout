@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Filter } from "lucide-react";
+import { Filter, Search } from "lucide-react";
 import { PincodeInputWithHighlights } from "@/components/pincode-input-with-highlights";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,6 +28,7 @@ interface BrowseFiltersFormProps {
   minPrice: string;
   maxPrice: string;
   agreementMin: string;
+  showHeader?: boolean;
 }
 
 function isListableItem(value: string): value is ListableItem {
@@ -45,6 +46,7 @@ export function BrowseFiltersForm({
   minPrice,
   maxPrice,
   agreementMin,
+  showHeader = true,
 }: BrowseFiltersFormProps) {
   const [selectedCategory, setSelectedCategory] = useState(category);
   const [selectedSubCategory, setSelectedSubCategory] = useState(subCategory);
@@ -72,12 +74,17 @@ export function BrowseFiltersForm({
     <form className="space-y-4">
       <input type="hidden" name="sort" value={sortOrder} />
       <input type="hidden" name="page" value="1" />
-      <div>
-        <p className="inline-flex items-center gap-2 text-sm font-semibold text-zinc-900">
-          <Filter className="h-4 w-4" />
-          Filter
-        </p>
-      </div>
+      {showHeader ? (
+        <div>
+          <p className="inline-flex items-center gap-2 text-sm font-semibold text-zinc-900">
+            <Filter className="h-4 w-4" />
+            <span>Filter</span>
+            <span className="text-zinc-400">&amp;</span>
+            <Search className="h-4 w-4" />
+            <span>Search</span>
+          </p>
+        </div>
+      ) : null}
 
       <label className="block space-y-1.5">
         <span className="text-sm font-medium text-zinc-700">Category</span>

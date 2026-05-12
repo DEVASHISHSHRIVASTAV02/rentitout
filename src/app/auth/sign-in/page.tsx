@@ -1,12 +1,21 @@
-﻿import Link from "next/link";
+﻿import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { SignInForm } from "@/components/auth/sign-in-form";
 import { Alert } from "@/components/ui/alert";
 import { getCurrentUser } from "@/lib/auth";
+import { buildPageMetadata } from "@/lib/seo";
 
 interface SignInPageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
+
+export const metadata: Metadata = buildPageMetadata({
+  title: "Sign In",
+  description: "Sign in to manage your listings, profile, and rental communication settings.",
+  path: "/auth/sign-in",
+  noIndex: true,
+});
 
 export default async function SignInPage({ searchParams }: SignInPageProps) {
   const query = await searchParams;
@@ -23,10 +32,10 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-lg min-w-0 flex-col gap-6 px-4 py-12 sm:px-0 sm:py-14">
+    <div className="mx-auto flex w-full max-w-lg min-w-0 flex-col gap-5 px-4 py-8 sm:gap-6 sm:py-12">
       <div className="space-y-2">
-        <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">Renntitout</p>
-        <h1 className="mt-2 text-3xl font-semibold text-zinc-950">Sign In</h1>
+        <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">RentItOut</p>
+        <h1 className="mt-2 text-2xl font-semibold text-zinc-950 sm:text-3xl">Sign In</h1>
         <p className="text-sm text-zinc-600">Use your email and password to continue.</p>
       </div>
 
@@ -42,7 +51,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
         </Link>
       </p>
 
-      <p className="text-center text-xs text-zinc-500">
+      <p className="text-center text-xs leading-6 text-zinc-500">
         <Link href="/privacy-policy" className="underline-offset-4 hover:underline">
           Privacy
         </Link>{" "}
@@ -54,4 +63,3 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
     </div>
   );
 }
-

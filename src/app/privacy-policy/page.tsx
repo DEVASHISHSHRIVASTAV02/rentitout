@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Privacy Policy | RentItOut",
-  description: "How RentItOut collects, uses, and protects your data.",
-};
+export const metadata: Metadata = buildPageMetadata({
+  title: "Privacy Policy",
+  description: "Understand how RentItOut collects, processes, and protects account and listing data.",
+  path: "/privacy-policy",
+  keywords: ["privacy policy", "data protection", "RentItOut privacy"],
+});
 
 export default function PrivacyPolicyPage() {
   return (

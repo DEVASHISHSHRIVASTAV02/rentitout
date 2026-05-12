@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { RentalComplianceWorkflow } from "@/components/rental-compliance-workflow";
+import { buildPageMetadata } from "@/lib/seo";
 
 type AgreementTemplate = {
   title: string;
@@ -51,11 +52,13 @@ const templates: AgreementTemplate[] = [
   },
 ];
 
-export const metadata: Metadata = {
-  title: "Rental Agreement Templates | RentItOut",
+export const metadata: Metadata = buildPageMetadata({
+  title: "Rental Agreement Templates",
   description:
     "Download editable appliance rental agreement templates and handover checklists for offline renter-owner contracts.",
-};
+  path: "/rental-agreement-templates",
+  keywords: ["rental agreement template", "appliance agreement", "handover checklist"],
+});
 
 export default function RentalAgreementTemplatesPage() {
   return (

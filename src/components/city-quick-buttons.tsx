@@ -29,7 +29,7 @@ function getBrowseCityHref(city: string) {
 
 export function CityQuickButtons({ className }: CityQuickButtonsProps) {
   return (
-    <div className={cn("grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5", className)}>
+    <div className={cn("grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5", className)}>
       {SUPPORTED_CITIES.map((city, index) => {
         const card = CITY_MONUMENTS[city];
         const tiltClass = index % 2 === 0 ? "sm:rotate-[0.2deg]" : "sm:-rotate-[0.2deg]";
@@ -39,21 +39,21 @@ export function CityQuickButtons({ className }: CityQuickButtonsProps) {
             key={city}
             href={getBrowseCityHref(city)}
             className={cn(
-              "group rounded-2xl bg-black p-2 shadow-sm transition-all hover:-translate-y-0.5 hover:bg-zinc-900 hover:shadow-md",
+              "group h-full rounded-2xl bg-black p-2 shadow-sm transition-all hover:-translate-y-0.5 hover:bg-zinc-900 hover:shadow-md",
               tiltClass,
             )}
           >
-            <div className="space-y-2">
+            <div className="flex h-full flex-col gap-2">
               <div className="overflow-hidden rounded-xl">
                 <Image
                   src={card.image}
                   alt={`${card.monument} in ${city}`}
                   width={800}
                   height={520}
-                  className="h-28 w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  className="h-32 w-full object-cover transition-transform duration-300 group-hover:scale-105 sm:h-28 md:h-32"
                 />
               </div>
-              <div className="px-1 pb-1 text-center">
+              <div className="mt-auto px-1 pb-1 text-center">
                 <p className="text-sm font-semibold text-white sm:text-base">{city}</p>
               </div>
             </div>

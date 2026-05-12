@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ensureProfile, requireUser } from "@/lib/auth";
@@ -6,11 +7,19 @@ import { CreateListingForm } from "@/components/create-listing-form";
 import { Alert } from "@/components/ui/alert";
 import { type ListableItem, LISTABLE_ITEMS } from "@/lib/listable-items";
 import { CATEGORY_ITEM_INFO_PRESET_OPTIONS, CATEGORY_SUBCATEGORY_OPTIONS } from "@/lib/listing-form-config";
+import { buildPageMetadata } from "@/lib/seo";
 
 interface EditListingPageProps {
   params: Promise<{ id: string }>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
+
+export const metadata: Metadata = buildPageMetadata({
+  title: "Edit Listing",
+  description: "Edit an existing listing in your RentItOut account.",
+  path: "/my-account/edit",
+  noIndex: true,
+});
 
 function isListableItem(value: string): value is ListableItem {
   return LISTABLE_ITEMS.includes(value as ListableItem);

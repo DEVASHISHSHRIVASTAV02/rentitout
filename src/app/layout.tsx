@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Manrope, Sora } from "next/font/google";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { APP_BASE_URL, SITE_NAME } from "@/lib/seo";
 import "./globals.css";
 
 const bodyFont = Manrope({
@@ -15,9 +16,46 @@ const headingFont = Sora({
 });
 
 export const metadata: Metadata = {
-  title: "RentItOut | Appliance Rental Marketplace",
+  metadataBase: new URL(APP_BASE_URL),
+  title: {
+    default: "Rent Appliances and Home Essentials in Your City",
+    template: `%s | ${SITE_NAME}`,
+  },
   description:
-    "A simple and elegant platform to rent appliances and house essentials from people in your city.",
+    "Browse verified appliance rental listings by city, category, budget, and agreement duration on RentItOut.",
+  keywords: [
+    "appliance rental marketplace",
+    "rent appliances online",
+    "city rental listings",
+    "short term appliance rent",
+    "RentItOut",
+  ],
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    siteName: SITE_NAME,
+    url: "/",
+    title: "Rent Appliances and Home Essentials in Your City",
+    description:
+      "Browse verified appliance rental listings by city, category, budget, and agreement duration on RentItOut.",
+    images: [
+      {
+        url: "/favicon.ico",
+        width: 256,
+        height: 256,
+        alt: SITE_NAME,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Rent Appliances and Home Essentials in Your City",
+    description:
+      "Browse verified appliance rental listings by city, category, budget, and agreement duration on RentItOut.",
+    images: ["/favicon.ico"],
+  },
 };
 
 export default function RootLayout({

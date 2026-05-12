@@ -11,12 +11,19 @@ import { type RevealedContactDetails } from "@/lib/contact-gate-types";
 import { getListingDetailFields } from "@/lib/listing-details";
 import { fetchListingImages } from "@/lib/listing-images-client";
 import { type PublicApplianceListing } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 interface ListingQuickViewFlowProps {
   listing: PublicApplianceListing;
+  triggerMode?: "category-button" | "card-overlay";
+  className?: string;
 }
 
-export function ListingQuickViewFlow({ listing }: ListingQuickViewFlowProps) {
+export function ListingQuickViewFlow({
+  listing,
+  triggerMode = "category-button",
+  className,
+}: ListingQuickViewFlowProps) {
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
   const [isCaptchaOpen, setIsCaptchaOpen] = useState(false);
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
@@ -119,18 +126,34 @@ export function ListingQuickViewFlow({ listing }: ListingQuickViewFlowProps) {
     }
   };
 
+  const openQuickView = () => {
+    setIsQuickViewOpen(true);
+    void ensureFullImageUrls();
+  };
+
   return (
     <>
-      <button
-        type="button"
-        onClick={() => {
-          setIsQuickViewOpen(true);
-          void ensureFullImageUrls();
-        }}
-        className="w-full truncate text-left text-base font-semibold text-zinc-900 hover:text-zinc-700 hover:underline"
-      >
-        {listing.category}
-      </button>
+      {triggerMode === "card-overlay" ? (
+        <button
+          type="button"
+          onClick={openQuickView}
+          className={cn("absolute inset-0 rounded-2xl", className)}
+          aria-label={`Open quick view for ${listing.category}`}
+        >
+          <span className="sr-only">Open quick view for {listing.category}</span>
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={openQuickView}
+          className={cn(
+            "w-full truncate text-left text-base font-semibold text-zinc-900 hover:text-zinc-700 hover:underline",
+            className,
+          )}
+        >
+          {listing.category}
+        </button>
+      )}
 
       {typeof document !== "undefined"
         ? createPortal(
@@ -186,7 +209,7 @@ export function ListingQuickViewFlow({ listing }: ListingQuickViewFlowProps) {
                     <div className="border-t border-zinc-200 p-4 sm:p-6">
                       {revealedContact ? (
                         <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-4">
-                          <p className="text-sm font-semibold text-zinc-900">Contact Details</p>
+                          <p className="text-sm font-semibold text-zinc-900">Owner&apos;s Contact Details</p>
                           <div className="mt-3 space-y-2 text-sm text-zinc-700">
                             <p className="flex items-center gap-2">
                               <UserRound className="h-4 w-4" />

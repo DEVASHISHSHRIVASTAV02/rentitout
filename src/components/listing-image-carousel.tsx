@@ -42,6 +42,10 @@ function wrapIndex(next: number, total: number) {
   return (next + total) % total;
 }
 
+function isOptimizableListingImageSrc(src: string) {
+  return src.startsWith("/");
+}
+
 export function ListingImageCarousel({
   images,
   alt,
@@ -64,6 +68,7 @@ export function ListingImageCarousel({
   const total = displayImages.length;
   const [activeIndex, setActiveIndex] = useState(0);
   const currentIndex = total > 0 ? wrapIndex(activeIndex, total) : 0;
+  const currentImageSrc = total > 0 ? displayImages[currentIndex] : "";
 
   const showPrevious = () => {
     setActiveIndex((current) => wrapIndex(current - 1, total));
@@ -79,11 +84,12 @@ export function ListingImageCarousel({
         <>
           <div className={cn("relative aspect-[16/10] w-full", imageContainerClassName)}>
             <Image
-              src={displayImages[currentIndex]}
+              src={currentImageSrc}
               alt={`${alt} image ${currentIndex + 1}`}
               fill
               sizes={sizes}
-              unoptimized
+              quality={72}
+              unoptimized={!isOptimizableListingImageSrc(currentImageSrc)}
               onError={() => {
                 const failedSrc = displayImages[currentIndex];
                 if (!failedSrc) {

@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Terms and Conditions | RentItOut",
-  description: "Terms for using RentItOut.",
-};
+export const metadata: Metadata = buildPageMetadata({
+  title: "Terms and Conditions",
+  description: "Read RentItOut terms covering platform usage, listing responsibilities, and legal limitations.",
+  path: "/terms-and-conditions",
+  keywords: ["rental marketplace terms", "RentItOut legal terms"],
+});
 
 export default function TermsAndConditionsPage() {
   return (

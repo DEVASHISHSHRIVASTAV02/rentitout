@@ -68,7 +68,12 @@ interface ApplianceQuickButtonsProps {
 
 export function ApplianceQuickButtons({ className }: ApplianceQuickButtonsProps) {
   return (
-    <div className={cn("grid grid-cols-2 gap-2 sm:grid-cols-3 lg:flex lg:flex-nowrap lg:items-center lg:overflow-x-auto lg:pb-1", className)}>
+    <div
+      className={cn(
+        "flex gap-2 overflow-x-auto pb-1 snap-x snap-mandatory sm:flex-wrap sm:overflow-visible sm:pb-0 sm:snap-none",
+        className,
+      )}
+    >
       {applianceQuickLinks.map((item) => {
         const Icon = item.icon;
         return (
@@ -76,7 +81,7 @@ export function ApplianceQuickButtons({ className }: ApplianceQuickButtonsProps)
             key={item.label}
             href={getBrowseHref(item.category)}
             className={cn(
-              "group relative inline-flex min-h-12 w-full items-center justify-center gap-2 overflow-hidden rounded-xl border border-white/25 bg-gradient-to-br px-3 py-2 text-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg lg:w-auto lg:shrink-0 lg:justify-start",
+              "group relative inline-flex min-h-12 w-auto min-w-max shrink-0 snap-start items-center justify-center gap-2 overflow-hidden rounded-xl border border-white/25 bg-gradient-to-br px-3 py-2 text-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg sm:snap-none",
               getCategoryGradientClass(item.category),
             )}
           >
@@ -86,7 +91,7 @@ export function ApplianceQuickButtons({ className }: ApplianceQuickButtonsProps)
               <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-white/30 bg-white/15">
                 <Icon className="h-4 w-4" />
               </span>
-              <span className="text-center text-xs font-semibold leading-tight sm:text-sm sm:whitespace-nowrap">
+              <span className="whitespace-nowrap text-center text-xs font-semibold leading-tight sm:text-left sm:text-sm">
                 {item.label}
               </span>
             </div>
