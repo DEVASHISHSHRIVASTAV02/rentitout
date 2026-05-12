@@ -1,7 +1,6 @@
 import path from "path";
 import { promises as fs } from "fs";
 import crypto from "crypto";
-import sharp from "sharp";
 
 function resolveAppRootDir() {
   const fromEnv = process.env.APP_ROOT?.trim();
@@ -18,12 +17,6 @@ const LISTING_IMAGES_RELATIVE_ROOT = path.join("uploads", "listing-images");
 const DELETED_LISTING_IMAGES_RELATIVE_ROOT = path.join("uploads", "deleted-listing-images");
 const LISTING_IMAGES_ABSOLUTE_ROOT = path.join(PUBLIC_ROOT_DIR, LISTING_IMAGES_RELATIVE_ROOT);
 const DELETED_LISTING_IMAGES_ABSOLUTE_ROOT = path.join(PUBLIC_ROOT_DIR, DELETED_LISTING_IMAGES_RELATIVE_ROOT);
-const MAX_UPLOAD_IMAGE_DIMENSION = 1920;
-const MAX_UPLOAD_IMAGE_PIXELS = 32_000_000;
-const JPEG_QUALITY = 78;
-const PNG_QUALITY = 82;
-const WEBP_QUALITY = 76;
-type OutputImageFormat = "jpeg" | "png" | "webp";
 
 export interface ListingImageArchiveInput {
   imageUrl: string;
@@ -84,81 +77,32 @@ function getNormalizedInputExtension(fileName: string) {
   return extension ? extension.toLowerCase() : "";
 }
 
-function resolveOutputImageFormat(file: File): OutputImageFormat {
+function resolveOutputImageExtension(file: File): ".jpg" | ".png" | ".webp" {
   const fileType = file.type.trim().toLowerCase();
   switch (fileType) {
     case "image/jpg":
     case "image/jpeg":
-      return "jpeg";
+      return ".jpg";
     case "image/png":
-      return "png";
+      return ".png";
     case "image/webp":
-      return "webp";
+      return ".webp";
     default:
       break;
   }
 
   const extension = getNormalizedInputExtension(file.name);
+  if (extension === ".jpg" || extension === ".jpeg") {
+    return ".jpg";
+  }
   if (extension === ".png") {
-    return "png";
-  }
-  if (extension === ".webp") {
-    return "webp";
-  }
-  return "jpeg";
-}
-
-function getOutputImageExtension(format: OutputImageFormat) {
-  if (format === "png") {
     return ".png";
   }
-  if (format === "webp") {
+  if (extension === ".webp") {
     return ".webp";
   }
+
   return ".jpg";
-}
-
-async function compressListingImageBuffer(inputBuffer: Buffer, outputFormat: OutputImageFormat) {
-  let pipeline = sharp(inputBuffer, { limitInputPixels: MAX_UPLOAD_IMAGE_PIXELS })
-    .rotate()
-    .resize({
-      width: MAX_UPLOAD_IMAGE_DIMENSION,
-      height: MAX_UPLOAD_IMAGE_DIMENSION,
-      fit: "inside",
-      withoutEnlargement: true,
-    });
-
-  switch (outputFormat) {
-    case "jpeg":
-      pipeline = pipeline.jpeg({
-        quality: JPEG_QUALITY,
-        mozjpeg: true,
-        chromaSubsampling: "4:2:0",
-      });
-      break;
-    case "png":
-      pipeline = pipeline.png({
-        quality: PNG_QUALITY,
-        compressionLevel: 9,
-        effort: 8,
-        palette: true,
-      });
-      break;
-    case "webp":
-      pipeline = pipeline.webp({
-        quality: WEBP_QUALITY,
-        effort: 6,
-      });
-      break;
-    default:
-      break;
-  }
-
-  const compressedBuffer = await pipeline.toBuffer();
-  if (compressedBuffer.length === 0) {
-    throw new Error("Compressed image output is empty");
-  }
-  return compressedBuffer;
 }
 
 export async function saveListingImage(file: File, listingPublicId: string, sortOrder: number) {
@@ -166,8 +110,7 @@ export async function saveListingImage(file: File, listingPublicId: string, sort
     return null;
   }
 
-  const outputFormat = resolveOutputImageFormat(file);
-  const extension = getOutputImageExtension(outputFormat);
+  const extension = resolveOutputImageExtension(file);
   const slotNumber = Math.max(1, sortOrder + 1);
   const safeListingId = sanitizeDirectoryName(listingPublicId) || "listing";
   const finalName = `${slotNumber}-${crypto.randomUUID()}${extension}`;
@@ -176,9 +119,11 @@ export async function saveListingImage(file: File, listingPublicId: string, sort
   const absoluteFilePath = path.join(absoluteDir, finalName);
 
   await fs.mkdir(absoluteDir, { recursive: true });
-  const inputBuffer = Buffer.from(await file.arrayBuffer());
-  const outputBuffer = await compressListingImageBuffer(inputBuffer, outputFormat);
-  await fs.writeFile(absoluteFilePath, outputBuffer);
+  const fileBuffer = Buffer.from(await file.arrayBuffer());
+  if (fileBuffer.length === 0) {
+    return null;
+  }
+  await fs.writeFile(absoluteFilePath, fileBuffer);
 
   return `/${relativeDir.replace(/\\/g, "/")}/${finalName}`;
 }

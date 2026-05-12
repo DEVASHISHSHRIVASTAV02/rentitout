@@ -249,10 +249,15 @@ function validateListingImageFiles(files: File[], required: boolean) {
     const normalizedMime = file.type.trim().toLowerCase();
     const normalizedExtension = getNormalizedFileExtension(file.name);
     const hasAllowedMime = normalizedMime.length > 0 && ALLOWED_IMAGE_MIME_TYPES.has(normalizedMime);
-    const hasAllowedExtension =
-      normalizedExtension.length > 0 && ALLOWED_IMAGE_FILE_EXTENSIONS.has(normalizedExtension);
+    const hasAllowedExtension = ALLOWED_IMAGE_FILE_EXTENSIONS.has(normalizedExtension);
 
-    if (!hasAllowedMime && !hasAllowedExtension) {
+    // If browser sends MIME type, it must be in our allowlist.
+    if (normalizedMime.length > 0 && !hasAllowedMime) {
+      return "Only JPG, PNG, or WEBP images are allowed (HEIC is not supported)";
+    }
+
+    // If MIME is missing/blank (some devices), fall back to file extension.
+    if (normalizedMime.length === 0 && !hasAllowedExtension) {
       return "Only JPG, PNG, or WEBP images are allowed (HEIC is not supported)";
     }
   }
