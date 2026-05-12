@@ -261,10 +261,16 @@ function validateListingImageFiles(files: File[], required: boolean) {
 }
 
 async function saveListingImages(files: File[], listingPublicId: string, startSortOrder = 0) {
-  const saved = await Promise.all(
-    files.map((file, index) => saveListingImage(file, listingPublicId, startSortOrder + index)),
-  );
-  return saved.filter((entry): entry is string => typeof entry === "string" && entry.length > 0);
+  const saved: string[] = [];
+
+  for (const [index, file] of files.entries()) {
+    const imageUrl = await saveListingImage(file, listingPublicId, startSortOrder + index);
+    if (typeof imageUrl === "string" && imageUrl.length > 0) {
+      saved.push(imageUrl);
+    }
+  }
+
+  return saved;
 }
 
 async function hasAnyPersistedListingImageUrl(imageUrls: string[]) {

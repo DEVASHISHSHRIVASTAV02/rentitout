@@ -23,6 +23,7 @@ const MAX_UPLOAD_IMAGE_PIXELS = 32_000_000;
 const JPEG_QUALITY = 78;
 const PNG_QUALITY = 82;
 const WEBP_QUALITY = 76;
+type OutputImageFormat = "jpeg" | "png" | "webp";
 
 export interface ListingImageArchiveInput {
   imageUrl: string;
@@ -78,41 +79,46 @@ function resolvePublicFilePath(publicUrl: string, expectedAbsoluteRoot: string) 
   return absolutePath;
 }
 
-function getFileExtension(file: File) {
+function getNormalizedInputExtension(fileName: string) {
+  const extension = path.extname(fileName || "listing-image");
+  return extension ? extension.toLowerCase() : "";
+}
+
+function resolveOutputImageFormat(file: File): OutputImageFormat {
   const fileType = file.type.trim().toLowerCase();
   switch (fileType) {
-    case "image/jpeg":
     case "image/jpg":
-      return ".jpg";
+    case "image/jpeg":
+      return "jpeg";
     case "image/png":
-      return ".png";
+      return "png";
     case "image/webp":
-      return ".webp";
+      return "webp";
     default:
       break;
   }
 
-  const fileName = file.name || "listing-image";
-  const extension = path.extname(fileName);
-  if (extension) {
-    return extension.toLowerCase();
-  }
-  return ".jpg";
-}
-
-function normalizeOutputFormat(extension: string): "jpeg" | "png" | "webp" {
-  const normalized = extension.trim().toLowerCase();
-  if (normalized === ".png") {
+  const extension = getNormalizedInputExtension(file.name);
+  if (extension === ".png") {
     return "png";
   }
-  if (normalized === ".webp") {
+  if (extension === ".webp") {
     return "webp";
   }
   return "jpeg";
 }
 
-async function compressListingImageBuffer(inputBuffer: Buffer, extension: string) {
-  const outputFormat = normalizeOutputFormat(extension);
+function getOutputImageExtension(format: OutputImageFormat) {
+  if (format === "png") {
+    return ".png";
+  }
+  if (format === "webp") {
+    return ".webp";
+  }
+  return ".jpg";
+}
+
+async function compressListingImageBuffer(inputBuffer: Buffer, outputFormat: OutputImageFormat) {
   let pipeline = sharp(inputBuffer, { limitInputPixels: MAX_UPLOAD_IMAGE_PIXELS })
     .rotate()
     .resize({
@@ -160,7 +166,8 @@ export async function saveListingImage(file: File, listingPublicId: string, sort
     return null;
   }
 
-  const extension = getFileExtension(file);
+  const outputFormat = resolveOutputImageFormat(file);
+  const extension = getOutputImageExtension(outputFormat);
   const slotNumber = Math.max(1, sortOrder + 1);
   const safeListingId = sanitizeDirectoryName(listingPublicId) || "listing";
   const finalName = `${slotNumber}-${crypto.randomUUID()}${extension}`;
@@ -170,7 +177,7 @@ export async function saveListingImage(file: File, listingPublicId: string, sort
 
   await fs.mkdir(absoluteDir, { recursive: true });
   const inputBuffer = Buffer.from(await file.arrayBuffer());
-  const outputBuffer = await compressListingImageBuffer(inputBuffer, extension);
+  const outputBuffer = await compressListingImageBuffer(inputBuffer, outputFormat);
   await fs.writeFile(absoluteFilePath, outputBuffer);
 
   return `/${relativeDir.replace(/\\/g, "/")}/${finalName}`;
