@@ -43,7 +43,7 @@ function wrapIndex(next: number, total: number) {
 }
 
 function isOptimizableListingImageSrc(src: string) {
-  return src.startsWith("/");
+  return src.startsWith("/") && !src.startsWith("/uploads/");
 }
 
 export function ListingImageCarousel({
@@ -88,7 +88,6 @@ export function ListingImageCarousel({
               alt={`${alt} image ${currentIndex + 1}`}
               fill
               sizes={sizes}
-              quality={72}
               unoptimized={!isOptimizableListingImageSrc(currentImageSrc)}
               onError={() => {
                 const failedSrc = displayImages[currentIndex];
