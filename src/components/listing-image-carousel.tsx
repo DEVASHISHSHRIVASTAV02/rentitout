@@ -13,6 +13,7 @@ interface ListingImageCarouselProps {
   sizes?: string;
   imageFit?: "cover" | "contain";
   imageContainerClassName?: string;
+  hideDefaultFrame?: boolean;
 }
 
 function normalizeListingImageSrc(value: string) {
@@ -58,6 +59,7 @@ export function ListingImageCarousel({
   sizes = "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw",
   imageFit = "cover",
   imageContainerClassName,
+  hideDefaultFrame = false,
 }: ListingImageCarouselProps) {
   const [failedImages, setFailedImages] = useState<Record<string, true>>({});
 
@@ -84,7 +86,13 @@ export function ListingImageCarousel({
   };
 
   return (
-    <div className={cn("relative overflow-hidden rounded-xl border border-zinc-200 bg-zinc-100", className)}>
+    <div
+      className={cn(
+        "relative overflow-hidden bg-zinc-100",
+        hideDefaultFrame ? null : "rounded-xl border border-zinc-200",
+        className,
+      )}
+    >
       {total > 0 ? (
         <>
           <div className={cn("relative aspect-[16/10] w-full", imageContainerClassName)}>
