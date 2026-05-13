@@ -19,7 +19,7 @@ export function ListingCard({ listing }: ListingCardProps) {
 
   return (
     <article
-      className="listing-card group relative flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-gradient-to-b from-white to-zinc-50 text-zinc-900 shadow-sm transition-colors duration-200 sm:border-transparent sm:hover:border-zinc-300 hover:shadow-xl"
+      className="listing-card group relative flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-gradient-to-b from-white to-zinc-50 text-zinc-900 shadow-sm transition-colors duration-200 hover:border-zinc-300 hover:shadow-xl"
     >
       <ListingQuickViewFlow listing={listing} triggerMode="card-overlay" className="z-10" />
 
