@@ -19,7 +19,7 @@ export function ListingCard({ listing }: ListingCardProps) {
 
   return (
     <article
-      className="listing-card group relative flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-gradient-to-b from-white to-zinc-50 text-zinc-900 shadow-sm transition-colors duration-200 hover:border-zinc-300 hover:shadow-xl"
+      className="listing-card group relative flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-[#c3c3c8] bg-gradient-to-b from-white to-zinc-50 text-zinc-900 shadow-sm transition-all duration-200 hover:border-zinc-400 hover:-translate-y-0.5 hover:shadow-2xl"
     >
       <ListingQuickViewFlow listing={listing} triggerMode="card-overlay" className="z-10" />
 
@@ -29,7 +29,7 @@ export function ListingCard({ listing }: ListingCardProps) {
             images={listing.image_urls}
             alt={`${listing.category} listing`}
             hideDefaultFrame
-            className="border-b border-zinc-200"
+            className="border-b border-zinc-300"
             imageFit="contain"
             imageContainerClassName="aspect-[16/11] sm:aspect-[4/3]"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
@@ -81,4 +81,3 @@ export function ListingCard({ listing }: ListingCardProps) {
     </article>
   );
 }
-

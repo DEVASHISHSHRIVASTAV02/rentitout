@@ -181,7 +181,7 @@ export default async function BrowsePage({ searchParams }: BrowsePageProps) {
       <ApplianceQuickButtons />
 
       <section className="grid min-w-0 gap-4 lg:grid-cols-4 lg:items-start">
-        <details className="group min-w-0 overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-50 lg:hidden">
+        <details className="group min-w-0 overflow-hidden rounded-2xl border border-zinc-200 bg-[#f6f6f6] lg:hidden">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-4 py-3 text-sm font-semibold text-zinc-900 [&::-webkit-details-marker]:hidden">
             <span className="inline-flex items-center gap-2">
               <Filter className="h-4 w-4 text-zinc-700" />
@@ -210,7 +210,7 @@ export default async function BrowsePage({ searchParams }: BrowsePageProps) {
           </div>
         </details>
 
-        <aside className="hidden min-w-0 rounded-2xl border border-zinc-200 bg-zinc-50 p-4 sm:p-5 lg:sticky lg:top-24 lg:block lg:rounded-r-none lg:border-t-0 lg:border-b-0 lg:border-l-0 lg:border-r-zinc-400">
+        <aside className="hidden min-w-0 rounded-2xl border border-zinc-200 bg-[#f6f6f6] p-4 sm:p-5 lg:sticky lg:top-24 lg:block lg:rounded-r-none lg:border-t-0 lg:border-b-0 lg:border-l-0 lg:border-r-zinc-400">
           <BrowseFiltersForm
             key={`desktop-${filterFormKey}`}
             sortOrder={sortOrder}
