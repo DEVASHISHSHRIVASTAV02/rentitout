@@ -181,7 +181,7 @@ export default async function BrowsePage({ searchParams }: BrowsePageProps) {
       <ApplianceQuickButtons />
 
       <section className="grid min-w-0 gap-4 lg:grid-cols-4 lg:items-start">
-        <details className="group min-w-0 overflow-hidden rounded-2xl border border-zinc-200 bg-[#f6f6f6] lg:hidden">
+        <details className="group min-w-0 overflow-hidden rounded-2xl border border-[#c3c3c8] bg-[#f6f6f6] lg:hidden">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-4 py-3 text-sm font-semibold text-zinc-900 [&::-webkit-details-marker]:hidden">
             <span className="inline-flex items-center gap-2">
               <Filter className="h-4 w-4 text-zinc-700" />
@@ -192,7 +192,7 @@ export default async function BrowsePage({ searchParams }: BrowsePageProps) {
             </span>
             <ChevronDown className="h-4 w-4 text-zinc-600 transition-transform group-open:rotate-180" />
           </summary>
-          <div className="border-t border-zinc-200 p-4 sm:p-5">
+          <div className="border-t border-[#c3c3c8] p-4 sm:p-5">
             <BrowseFiltersForm
               key={`mobile-${filterFormKey}`}
               sortOrder={sortOrder}
