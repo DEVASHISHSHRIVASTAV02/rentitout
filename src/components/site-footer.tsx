@@ -3,13 +3,9 @@ import { BriefcaseBusiness, Camera, CirclePlay, MessageCircle } from "lucide-rea
 import { SUPPORTED_CITIES } from "@/lib/cities";
 import { LISTABLE_ITEMS } from "@/lib/listable-items";
 
-const RentItOutLinks = [
-  { label: "About us", href: "#linkholder-about-us" },
-  { label: "Carrers", href: "#linkholder-carrers" },
-  { label: "Contact us", href: "#linkholder-contact-us" },
-  { label: "Team", href: "#linkholder-team" },
-  { label: "Our story", href: "#linkholder-our-story" },
-  { label: "Benifits of RentItOut", href: "#linkholder-benifits" },
+const rentItOutLinks = [
+  { label: "About Us", href: "/about-us" },
+  { label: "Careers", href: "/careers" },
   { label: "Rental Agreement Templates", href: "/rental-agreement-templates" },
 ];
 
@@ -74,7 +70,7 @@ export function SiteFooter() {
         <section>
           <h3 className="text-lg font-semibold tracking-wide">RentItOut</h3>
           <ul className="mt-4 space-y-2 text-sm text-zinc-300">
-            {RentItOutLinks.map((link) => (
+            {rentItOutLinks.map((link) => (
               <li key={link.label}>
                 <Link href={link.href} className="hover:text-white">
                   {link.label}
