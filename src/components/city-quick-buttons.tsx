@@ -4,19 +4,19 @@ import { SUPPORTED_CITIES } from "@/lib/cities";
 import { cn } from "@/lib/utils";
 
 const CITY_MONUMENTS: Record<(typeof SUPPORTED_CITIES)[number], { monument: string; image: string }> = {
-  Delhi: { monument: "Red Fort", image: "/city-monuments/Delhiredfort.png" },
-  Mumbai: { monument: "Gateway of India", image: "/city-monuments/MumbaigatewayofIndia.png" },
-  Pune: { monument: "Shaniwar Wada", image: "/city-monuments/PuneShaniwarWada.png" },
-  Kolkata: { monument: "Howrah Bridge", image: "/city-monuments/KolkataHowarhbridge.png" },
-  Chennai: { monument: "Kapaleeshwarar Temple", image: "/city-monuments/ChennaiKapaleeshwararTemple.png" },
-  Hyderabad: { monument: "Charminar", image: "/city-monuments/Hydrabadcharminar.png" },
-  Gurugram: { monument: "DLF Cyber Hub", image: "/city-monuments/GurgaonDLFcyberhub.png" },
-  Bengaluru: { monument: "Vidhana Soudha", image: "/city-monuments/BangloreVidhanSoudhan.png" },
-  Ahmedabad: { monument: "Sabarmati Riverfront", image: "/city-monuments/Ahemdabadsabarmatiriverfront.png" },
-  Noida: { monument: "Supernova", image: "/city-monuments/NoidaSupernova.png" },
-  "Greater Noida": { monument: "Buddh International Circuit", image: "/city-monuments/GreaternoidaF1track.png" },
-  Faridabad: { monument: "Raja Nahar Singh Palace", image: "/city-monuments/FaridabadRajaNaharSinghPalace.png" },
-  Ghaziabad: { monument: "Lakshmi Narayan Temple", image: "/city-monuments/Ghaziabadlakshminarayantemple.png" },
+  Delhi: { monument: "Red Fort", image: "/city-monuments/real_delhi.jpeg" },
+  Mumbai: { monument: "Gateway of India", image: "/city-monuments/real_mumbai.jpg" },
+  Pune: { monument: "Shaniwar Wada", image: "/city-monuments/real_pune.jpg" },
+  Kolkata: { monument: "Howrah Bridge", image: "/city-monuments/real_kolkata.jpg" },
+  Chennai: { monument: "Kapaleeshwarar Temple", image: "/city-monuments/real_chennai.jpg" },
+  Hyderabad: { monument: "Charminar", image: "/city-monuments/real_hydrabad.webp" },
+  Gurugram: { monument: "DLF Cyber Hub", image: "/city-monuments/real_gurgoan.jpg" },
+  Bengaluru: { monument: "Vidhana Soudha", image: "/city-monuments/real_banglore.jpg" },
+  Ahmedabad: { monument: "Sabarmati Riverfront", image: "/city-monuments/real_ahemdabad.webp" },
+  Noida: { monument: "Supernova", image: "/city-monuments/real_noida.jpg" },
+  "Greater Noida": { monument: "Buddh International Circuit", image: "/city-monuments/real_greaternoida.jpg" },
+  Faridabad: { monument: "Raja Nahar Singh Palace", image: "/city-monuments/real_faridabad.jpg" },
+  Ghaziabad: { monument: "Lakshmi Narayan Temple", image: "/city-monuments/real_ghaziabad.avif" },
 };
 
 interface CityQuickButtonsProps {
@@ -29,7 +29,7 @@ function getBrowseCityHref(city: string) {
 
 export function CityQuickButtons({ className }: CityQuickButtonsProps) {
   return (
-    <div className={cn("grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5", className)}>
+    <div className={cn("grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5", className)}>
       {SUPPORTED_CITIES.map((city, index) => {
         const card = CITY_MONUMENTS[city];
         const tiltClass = index % 2 === 0 ? "sm:rotate-[0.2deg]" : "sm:-rotate-[0.2deg]";
