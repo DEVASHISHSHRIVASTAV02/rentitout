@@ -1,60 +1,53 @@
-import type { LucideIcon } from "lucide-react";
-import { AirVent, BedDouble, Droplets, Flame, Snowflake, Sparkles, WashingMachine, Wind } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
-import { getCategoryGradientClass } from "@/lib/category-gradient";
 import { cn } from "@/lib/utils";
 
 interface ApplianceQuickLink {
   label: string;
   category: string;
-  icon: LucideIcon;
+  imageSrc?: string;
 }
 
 const applianceQuickLinks: ApplianceQuickLink[] = [
   {
-    label: "All",
-    category: "All",
-    icon: Sparkles,
-  },
-  {
     label: "AC",
     category: "AC",
-    icon: AirVent,
+    imageSrc: "/category-images/ac.png",
   },
   {
     label: "Bed",
     category: "Bed",
-    icon: BedDouble,
+    imageSrc: "/category-images/bed.png",
   },
   {
     label: "Cooler",
     category: "Cooler",
-    icon: Wind,
+    imageSrc: "/category-images/cooler15by10.png",
   },
   {
     label: "Fridge",
     category: "Fridge",
-    icon: Snowflake,
+    imageSrc: "/category-images/fridge16by10.png",
   },
   {
     label: "Geyser",
     category: "Geyser",
-    icon: Flame,
+    imageSrc: "/category-images/geyser16by10.png",
   },
   {
     label: "Mattress",
     category: "Mattress",
-    icon: BedDouble,
+    imageSrc: "/category-images/mattress.png",
   },
   {
     label: "Washing Machine",
     category: "Washing Machine",
-    icon: WashingMachine,
+    imageSrc: "/category-images/washingmachine16by10.png",
   },
   {
     label: "Water Purifier",
     category: "Water Purifier",
-    icon: Droplets,
+    imageSrc: "/category-images/waterpurifier16by10.png",
   },
 ];
 
@@ -70,31 +63,35 @@ export function ApplianceQuickButtons({ className }: ApplianceQuickButtonsProps)
   return (
     <div
       className={cn(
-        "flex gap-2 overflow-x-auto pb-1 snap-x snap-mandatory sm:flex-wrap sm:overflow-visible sm:pb-0 sm:snap-none",
+        "mb-5 flex gap-4 overflow-x-scroll pb-1 snap-x snap-mandatory",
         className,
       )}
     >
       {applianceQuickLinks.map((item) => {
-        const Icon = item.icon;
         return (
           <Link
             key={item.label}
             href={getBrowseHref(item.category)}
-            className={cn(
-              "group relative inline-flex min-h-12 w-auto min-w-max shrink-0 snap-start items-center justify-center gap-2 overflow-hidden rounded-xl border border-white/25 bg-gradient-to-br px-3 py-2 text-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg sm:snap-none",
-              getCategoryGradientClass(item.category),
-            )}
+            className="group inline-flex min-w-[11rem] shrink-0 snap-start flex-col sm:min-w-[13rem] sm:snap-none"
           >
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.35),transparent_55%)]" />
-
-            <div className="relative flex items-center gap-2">
-              <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-white/30 bg-white/15">
-                <Icon className="h-4 w-4" />
-              </span>
-              <span className="whitespace-nowrap text-center text-xs font-semibold leading-tight sm:text-left sm:text-sm">
-                {item.label}
-              </span>
-            </div>
+            {item.imageSrc ? (
+              <div className="relative h-28 w-full overflow-hidden rounded-2xl shadow-sm transition-all group-hover:-translate-y-0.5 group-hover:shadow-lg sm:h-32">
+                <Image
+                  src={item.imageSrc}
+                  alt=""
+                  fill
+                  sizes="(max-width: 640px) 176px, 208px"
+                  className="object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+              </div>
+            ) : (
+              <div className="flex h-28 w-full items-center justify-center rounded-2xl bg-zinc-100 shadow-sm sm:h-32">
+                <span className="text-sm font-semibold text-zinc-600">{item.label}</span>
+              </div>
+            )}
+            <span className="mt-2 px-1 text-center text-xs font-semibold leading-tight text-zinc-900 sm:text-sm">
+              {item.label}
+            </span>
           </Link>
         );
       })}
