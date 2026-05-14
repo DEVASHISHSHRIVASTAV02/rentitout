@@ -15,6 +15,44 @@ const homeMetadata = buildPageMetadata({
   keywords: ["home appliance rental", "rent in Delhi", "rent in Mumbai", "rental marketplace India"],
 });
 
+const HOME_FAQS = [
+  {
+    question: "Is RentItOut the owner of listed appliances?",
+    answer:
+      "No. RentItOut is a connector platform where owners post listings and renters discover options. Pricing, deposit, transport, and handover are finalized directly between renter and owner.",
+  },
+  {
+    question: "How do I find the right appliance faster?",
+    answer:
+      "Start with the appliance and city quick buttons on this page, then open Browse to filter by budget, agreement duration, and listing ID. This narrows choices before contacting owners.",
+  },
+  {
+    question: "Why are owner contact details not shown immediately?",
+    answer:
+      "Contact details are protected behind a reCAPTCHA verification step to reduce spam and automated abuse. Once verification succeeds, eligible contact fields are revealed.",
+  },
+  {
+    question: "What should I confirm before paying any advance?",
+    answer:
+      "Confirm appliance condition, accessories included, delivery timeline, refund/deposit terms, and agreement duration. Keep a written agreement signed by both parties before making payment.",
+  },
+  {
+    question: "Can I rent for a short duration like 1-3 months?",
+    answer:
+      "Many owners support short-term rentals, but terms vary by listing. Check the agreement period in listing details and reconfirm flexibility with the owner before closing.",
+  },
+  {
+    question: "I am an owner. Can I edit or remove my listing later?",
+    answer:
+      "Yes. Owners can manage listings from the dashboard, including updates to pricing, description, and visibility settings, and can remove listings when unavailable.",
+  },
+  {
+    question: "Do you provide rental agreement templates?",
+    answer:
+      "Yes. You can use the Rental Agreement Templates page for a starting draft, then customize clauses (deposit, damage, pickup/drop, and notice period) as needed.",
+  },
+] as const;
+
 export const metadata: Metadata = {
   ...homeMetadata,
   title: {
@@ -64,6 +102,35 @@ export default function Home() {
       </section>
 
       <MarketplaceComparisonCard />
+
+      <section className="-mx-4 min-w-0 bg-[#f6f6f6] py-10 sm:-mx-6 sm:py-14" aria-label="Frequently asked questions">
+        <div className="mx-auto grid w-full max-w-screen-2xl gap-8 px-4 sm:px-6 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-14">
+          <div>
+            <h2 className="text-2xl font-semibold text-zinc-900 sm:text-3xl">Frequently Asked Questions</h2>
+          </div>
+          <div>
+            {HOME_FAQS.map((faq) => (
+              <details key={faq.question} className="group border-b border-zinc-300">
+                <summary className="flex cursor-pointer list-none items-start gap-4 py-5 text-base font-medium leading-7 text-zinc-900 marker:content-none sm:text-xl sm:leading-8">
+                  <span>{faq.question}</span>
+                  <span aria-hidden="true" className="ml-auto shrink-0 text-2xl leading-none text-zinc-900 group-open:hidden">
+                    +
+                  </span>
+                </summary>
+                <p className="pb-5 pr-10 text-sm leading-6 text-zinc-700 sm:text-base">{faq.answer}</p>
+              </details>
+            ))}
+
+            <Link
+              href="/faqs"
+              className="mt-8 flex w-fit items-center rounded-xl bg-black px-6 py-3 text-sm font-semibold text-white transition hover:bg-zinc-800 mx-auto lg:mx-0"
+            >
+              <span>More FAQs</span>
+              <span className="ml-3">&gt;</span>
+            </Link>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

@@ -7,6 +7,7 @@ const rentItOutLinks = [
   { label: "About Us", href: "/about-us" },
   { label: "Careers", href: "/careers" },
   { label: "Rental Agreement Templates", href: "/rental-agreement-templates" },
+  { label: "Frequently Asked Questions", href: "/faqs" },
 ];
 
 const policyLinks = [
