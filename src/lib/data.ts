@@ -41,11 +41,12 @@ declare global {
   var __RentItOutListingImagesByIdCache: Map<string, CacheEntry<string[]>> | undefined;
 }
 
-const DEFAULT_PUBLIC_LISTINGS_CACHE_TTL_MS = 30000;
-const DEFAULT_LISTING_BY_ID_CACHE_TTL_MS = 30000;
+const DEFAULT_PUBLIC_LISTINGS_CACHE_TTL_MS = 120000;
+const DEFAULT_LISTING_BY_ID_CACHE_TTL_MS = 120000;
 const DEFAULT_IN_MEMORY_CACHE_MAX_ENTRIES = 300;
 const DEFAULT_PUBLIC_LISTINGS_PAGE_SIZE = 18;
 const MAX_PUBLIC_LISTINGS_PAGE_SIZE = 60;
+const MIN_EFFECTIVE_CACHE_TTL_MS = 1000;
 
 function readPositiveInt(value: string | undefined, fallback: number) {
   const parsed = Number.parseInt(value ?? "", 10);
@@ -53,6 +54,11 @@ function readPositiveInt(value: string | undefined, fallback: number) {
     return fallback;
   }
   return parsed;
+}
+
+function readCacheTtlMs(value: string | undefined, fallback: number) {
+  // Keep cache effectively enabled even if an env var is set too low by mistake.
+  return Math.max(readPositiveInt(value, fallback), MIN_EFFECTIVE_CACHE_TTL_MS);
 }
 
 function getPublicListingsCache() {
@@ -185,7 +191,7 @@ function normalizePageSize(value: number | undefined) {
 }
 
 export async function getPublicListings(filters: ListingFilters = {}): Promise<PublicListingsPageResult> {
-  const publicListingsCacheTtlMs = readPositiveInt(
+  const publicListingsCacheTtlMs = readCacheTtlMs(
     process.env.PUBLIC_LISTINGS_CACHE_TTL_MS,
     DEFAULT_PUBLIC_LISTINGS_CACHE_TTL_MS,
   );
@@ -331,7 +337,7 @@ export async function getPublicListings(filters: ListingFilters = {}): Promise<P
 }
 
 export async function getPublicListingImagesById(id: string): Promise<string[] | null> {
-  const listingByIdCacheTtlMs = readPositiveInt(
+  const listingByIdCacheTtlMs = readCacheTtlMs(
     process.env.LISTING_BY_ID_CACHE_TTL_MS,
     DEFAULT_LISTING_BY_ID_CACHE_TTL_MS,
   );
@@ -383,7 +389,7 @@ export async function getPublicListingImagesById(id: string): Promise<string[] |
 }
 
 export async function getListingById(id: string): Promise<ListingByIdResult | null> {
-  const listingByIdCacheTtlMs = readPositiveInt(
+  const listingByIdCacheTtlMs = readCacheTtlMs(
     process.env.LISTING_BY_ID_CACHE_TTL_MS,
     DEFAULT_LISTING_BY_ID_CACHE_TTL_MS,
   );
