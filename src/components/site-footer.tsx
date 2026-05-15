@@ -6,6 +6,7 @@ import { LISTABLE_ITEMS } from "@/lib/listable-items";
 const rentItOutLinks = [
   { label: "About Us", href: "/about-us" },
   { label: "Careers", href: "/careers" },
+  { label: "City + Category Rentals", href: "/rentals" },
   { label: "Rental Agreement Templates", href: "/rental-agreement-templates" },
   { label: "Frequently Asked Questions", href: "/faqs" },
 ];

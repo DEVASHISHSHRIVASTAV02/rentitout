@@ -3,8 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ListingCard } from "@/components/listing-card";
 import { getPublicListings } from "@/lib/data";
-import { buildPageMetadata } from "@/lib/seo";
-import { getSeoIntentBySlugs, SEO_CITY_CATEGORY_INTENTS } from "@/lib/seo-landing-pages";
+import { buildPageMetadata, toAbsoluteUrl } from "@/lib/seo";
+import { getRelatedSeoIntents, getSeoIntentBySlugs, SEO_CITY_CATEGORY_INTENTS } from "@/lib/seo-landing-pages";
 
 interface CityCategoryLandingPageProps {
   params: Promise<{ city: string; category: string }>;
@@ -57,11 +57,57 @@ export default async function CityCategoryLandingPage({ params }: CityCategoryLa
     page: 1,
     pageSize: 12,
   });
+  const relatedIntents = getRelatedSeoIntents(intent, 12);
 
   const browseHref = `/browse?city=${encodeURIComponent(intent.city)}&category=${encodeURIComponent(intent.category)}`;
+  const pageTitle = `${intent.category} Rentals in ${intent.city}`;
+  const pageDescription = `Browse active ${intent.category.toLowerCase()} listings in ${intent.city}. Compare monthly rent, agreement duration, and listing details before connecting with owners.`;
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: toAbsoluteUrl("/"),
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Rentals",
+        item: toAbsoluteUrl("/rentals"),
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: pageTitle,
+        item: toAbsoluteUrl(intent.path),
+      },
+    ],
+  };
+  const collectionPageJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: pageTitle,
+    description: pageDescription,
+    url: toAbsoluteUrl(intent.path),
+    isPartOf: {
+      "@type": "WebSite",
+      name: "RentItOut",
+      url: toAbsoluteUrl("/"),
+    },
+    mainEntity: {
+      "@type": "ItemList",
+      numberOfItems: listingsPage.listings.length,
+    },
+  };
 
   return (
     <div className="mx-auto w-full max-w-screen-2xl min-w-0 space-y-6 px-4 py-6 sm:space-y-8 sm:px-6 sm:py-12">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionPageJsonLd) }} />
+
       <header className="space-y-3 rounded-2xl border border-zinc-200 bg-white p-5 sm:p-6">
         <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">City + Category Rentals</p>
         <h1 className="text-2xl font-semibold text-zinc-950 sm:text-3xl">
@@ -83,6 +129,12 @@ export default async function CityCategoryLandingPage({ params }: CityCategoryLa
             className="inline-flex items-center justify-center rounded-xl border border-zinc-300 px-4 py-2 text-sm font-semibold text-zinc-800 transition hover:bg-zinc-50"
           >
             Browse All Categories
+          </Link>
+          <Link
+            href="/rentals"
+            className="inline-flex items-center justify-center rounded-xl border border-zinc-300 px-4 py-2 text-sm font-semibold text-zinc-800 transition hover:bg-zinc-50"
+          >
+            View All Rental Intents
           </Link>
         </div>
       </header>
@@ -123,6 +175,24 @@ export default async function CityCategoryLandingPage({ params }: CityCategoryLa
             Use the secure contact-reveal flow to access owner details and continue negotiations offline.
           </p>
         </article>
+      </section>
+
+      <section className="space-y-3 rounded-2xl border border-zinc-200 bg-white p-4 sm:p-5">
+        <h2 className="text-lg font-semibold text-zinc-950 sm:text-xl">Explore More Rental Intents</h2>
+        <p className="text-sm leading-6 text-zinc-700">
+          Discover similar intent pages by city and category to widen your options before contacting owners.
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {relatedIntents.map((relatedIntent) => (
+            <Link
+              key={`${relatedIntent.citySlug}-${relatedIntent.categorySlug}`}
+              href={relatedIntent.path}
+              className="inline-flex items-center rounded-full border border-zinc-300 bg-white px-3 py-1.5 text-sm font-medium text-zinc-800 transition hover:border-zinc-900 hover:text-zinc-950"
+            >
+              {relatedIntent.category} in {relatedIntent.city}
+            </Link>
+          ))}
+        </div>
       </section>
     </div>
   );

@@ -5,7 +5,7 @@ import { CityQuickButtons } from "@/components/city-quick-buttons";
 import { HeroCarousel } from "@/components/hero-carousel";
 import { MarketplaceComparisonCard } from "@/components/marketplace-comparison-card";
 import { buildPageMetadata } from "@/lib/seo";
-import { SEO_CITY_CATEGORY_INTENTS } from "@/lib/seo-landing-pages";
+import { HOMEPAGE_CITY_CATEGORY_INTENTS } from "@/lib/seo-landing-pages";
 
 const homeMetadata = buildPageMetadata({
   title: "Rent Appliances by City",
@@ -84,12 +84,15 @@ export default function Home() {
       </section>
 
       <section className="min-w-0 space-y-4" aria-label="Top city and category pages">
-        <div className="space-y-1">
+        <div className="space-y-2">
           <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">Top Rental Intents</p>
           <h2 className="text-xl font-semibold text-zinc-950 sm:text-2xl">Popular City + Category Pages</h2>
+          <Link href="/rentals" className="inline-flex text-sm font-semibold text-zinc-900 underline-offset-4 hover:underline">
+            View all city + category pages
+          </Link>
         </div>
         <div className="flex flex-wrap gap-2">
-          {SEO_CITY_CATEGORY_INTENTS.map((intent) => (
+          {HOMEPAGE_CITY_CATEGORY_INTENTS.map((intent) => (
             <Link
               key={`${intent.citySlug}-${intent.categorySlug}`}
               href={intent.path}

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const AUTO_CHANGE_MS = 3000;
+const LISTING_CTA_HREF = "/auth/sign-in?next=%2Fmy-account";
 
 interface HeroAction {
   href: string;
@@ -40,7 +41,7 @@ const heroCards: HeroCard[] = [
       className: "bg-zinc-950 text-white hover:bg-zinc-800",
     },
     secondaryAction: {
-      href: "/my-account",
+      href: LISTING_CTA_HREF,
       label: "List Your Appliance",
       variant: "secondary",
     },
@@ -79,12 +80,12 @@ const heroCards: HeroCard[] = [
     icon: ShieldCheck,
     backgroundClass: "border-blue-200 bg-gradient-to-br from-blue-200 via-indigo-100 to-white",
     primaryAction: {
-      href: "/my-account",
+      href: LISTING_CTA_HREF,
       label: "Start Listing",
       className: "bg-blue-700 text-white hover:bg-blue-600",
     },
     secondaryAction: {
-      href: "/my-account",
+      href: LISTING_CTA_HREF,
       label: "Open My Account",
       variant: "secondary",
     },
