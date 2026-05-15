@@ -68,6 +68,8 @@ Detailed guides:
 - `npm run lint` - lint check
 - `npm run perf:smoke` - quick `autocannon` run against `http://127.0.0.1:3000/`
 - `npm run perf:max-rps` - ramp connections until latency/error threshold is crossed
+- `npm run perf:max-rps:home` - conservative ramp profile tuned for homepage (`/`)
+- `npm run perf:max-rps:browse` - conservative ramp profile tuned for browse (`/browse`)
 - `npm run prod:preflight` - production readiness checks (env vars, node version, upload dir writability)
 - `npm run prod:build` - run preflight, lint, then production build
 - `npm run deploy:prod` - one-command VPS deploy (`git pull`, `npm ci`, `prod:build`, PM2 restart/save)
@@ -101,6 +103,16 @@ npm run perf:smoke
 npm run perf:max-rps
 ```
 
+Run isolated endpoint profiles to compare static/home vs DB-heavy browse:
+
+```bash
+npm run perf:max-rps:home
+```
+
+```bash
+npm run perf:max-rps:browse
+```
+
 Tune ramp test inputs as needed:
 
 ```bash
@@ -110,4 +122,4 @@ npm run perf:max-rps -- --url http://127.0.0.1:3000/listings --start 20 --max 40
 `perf:max-rps` reports the best stable point (max req/s before crossing the lag threshold) based on:
 
 - `p97.5 latency <= lag-ms`
-- `(errors + non2xx) / total requests <= max-error-pct`
+- `(errors + non2xx) / (responses + errors) <= max-error-pct`

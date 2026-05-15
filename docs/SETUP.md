@@ -23,14 +23,15 @@ EMAIL_FROM=
 LISTING_PROOF_REVIEW_EMAIL=
 
 # Optional performance tuning
-DB_POOL_MAX=30
+DB_POOL_MAX=20
 DB_POOL_MIN=2
 DB_POOL_CONNECT_TIMEOUT_MS=5000
 DB_POOL_IDLE_TIMEOUT_MS=10000
 DB_POOL_MAX_USES=7500
-PUBLIC_LISTINGS_CACHE_TTL_MS=30000
-LISTING_BY_ID_CACHE_TTL_MS=30000
+PUBLIC_LISTINGS_CACHE_TTL_MS=120000
+LISTING_BY_ID_CACHE_TTL_MS=120000
 IN_MEMORY_CACHE_MAX_ENTRIES=300
+WEB_CONCURRENCY=2
 ```
 
 ### Where to copy each value
@@ -51,6 +52,7 @@ IN_MEMORY_CACHE_MAX_ENTRIES=300
 - `PUBLIC_LISTINGS_CACHE_TTL_MS`: in-memory cache duration for `/browse` query results.
 - `LISTING_BY_ID_CACHE_TTL_MS`: in-memory cache duration for listing detail lookup.
 - `IN_MEMORY_CACHE_MAX_ENTRIES`: maximum in-memory cache entries per app process.
+- `WEB_CONCURRENCY`: PM2 app instances (`2`, `3`, or `max`).
 
 ## 3. Create Neon schema
 

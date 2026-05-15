@@ -13,7 +13,7 @@ Options:
   --duration <sec>          Duration of each run in seconds (default: 15)
   --pipelining <n>          HTTP pipelining depth (default: 1)
   --lag-ms <ms>             p97.5 latency threshold in ms (default: 500)
-  --max-error-pct <pct>     Max allowed (errors + non2xx) percentage (default: 1)
+  --max-error-pct <pct>     Max allowed failure percentage (errors + non2xx) / (responses + errors) (default: 1)
   --method <verb>           HTTP method (default: GET)
   --help                    Show this help
 `;
@@ -185,8 +185,11 @@ async function main() {
     const p90 = result.latency?.p90 ?? 0;
     const p97_5 = result.latency?.p97_5 ?? 0;
     const p99 = result.latency?.p99 ?? 0;
-    const totalRequests = Math.max(result.requests?.total ?? 0, 1);
-    const errorPct = ((result.errors + result.non2xx) / totalRequests) * 100;
+    const responseCount = Math.max(result.requests?.total ?? 0, 0);
+    const errorCount = Math.max(result.errors ?? 0, 0);
+    const non2xxCount = Math.max(result.non2xx ?? 0, 0);
+    const attemptedRequests = responseCount + errorCount;
+    const errorPct = attemptedRequests > 0 ? ((errorCount + non2xxCount) / attemptedRequests) * 100 : 0;
     const isLagging = p97_5 > options.lagMs || errorPct > options.maxErrorPct;
 
     const row = {
@@ -196,8 +199,9 @@ async function main() {
       p97_5ms: Number(formatNumber(p97_5)),
       p99ms: Number(formatNumber(p99)),
       errorPct: Number(formatNumber(errorPct)),
-      errors: result.errors,
-      non2xx: result.non2xx,
+      responses: responseCount,
+      errors: errorCount,
+      non2xx: non2xxCount,
       lagging: isLagging ? "yes" : "no",
     };
     rows.push(row);

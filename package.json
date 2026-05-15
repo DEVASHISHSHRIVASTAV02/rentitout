@@ -12,6 +12,8 @@
     "lint": "eslint",
     "perf:smoke": "autocannon -c 50 -d 20 -l --renderStatusCodes http://127.0.0.1:3000/",
     "perf:max-rps": "node scripts/autocannon-max-rps.mjs",
+    "perf:max-rps:home": "node scripts/autocannon-max-rps.mjs --url http://127.0.0.1:3000/ --start 10 --max 80 --step 10 --duration 30 --lag-ms 500 --max-error-pct 1",
+    "perf:max-rps:browse": "node scripts/autocannon-max-rps.mjs --url http://127.0.0.1:3000/browse --start 10 --max 80 --step 10 --duration 30 --lag-ms 500 --max-error-pct 1",
     "prod:preflight": "node scripts/preflight-prod.mjs",
     "prod:build": "npm run prod:preflight && npm run lint && npm run build",
     "deploy:prod": "bash scripts/deploy-prod.sh"

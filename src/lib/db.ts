@@ -40,9 +40,11 @@ function createPool() {
     return fallback;
   };
 
-  const defaultPoolMax = 10;
+  const isProduction = process.env.NODE_ENV === "production";
+  const defaultPoolMax = isProduction ? 20 : 10;
   const poolMax = readPositiveInt(process.env.DB_POOL_MAX, defaultPoolMax);
-  const poolMin = Math.min(readNonNegativeInt(process.env.DB_POOL_MIN, 0), poolMax);
+  const defaultPoolMin = isProduction ? 2 : 0;
+  const poolMin = Math.min(readNonNegativeInt(process.env.DB_POOL_MIN, defaultPoolMin), poolMax);
   const idleTimeoutMillis = readNonNegativeInt(process.env.DB_POOL_IDLE_TIMEOUT_MS, 10000);
   const connectionTimeoutMillis = readNonNegativeInt(process.env.DB_POOL_CONNECT_TIMEOUT_MS, 5000);
   const maxUses = readPositiveInt(process.env.DB_POOL_MAX_USES, 0);

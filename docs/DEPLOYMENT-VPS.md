@@ -55,13 +55,13 @@ RESEND_API_KEY=...
 EMAIL_FROM=RentItOut <noreply@yourdomain.com>
 LISTING_PROOF_REVIEW_EMAIL=
 WEB_CONCURRENCY=2
-DB_POOL_MAX=30
+DB_POOL_MAX=20
 DB_POOL_MIN=2
 DB_POOL_CONNECT_TIMEOUT_MS=5000
 DB_POOL_IDLE_TIMEOUT_MS=10000
 DB_POOL_MAX_USES=7500
-PUBLIC_LISTINGS_CACHE_TTL_MS=30000
-LISTING_BY_ID_CACHE_TTL_MS=30000
+PUBLIC_LISTINGS_CACHE_TTL_MS=120000
+LISTING_BY_ID_CACHE_TTL_MS=120000
 IN_MEMORY_CACHE_MAX_ENTRIES=300
 ```
 
@@ -169,6 +169,13 @@ Back up this directory along with your database.
 ```bash
 pm2 restart ecosystem.config.cjs --update-env
 pm2 status
+```
+
+- Compare endpoint behavior separately when load testing:
+
+```bash
+npm run perf:max-rps:home
+npm run perf:max-rps:browse
 ```
 
 ## 13. Project Milestones (Day 1 -> Current)
