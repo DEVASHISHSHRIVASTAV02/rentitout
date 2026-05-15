@@ -50,7 +50,7 @@ function createPool() {
   const maxUses = readPositiveInt(process.env.DB_POOL_MAX_USES, 0);
   const sslRejectUnauthorized = readBoolean(process.env.DB_SSL_REJECT_UNAUTHORIZED, false);
 
-  return new Pool({
+  const pool = new Pool({
     connectionString,
     max: poolMax,
     min: poolMin,
@@ -64,6 +64,15 @@ function createPool() {
           }
         : undefined,
   });
+
+  // Required for node-postgres pools in long-running processes.
+  // Without this, idle client disconnects can surface as uncaught exceptions
+  // and crash the worker process.
+  pool.on("error", (error) => {
+    console.error("[db] Unexpected idle client error", error);
+  });
+
+  return pool;
 }
 
 export function getPool() {
