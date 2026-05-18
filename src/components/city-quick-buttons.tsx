@@ -13,7 +13,7 @@ const CITY_MONUMENTS: Record<(typeof SUPPORTED_CITIES)[number], { monument: stri
   Gurugram: { monument: "DLF Cyber Hub", image: "/city-monuments/real_gurgoan.jpg" },
   Bengaluru: { monument: "Vidhana Soudha", image: "/city-monuments/real_banglore.jpg" },
   Ahmedabad: { monument: "Sabarmati Riverfront", image: "/city-monuments/real_ahemdabad_new.webp" },
-  Noida: { monument: "Supernova", image: "/city-monuments/real_noida.jpg" },
+  Noida: { monument: "Supernova", image: "/city-monuments/real_noida_new.jpg" },
   "Greater Noida": { monument: "Buddh International Circuit", image: "/city-monuments/real_greaternoida_new.jpg" },
   Faridabad: { monument: "Raja Nahar Singh Palace", image: "/city-monuments/real_faridabad_new.jpg" },
   Ghaziabad: { monument: "Lakshmi Narayan Temple", image: "/city-monuments/real_ghaziabad.avif" },
