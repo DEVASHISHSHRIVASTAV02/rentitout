@@ -266,62 +266,85 @@ export async function getPublicListings(filters: ListingFilters = {}): Promise<P
       : filters.sortBy === "price_high_to_low"
         ? "l.price_per_month desc, l.created_at desc"
         : "l.created_at desc";
-
-  const { rows: countRows } = await query<{ total_count: string }>(
-    `
-      select count(*)::text as total_count
-      from listing l
-      where ${whereClauses.join(" and ")}
-    `,
-    values,
-  );
-
-  const totalCount = Number.parseInt(countRows[0]?.total_count ?? "0", 10) || 0;
-  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
-  const page = Math.min(requestedPage, totalPages);
-  const offset = (page - 1) * pageSize;
-  const paginationValues = [...values, pageSize, offset];
+  const whereClauseSql = whereClauses.join(" and ");
   const limitPlaceholder = `$${values.length + 1}`;
   const offsetPlaceholder = `$${values.length + 2}`;
+  const listingSelectSql = `
+    select
+      l.id,
+      l.listing_id,
+      l.owner_id,
+      l.category,
+      l.sub_category,
+      l.item_info,
+      l.price_per_month,
+      l.min_agreement_months,
+      l.city,
+      l.pincode,
+      l.is_active,
+      l.created_at,
+      l.updated_at,
+      case
+        when thumbnail.image_url is null then '{}'::text[]
+        else array[thumbnail.image_url]
+      end as image_urls
+    from listing l
+    left join lateral (
+      select li.image_url
+      from listing_images li
+      where li.listing_id = l.listing_id
+      order by li.sort_order
+      limit 1
+    ) thumbnail on true
+    where ${whereClauseSql}
+    order by ${orderByClause}
+    limit ${limitPlaceholder}
+    offset ${offsetPlaceholder}
+  `;
 
   let rows: PublicApplianceListing[] = [];
-  if (totalCount > 0) {
-    const listingResult = await query<PublicApplianceListing>(
+  let totalCount = 0;
+  let totalPages = 1;
+  let page = requestedPage;
+
+  if (requestedPage === 1) {
+    const requestedOffset = 0;
+    const requestedPaginationValues = [...values, pageSize, requestedOffset];
+    const [countResult, listingResult] = await Promise.all([
+      query<{ total_count: string }>(
+        `
+          select count(*)::text as total_count
+          from listing l
+          where ${whereClauseSql}
+        `,
+        values,
+      ),
+      query<PublicApplianceListing>(listingSelectSql, requestedPaginationValues),
+    ]);
+
+    totalCount = Number.parseInt(countResult.rows[0]?.total_count ?? "0", 10) || 0;
+    totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+    page = Math.min(requestedPage, totalPages);
+    rows = totalCount > 0 ? listingResult.rows : [];
+  } else {
+    const { rows: countRows } = await query<{ total_count: string }>(
       `
-        select
-          l.id,
-          l.listing_id,
-          l.owner_id,
-          l.category,
-          l.sub_category,
-          l.item_info,
-          l.price_per_month,
-          l.min_agreement_months,
-          l.city,
-          l.pincode,
-          l.is_active,
-          l.created_at,
-          l.updated_at,
-          case
-            when thumbnail.image_url is null then '{}'::text[]
-            else array[thumbnail.image_url]
-          end as image_urls
+        select count(*)::text as total_count
         from listing l
-        left join lateral (
-          select li.image_url
-          from listing_images li
-          where li.listing_id = l.listing_id
-          order by li.sort_order
-          limit 1
-        ) thumbnail on true
-        where ${whereClauses.join(" and ")}
-        order by ${orderByClause}
-        limit ${limitPlaceholder}
-        offset ${offsetPlaceholder}
+        where ${whereClauseSql}
       `,
-      paginationValues,
+      values,
     );
-    rows = listingResult.rows;
+    totalCount = Number.parseInt(countRows[0]?.total_count ?? "0", 10) || 0;
+    totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+    page = Math.min(requestedPage, totalPages);
+
+    if (totalCount > 0) {
+      const offset = (page - 1) * pageSize;
+      const paginationValues = [...values, pageSize, offset];
+      const listingResult = await query<PublicApplianceListing>(listingSelectSql, paginationValues);
+      rows = listingResult.rows;
+    }
   }
 
   const result: PublicListingsPageResult = {

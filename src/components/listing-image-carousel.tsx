@@ -1,7 +1,6 @@
 "use client";
 
-/* eslint-disable @next/next/no-img-element */
-
+import Image from "next/image";
 import { ChevronLeft, ChevronRight, ImageOff } from "lucide-react";
 import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -52,6 +51,10 @@ function wrapIndex(next: number, total: number) {
   return (next + total) % total;
 }
 
+function isLocalOptimizableImageSrc(src: string) {
+  return src.startsWith("/");
+}
+
 export function ListingImageCarousel({
   images,
   alt,
@@ -75,6 +78,7 @@ export function ListingImageCarousel({
   const [activeIndex, setActiveIndex] = useState(0);
   const currentIndex = total > 0 ? wrapIndex(activeIndex, total) : 0;
   const currentImageSrc = total > 0 ? normalizedImages[currentIndex] : "";
+  const canUseNextImage = isLocalOptimizableImageSrc(currentImageSrc);
   const isCurrentImageFailed = currentImageSrc in failedImages;
 
   const showPrevious = () => {
@@ -97,24 +101,49 @@ export function ListingImageCarousel({
         <>
           <div className={cn("relative aspect-[16/10] w-full", imageContainerClassName)}>
             {!isCurrentImageFailed ? (
-              <img
-                src={currentImageSrc}
-                alt={`${alt} image ${currentIndex + 1}`}
-                loading="lazy"
-                decoding="async"
-                sizes={sizes}
-                onError={() => {
-                  const failedSrc = normalizedImages[currentIndex];
-                  if (!failedSrc) {
-                    return;
-                  }
-                  setFailedImages((current) => ({ ...current, [failedSrc]: true }));
-                }}
-                className={cn(
-                  "absolute inset-0 h-full w-full",
-                  imageFit === "contain" ? "object-contain" : "object-cover",
-                )}
-              />
+              canUseNextImage ? (
+                <Image
+                  src={currentImageSrc}
+                  alt={`${alt} image ${currentIndex + 1}`}
+                  fill
+                  loading="lazy"
+                  sizes={sizes}
+                  quality={70}
+                  onError={() => {
+                    const failedSrc = normalizedImages[currentIndex];
+                    if (!failedSrc) {
+                      return;
+                    }
+                    setFailedImages((current) => ({ ...current, [failedSrc]: true }));
+                  }}
+                  className={cn(
+                    "absolute inset-0 h-full w-full",
+                    imageFit === "contain" ? "object-contain" : "object-cover",
+                  )}
+                />
+              ) : (
+                <>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={currentImageSrc}
+                    alt={`${alt} image ${currentIndex + 1}`}
+                    loading="lazy"
+                    decoding="async"
+                    sizes={sizes}
+                    onError={() => {
+                      const failedSrc = normalizedImages[currentIndex];
+                      if (!failedSrc) {
+                        return;
+                      }
+                      setFailedImages((current) => ({ ...current, [failedSrc]: true }));
+                    }}
+                    className={cn(
+                      "absolute inset-0 h-full w-full",
+                      imageFit === "contain" ? "object-contain" : "object-cover",
+                    )}
+                  />
+                </>
+              )
             ) : (
               <div className="flex h-full w-full items-center justify-center gap-2 text-sm text-zinc-500">
                 <ImageOff className="h-4 w-4" />
