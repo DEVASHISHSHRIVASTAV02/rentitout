@@ -9,11 +9,17 @@ import "./globals.css";
 const bodyFont = Manrope({
   variable: "--font-manrope",
   subsets: ["latin"],
+  display: "swap",
+  preload: true,
+  fallback: ["system-ui", "Segoe UI", "Arial", "sans-serif"],
 });
 
 const headingFont = Sora({
   variable: "--font-sora",
   subsets: ["latin"],
+  display: "swap",
+  preload: true,
+  fallback: ["system-ui", "Segoe UI", "Arial", "sans-serif"],
 });
 
 export const metadata: Metadata = {

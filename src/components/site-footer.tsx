@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BriefcaseBusiness, Camera, CirclePlay, MessageCircle } from "lucide-react";
+import { IntentPrefetchLink } from "@/components/intent-prefetch-link";
 import { SUPPORTED_CITIES } from "@/lib/cities";
 import { LISTABLE_ITEMS } from "@/lib/listable-items";
 
@@ -48,9 +49,9 @@ export function SiteFooter() {
           <ul className="mt-4 space-y-2 text-sm text-zinc-300">
             {categoryLinks.map((link) => (
               <li key={link.label}>
-                <Link href={link.href} className="hover:text-white">
+                <IntentPrefetchLink href={link.href} className="hover:text-white">
                   {link.label}
-                </Link>
+                </IntentPrefetchLink>
               </li>
             ))}
           </ul>
@@ -61,9 +62,9 @@ export function SiteFooter() {
           <ul className="mt-4 space-y-2 text-sm text-zinc-300">
             {cityLinks.map((link) => (
               <li key={link.label}>
-                <Link href={link.href} className="hover:text-white">
+                <IntentPrefetchLink href={link.href} className="hover:text-white">
                   {link.label}
-                </Link>
+                </IntentPrefetchLink>
               </li>
             ))}
           </ul>
@@ -74,9 +75,9 @@ export function SiteFooter() {
           <ul className="mt-4 space-y-2 text-sm text-zinc-300">
             {rentItOutLinks.map((link) => (
               <li key={link.label}>
-                <Link href={link.href} className="hover:text-white">
+                <IntentPrefetchLink href={link.href} className="hover:text-white">
                   {link.label}
-                </Link>
+                </IntentPrefetchLink>
               </li>
             ))}
           </ul>
@@ -87,9 +88,9 @@ export function SiteFooter() {
           <ul className="mt-4 space-y-2 text-sm text-zinc-300">
             {policyLinks.map((link) => (
               <li key={link.label}>
-                <Link href={link.href} className="hover:text-white">
+                <IntentPrefetchLink href={link.href} className="hover:text-white">
                   {link.label}
-                </Link>
+                </IntentPrefetchLink>
               </li>
             ))}
           </ul>

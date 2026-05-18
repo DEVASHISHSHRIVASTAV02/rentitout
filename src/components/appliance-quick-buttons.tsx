@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Link from "next/link";
+import { IntentPrefetchLink } from "@/components/intent-prefetch-link";
 import { cn } from "@/lib/utils";
 
 interface ApplianceQuickLink {
@@ -69,7 +69,7 @@ export function ApplianceQuickButtons({ className }: ApplianceQuickButtonsProps)
     >
       {applianceQuickLinks.map((item) => {
         return (
-          <Link
+          <IntentPrefetchLink
             key={item.label}
             href={getBrowseHref(item.category)}
             className="group inline-flex min-w-[11rem] shrink-0 snap-start flex-col sm:min-w-[13rem] sm:snap-none"
@@ -92,7 +92,7 @@ export function ApplianceQuickButtons({ className }: ApplianceQuickButtonsProps)
             <span className="mt-2 px-1 text-center text-xs font-semibold leading-tight text-zinc-900 sm:text-sm">
               {item.label}
             </span>
-          </Link>
+          </IntentPrefetchLink>
         );
       })}
     </div>

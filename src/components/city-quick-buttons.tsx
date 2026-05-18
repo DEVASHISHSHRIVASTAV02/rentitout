@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Link from "next/link";
+import { IntentPrefetchLink } from "@/components/intent-prefetch-link";
 import { SUPPORTED_CITIES } from "@/lib/cities";
 import { cn } from "@/lib/utils";
 
@@ -38,7 +38,7 @@ export function CityQuickButtons({ className }: CityQuickButtonsProps) {
         const tiltClass = index % 2 === 0 ? "sm:rotate-[0.2deg]" : "sm:-rotate-[0.2deg]";
 
         return (
-          <Link
+          <IntentPrefetchLink
             key={city}
             href={getBrowseCityHref(city)}
             className={cn(
@@ -62,7 +62,7 @@ export function CityQuickButtons({ className }: CityQuickButtonsProps) {
                 <p className="text-sm font-semibold text-white sm:text-base">{city}</p>
               </div>
             </div>
-          </Link>
+          </IntentPrefetchLink>
         );
       })}
     </div>
