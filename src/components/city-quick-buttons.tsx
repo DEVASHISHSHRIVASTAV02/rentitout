@@ -4,18 +4,18 @@ import { SUPPORTED_CITIES } from "@/lib/cities";
 import { cn } from "@/lib/utils";
 
 const CITY_MONUMENTS: Record<(typeof SUPPORTED_CITIES)[number], { monument: string; image: string }> = {
-  Delhi: { monument: "Red Fort", image: "/city-monuments/real_delhi.jpeg" },
+  Delhi: { monument: "Red Fort", image: "/city-monuments/real_delhi_new.jpeg" },
   Mumbai: { monument: "Gateway of India", image: "/city-monuments/real_mumbai.jpg" },
-  Pune: { monument: "Shaniwar Wada", image: "/city-monuments/real_pune.jpg" },
+  Pune: { monument: "Shaniwar Wada", image: "/city-monuments/real_pune_new.jpg" },
   Kolkata: { monument: "Howrah Bridge", image: "/city-monuments/real_kolkata.jpg" },
-  Chennai: { monument: "Kapaleeshwarar Temple", image: "/city-monuments/real_chennai.jpg" },
+  Chennai: { monument: "Kapaleeshwarar Temple", image: "/city-monuments/real_chennai_new.jpg" },
   Hyderabad: { monument: "Charminar", image: "/city-monuments/real_hydrabad.webp" },
   Gurugram: { monument: "DLF Cyber Hub", image: "/city-monuments/real_gurgoan.jpg" },
   Bengaluru: { monument: "Vidhana Soudha", image: "/city-monuments/real_banglore.jpg" },
-  Ahmedabad: { monument: "Sabarmati Riverfront", image: "/city-monuments/real_ahemdabad.webp" },
+  Ahmedabad: { monument: "Sabarmati Riverfront", image: "/city-monuments/real_ahemdabad_new.webp" },
   Noida: { monument: "Supernova", image: "/city-monuments/real_noida.jpg" },
-  "Greater Noida": { monument: "Buddh International Circuit", image: "/city-monuments/real_greaternoida.jpg" },
-  Faridabad: { monument: "Raja Nahar Singh Palace", image: "/city-monuments/real_faridabad.jpg" },
+  "Greater Noida": { monument: "Buddh International Circuit", image: "/city-monuments/real_greaternoida_new.jpg" },
+  Faridabad: { monument: "Raja Nahar Singh Palace", image: "/city-monuments/real_faridabad_new.jpg" },
   Ghaziabad: { monument: "Lakshmi Narayan Temple", image: "/city-monuments/real_ghaziabad.avif" },
 };
 
