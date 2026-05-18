@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Mail, MapPin, Phone, ShieldCheck, UserRound, X } from "lucide-react";
 import { ListingImageCarousel } from "@/components/listing-image-carousel";
@@ -14,9 +14,10 @@ import { type PublicApplianceListing } from "@/lib/types";
 
 interface BrowseContactDetailsFlowProps {
   listing: PublicApplianceListing;
+  openOnMount?: boolean;
 }
 
-export function BrowseContactDetailsFlow({ listing }: BrowseContactDetailsFlowProps) {
+export function BrowseContactDetailsFlow({ listing, openOnMount = false }: BrowseContactDetailsFlowProps) {
   const [isBotCheckOpen, setIsBotCheckOpen] = useState(false);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
@@ -28,6 +29,7 @@ export function BrowseContactDetailsFlow({ listing }: BrowseContactDetailsFlowPr
   const [resolvedImageUrls, setResolvedImageUrls] = useState(listing.image_urls);
   const [hasLoadedFullImages, setHasLoadedFullImages] = useState(false);
   const [isLoadingFullImages, setIsLoadingFullImages] = useState(false);
+  const hasAutoOpenedOnMount = useRef(false);
 
   const detailFields = getListingDetailFields({
     category: listing.category,
@@ -63,13 +65,21 @@ export function BrowseContactDetailsFlow({ listing }: BrowseContactDetailsFlowPr
     }
   };
 
-  const openBotCheck = () => {
+  const openBotCheck = useCallback(() => {
     setIsBotCheckOpen(true);
     setBotError("");
     setHoneypot("");
     setRecaptchaToken(null);
     setRecaptchaResetSignal((value) => value + 1);
-  };
+  }, []);
+
+  useEffect(() => {
+    if (!openOnMount || hasAutoOpenedOnMount.current) {
+      return;
+    }
+    hasAutoOpenedOnMount.current = true;
+    openBotCheck();
+  }, [openOnMount, openBotCheck]);
 
   const verifyBotCheck = async () => {
     if (!recaptchaToken) {

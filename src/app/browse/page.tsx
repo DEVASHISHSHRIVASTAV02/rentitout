@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import Link from "next/link";
 import { ChevronDown, Filter, Search } from "lucide-react";
 import { ApplianceQuickButtons } from "@/components/appliance-quick-buttons";
@@ -11,7 +12,16 @@ import { getPublicListings } from "@/lib/data";
 import { buildPageMetadata } from "@/lib/seo";
 
 const SORT_OPTIONS = ["price_low_to_high", "price_high_to_low"] as const;
-const BROWSE_PAGE_SIZE = 18;
+const MOBILE_BROWSE_PAGE_SIZE = 12;
+const DESKTOP_BROWSE_PAGE_SIZE = 18;
+
+function isLikelyMobileUserAgent(userAgentValue: string | null) {
+  if (!userAgentValue) {
+    return false;
+  }
+  const normalized = userAgentValue.toLowerCase();
+  return /android|iphone|ipod|blackberry|iemobile|opera mini|mobile/.test(normalized) && !normalized.includes("ipad");
+}
 
 interface BrowsePageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -46,6 +56,10 @@ export async function generateMetadata({ searchParams }: BrowsePageProps): Promi
 }
 
 export default async function BrowsePage({ searchParams }: BrowsePageProps) {
+  const requestHeaders = await headers();
+  const browsePageSize = isLikelyMobileUserAgent(requestHeaders.get("user-agent"))
+    ? MOBILE_BROWSE_PAGE_SIZE
+    : DESKTOP_BROWSE_PAGE_SIZE;
   const query = await searchParams;
   const cityParam = typeof query.city === "string" ? query.city : "";
   const city = cityParam === "All Cities" ? "" : cityParam;
@@ -110,7 +124,7 @@ export default async function BrowsePage({ searchParams }: BrowsePageProps) {
     minAgreementMonths,
     sortBy: sortOrder,
     page: currentPage,
-    pageSize: BROWSE_PAGE_SIZE,
+    pageSize: browsePageSize,
   });
   const listings = listingsPage.listings;
 

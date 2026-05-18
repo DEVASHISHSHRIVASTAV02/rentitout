@@ -1,8 +1,10 @@
 import { MapPin } from "lucide-react";
-import { BrowseContactDetailsFlow } from "@/components/browse-contact-details-flow";
 import { CopyListingIdButton } from "@/components/copy-listing-id-button";
+import {
+  ListingCardContactInteraction,
+  ListingCardQuickViewInteraction,
+} from "@/components/listing-card-interactions";
 import { ListingImageCarousel } from "@/components/listing-image-carousel";
-import { ListingQuickViewFlow } from "@/components/listing-quick-view-flow";
 import { getListingDetailFields } from "@/lib/listing-details";
 import { type PublicApplianceListing } from "@/lib/types";
 
@@ -21,7 +23,7 @@ export function ListingCard({ listing }: ListingCardProps) {
     <article
       className="listing-card group relative flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-[#c3c3c8] bg-gradient-to-b from-white to-zinc-50 text-zinc-900 shadow-sm transition-all duration-200 hover:border-zinc-400 hover:-translate-y-0.5 hover:shadow-2xl"
     >
-      <ListingQuickViewFlow listing={listing} triggerMode="card-overlay" className="z-10" />
+      <ListingCardQuickViewInteraction listing={listing} />
 
       <div className="pointer-events-none relative z-20 flex flex-1 flex-col">
         <div className="pointer-events-auto">
@@ -73,9 +75,7 @@ export function ListingCard({ listing }: ListingCardProps) {
             </div>
           </div>
 
-          <div className="pointer-events-auto mt-auto pt-1">
-            <BrowseContactDetailsFlow listing={listing} />
-          </div>
+          <ListingCardContactInteraction listing={listing} />
         </div>
       </div>
     </article>

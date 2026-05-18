@@ -1,7 +1,7 @@
 "use client";
 
 import { createPortal } from "react-dom";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Mail, MapPin, Phone, ShieldCheck, UserRound, X } from "lucide-react";
 import { ListingImageCarousel } from "@/components/listing-image-carousel";
 import { RecaptchaV2Checkbox } from "@/components/recaptcha-v2-checkbox";
@@ -17,12 +17,14 @@ interface ListingQuickViewFlowProps {
   listing: PublicApplianceListing;
   triggerMode?: "category-button" | "card-overlay";
   className?: string;
+  openOnMount?: boolean;
 }
 
 export function ListingQuickViewFlow({
   listing,
   triggerMode = "category-button",
   className,
+  openOnMount = false,
 }: ListingQuickViewFlowProps) {
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
   const [isCaptchaOpen, setIsCaptchaOpen] = useState(false);
@@ -35,6 +37,7 @@ export function ListingQuickViewFlow({
   const [resolvedImageUrls, setResolvedImageUrls] = useState(listing.image_urls);
   const [hasLoadedFullImages, setHasLoadedFullImages] = useState(false);
   const [isLoadingFullImages, setIsLoadingFullImages] = useState(false);
+  const hasAutoOpenedOnMount = useRef(false);
 
   const detailFields = useMemo(
     () =>
@@ -126,10 +129,18 @@ export function ListingQuickViewFlow({
     }
   };
 
-  const openQuickView = () => {
+  const openQuickView = useCallback(() => {
     setIsQuickViewOpen(true);
     void ensureFullImageUrls();
-  };
+  }, [ensureFullImageUrls]);
+
+  useEffect(() => {
+    if (!openOnMount || hasAutoOpenedOnMount.current) {
+      return;
+    }
+    hasAutoOpenedOnMount.current = true;
+    openQuickView();
+  }, [openOnMount, openQuickView]);
 
   return (
     <>
