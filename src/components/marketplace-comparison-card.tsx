@@ -63,16 +63,21 @@ interface StatusMarkProps {
 }
 
 function StatusMark({ enabled }: StatusMarkProps) {
+  const statusText = enabled ? "Available" : "Not available";
+
   return (
-    <span
-      className={cn(
-        "inline-flex h-8 w-8 items-center justify-center rounded-full border",
-        enabled ? "border-emerald-300 bg-emerald-50 text-emerald-600" : "border-rose-300 bg-rose-50 text-rose-600",
-      )}
-      aria-label={enabled ? "Available" : "Not available"}
-    >
-      {enabled ? <Check className="h-4 w-4" /> : <X className="h-4 w-4" />}
-    </span>
+    <>
+      <span
+        className={cn(
+          "inline-flex h-8 w-8 items-center justify-center rounded-full border",
+          enabled ? "border-emerald-300 bg-emerald-50 text-emerald-600" : "border-rose-300 bg-rose-50 text-rose-600",
+        )}
+        aria-hidden="true"
+      >
+        {enabled ? <Check className="h-4 w-4" /> : <X className="h-4 w-4" />}
+      </span>
+      <span className="sr-only">{statusText}</span>
+    </>
   );
 }
 

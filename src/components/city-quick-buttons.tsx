@@ -23,6 +23,9 @@ interface CityQuickButtonsProps {
   className?: string;
 }
 
+const CITY_CARD_IMAGE_SIZES =
+  "(max-width: 639px) calc((100vw - 2.75rem) / 2), (max-width: 767px) calc((100vw - 4.5rem) / 3), (max-width: 1023px) calc((100vw - 4.5rem) / 3), (max-width: 1279px) calc((100vw - 5.25rem) / 4), 220px";
+
 function getBrowseCityHref(city: string) {
   return `/browse?city=${encodeURIComponent(city)}&category=All`;
 }
@@ -50,6 +53,8 @@ export function CityQuickButtons({ className }: CityQuickButtonsProps) {
                   alt={`${card.monument} in ${city}`}
                   width={800}
                   height={520}
+                  sizes={CITY_CARD_IMAGE_SIZES}
+                  quality={60}
                   className="h-32 w-full object-cover transition-transform duration-300 group-hover:scale-105 sm:h-28 md:h-32"
                 />
               </div>

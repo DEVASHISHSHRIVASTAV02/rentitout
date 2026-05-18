@@ -203,7 +203,7 @@ export function HeroCarousel() {
       </div>
 
       <div className="mt-4 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-        <div className="flex items-center gap-2">
+        <div className="hidden items-center gap-2 sm:flex">
           {heroCards.map((card, index) => (
             <button
               key={card.title}
