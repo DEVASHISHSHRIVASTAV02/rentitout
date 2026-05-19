@@ -78,7 +78,7 @@ export function ApplianceQuickButtons({ className }: ApplianceQuickButtonsProps)
               <div className="relative h-28 w-full overflow-hidden rounded-2xl shadow-sm transition-all group-hover:-translate-y-0.5 group-hover:shadow-lg sm:h-32">
                 <Image
                   src={item.imageSrc}
-                  alt=""
+                  alt={`${item.label} rental category`}
                   fill
                   sizes="(max-width: 640px) 176px, 208px"
                   className="object-cover transition-transform duration-300 group-hover:scale-105"

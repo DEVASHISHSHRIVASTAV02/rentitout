@@ -149,8 +149,9 @@ export function HeroCarousel() {
           className="flex transition-transform duration-700 ease-out"
           style={{ transform: `translateX(-${activeIndex * 100}%)` }}
         >
-          {heroCards.map((card) => {
+          {heroCards.map((card, index) => {
             const Icon = card.icon;
+            const HeadingTag = index === activeIndex ? "h1" : "h2";
 
             return (
               <article
@@ -171,9 +172,9 @@ export function HeroCarousel() {
                   </div>
 
                   <div className="max-w-3xl space-y-3">
-                    <h1 className="text-2xl font-semibold leading-tight text-zinc-950 sm:text-3xl lg:text-4xl">
+                    <HeadingTag className="text-2xl font-semibold leading-tight text-zinc-950 sm:text-3xl lg:text-4xl">
                       {card.title}
-                    </h1>
+                    </HeadingTag>
                     <p className="max-w-2xl text-sm leading-6 text-zinc-700 sm:text-base">{card.description}</p>
                   </div>
 
