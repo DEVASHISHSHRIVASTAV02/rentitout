@@ -128,6 +128,7 @@ export default function Home() {
 
             <Link
               href="/faqs"
+              prefetch={false}
               className="mt-8 flex w-fit items-center rounded-xl bg-black px-6 py-3 text-sm font-semibold text-white transition hover:bg-zinc-800 mx-auto lg:mx-0"
             >
               <span>More FAQs</span>

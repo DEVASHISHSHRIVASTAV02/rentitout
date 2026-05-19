@@ -25,7 +25,7 @@ export async function SiteHeader() {
               </Button>
             </Link>
           ) : (
-            <Link href="/auth/sign-in">
+            <Link href="/auth/sign-in" prefetch={false}>
               <Button
                 variant="primary"
                 className="h-8 px-2.5 text-[11px] sm:h-9 sm:px-3 sm:text-sm"

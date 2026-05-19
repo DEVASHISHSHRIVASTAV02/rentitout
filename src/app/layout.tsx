@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Manrope, Sora } from "next/font/google";
+import { ConditionalSiteFooter } from "@/components/conditional-site-footer";
 import { EarlyPhaseNotice } from "@/components/early-phase-notice";
 import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
 import { APP_BASE_URL, SITE_NAME } from "@/lib/seo";
 import "./globals.css";
 
@@ -88,7 +88,7 @@ export default function RootLayout({
           <SiteHeader />
           <EarlyPhaseNotice />
           <main className="flex-1">{children}</main>
-          <SiteFooter />
+          <ConditionalSiteFooter />
         </div>
       </body>
     </html>

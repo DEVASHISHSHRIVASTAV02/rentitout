@@ -5,10 +5,7 @@ import { useRouter } from "next/navigation";
 
 const HOME_PREFETCH_ROUTES = [
   "/browse",
-  "/auth/sign-in?next=%2Fmy-account",
-  "/rental-agreement-templates",
   "/rentals",
-  "/faqs",
 ] as const;
 
 export function HomeRoutePrefetch() {

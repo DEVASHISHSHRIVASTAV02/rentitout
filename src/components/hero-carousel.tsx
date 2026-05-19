@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 
 const AUTO_CHANGE_MS = 3000;
 const LISTING_CTA_HREF = "/auth/sign-in?next=%2Fmy-account";
+const HOME_NO_PREFETCH_ROUTES = new Set(["/rental-agreement-templates", "/faqs", LISTING_CTA_HREF]);
 
 interface HeroAction {
   href: string;
@@ -177,7 +178,11 @@ export function HeroCarousel() {
                   </div>
 
                   <div className="flex flex-wrap gap-3">
-                    <Link href={card.primaryAction.href} className="w-full sm:w-auto">
+                    <Link
+                      href={card.primaryAction.href}
+                      prefetch={HOME_NO_PREFETCH_ROUTES.has(card.primaryAction.href) ? false : undefined}
+                      className="w-full sm:w-auto"
+                    >
                       <Button className={cn("h-10 w-full px-5 sm:w-auto", card.primaryAction.className)}>
                         {card.primaryAction.label}
                         <ArrowRight className="ml-2 h-4 w-4" />
@@ -185,7 +190,11 @@ export function HeroCarousel() {
                     </Link>
 
                     {card.secondaryAction ? (
-                      <Link href={card.secondaryAction.href} className="w-full sm:w-auto">
+                      <Link
+                        href={card.secondaryAction.href}
+                        prefetch={HOME_NO_PREFETCH_ROUTES.has(card.secondaryAction.href) ? false : undefined}
+                        className="w-full sm:w-auto"
+                      >
                         <Button
                           variant={card.secondaryAction.variant ?? "secondary"}
                           className={cn("h-10 w-full px-5 sm:w-auto", card.secondaryAction.className)}
