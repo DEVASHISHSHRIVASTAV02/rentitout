@@ -12,42 +12,42 @@ const applianceQuickLinks: ApplianceQuickLink[] = [
   {
     label: "AC",
     category: "AC",
-    imageSrc: "/category-images/ac.png",
+    imageSrc: "/category-images/ac_new.webp",
   },
   {
     label: "Bed",
     category: "Bed",
-    imageSrc: "/category-images/bed.png",
+    imageSrc: "/category-images/bed_new.webp",
   },
   {
     label: "Cooler",
     category: "Cooler",
-    imageSrc: "/category-images/cooler15by10.png",
+    imageSrc: "/category-images/cooler_new.webp",
   },
   {
     label: "Fridge",
     category: "Fridge",
-    imageSrc: "/category-images/fridge16by10.png",
+    imageSrc: "/category-images/fridge_new.webp",
   },
   {
     label: "Geyser",
     category: "Geyser",
-    imageSrc: "/category-images/geyser16by10.png",
+    imageSrc: "/category-images/geyser_new.webp",
   },
   {
     label: "Mattress",
     category: "Mattress",
-    imageSrc: "/category-images/mattress.png",
+    imageSrc: "/category-images/mattres_new.webp",
   },
   {
     label: "Washing Machine",
     category: "Washing Machine",
-    imageSrc: "/category-images/washingmachine16by10.png",
+    imageSrc: "/category-images/washing_machine_new.webp",
   },
   {
     label: "Water Purifier",
     category: "Water Purifier",
-    imageSrc: "/category-images/waterpurifier16by10.png",
+    imageSrc: "/category-images/water_purifier_new.webp",
   },
 ];
 

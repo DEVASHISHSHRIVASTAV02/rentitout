@@ -37,15 +37,15 @@ const comparisonRows = [
 
 const rotatingImages = [
   {
-    src: "/comparison-images/WASHINGMACHINENEW.jpg",
+    src: "/comparison-images/WASHINGMACHINENEW.webp",
     alt: "Modern washing machine in a clean interior",
   },
   {
-    src: "/comparison-images/FRIDGENEW.jpg",
+    src: "/comparison-images/FRIDGENEW.webp",
     alt: "Elegant refrigerator in a modern kitchen",
   },
   {
-    src: "/comparison-images/ACNEW.jpg",
+    src: "/comparison-images/ACNEW.webp",
     alt: "Air conditioner in a bright home interior",
   },
   {
