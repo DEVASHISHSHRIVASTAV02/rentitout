@@ -1,30 +1,26 @@
-import Image from "next/image";
 import { IntentPrefetchLink } from "@/components/intent-prefetch-link";
 import { SUPPORTED_CITIES } from "@/lib/cities";
 import { cn } from "@/lib/utils";
 
 const CITY_MONUMENTS: Record<(typeof SUPPORTED_CITIES)[number], { monument: string; image: string }> = {
-  Delhi: { monument: "Red Fort", image: "/city-monuments/real_delhi_new.jpeg" },
-  Mumbai: { monument: "Gateway of India", image: "/city-monuments/real_mumbai.jpg" },
-  Pune: { monument: "Shaniwar Wada", image: "/city-monuments/real_pune_new.jpg" },
-  Kolkata: { monument: "Howrah Bridge", image: "/city-monuments/real_kolkata.jpg" },
-  Chennai: { monument: "Kapaleeshwarar Temple", image: "/city-monuments/real_chennai_new.jpg" },
-  Hyderabad: { monument: "Charminar", image: "/city-monuments/real_hydrabad.webp" },
-  Gurugram: { monument: "DLF Cyber Hub", image: "/city-monuments/real_gurgoan.jpg" },
-  Bengaluru: { monument: "Vidhana Soudha", image: "/city-monuments/real_banglore.jpg" },
-  Ahmedabad: { monument: "Sabarmati Riverfront", image: "/city-monuments/real_ahemdabad_new.webp" },
-  Noida: { monument: "Supernova", image: "/city-monuments/real_noida_new.jpg" },
-  "Greater Noida": { monument: "Buddh International Circuit", image: "/city-monuments/real_greaternoida_new.jpg" },
-  Faridabad: { monument: "Raja Nahar Singh Palace", image: "/city-monuments/real_faridabad_new.jpg" },
-  Ghaziabad: { monument: "Lakshmi Narayan Temple", image: "/city-monuments/real_ghaziabad.avif" },
+  Delhi: { monument: "Red Fort", image: "/city-monuments/delhi.webp" },
+  Mumbai: { monument: "Gateway of India", image: "/city-monuments/mumbai.webp" },
+  Pune: { monument: "Shaniwar Wada", image: "/city-monuments/pune.webp" },
+  Kolkata: { monument: "Howrah Bridge", image: "/city-monuments/kolkata.webp" },
+  Chennai: { monument: "Kapaleeshwarar Temple", image: "/city-monuments/chennai.webp" },
+  Hyderabad: { monument: "Charminar", image: "/city-monuments/hydrabad.webp" },
+  Gurugram: { monument: "DLF Cyber Hub", image: "/city-monuments/gurgoan.webp" },
+  Bengaluru: { monument: "Vidhana Soudha", image: "/city-monuments/banglore.webp" },
+  Ahmedabad: { monument: "Sabarmati Riverfront", image: "/city-monuments/ahemdabad.webp" },
+  Noida: { monument: "Supernova", image: "/city-monuments/noida.webp" },
+  "Greater Noida": { monument: "Buddh International Circuit", image: "/city-monuments/greaternoida.webp" },
+  Faridabad: { monument: "Raja Nahar Singh Palace", image: "/city-monuments/faridabad.webp" },
+  Ghaziabad: { monument: "Lakshmi Narayan Temple", image: "/city-monuments/ghaziabad.webp" },
 };
 
 interface CityQuickButtonsProps {
   className?: string;
 }
-
-const CITY_CARD_IMAGE_SIZES =
-  "(max-width: 639px) calc((100vw - 2.75rem) / 2), (max-width: 767px) calc((100vw - 4.5rem) / 3), (max-width: 1023px) calc((100vw - 4.5rem) / 3), (max-width: 1279px) calc((100vw - 5.25rem) / 4), 220px";
 
 function getBrowseCityHref(city: string) {
   return `/browse?city=${encodeURIComponent(city)}&category=All`;
@@ -48,13 +44,12 @@ export function CityQuickButtons({ className }: CityQuickButtonsProps) {
           >
             <div className="flex h-full flex-col gap-2">
               <div className="overflow-hidden rounded-xl">
-                <Image
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
                   src={card.image}
                   alt={`${card.monument} in ${city}`}
                   width={800}
                   height={520}
-                  sizes={CITY_CARD_IMAGE_SIZES}
-                  quality={60}
                   className="h-32 w-full object-cover transition-transform duration-300 group-hover:scale-105 sm:h-28 md:h-32"
                 />
               </div>

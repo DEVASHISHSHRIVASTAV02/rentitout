@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { IntentPrefetchLink } from "@/components/intent-prefetch-link";
 import { cn } from "@/lib/utils";
 
@@ -12,42 +11,42 @@ const applianceQuickLinks: ApplianceQuickLink[] = [
   {
     label: "AC",
     category: "AC",
-    imageSrc: "/category-images/ac_new.webp",
+    imageSrc: "/category-images/AC.webp",
   },
   {
     label: "Bed",
     category: "Bed",
-    imageSrc: "/category-images/bed_new.webp",
+    imageSrc: "/category-images/BED.webp",
   },
   {
     label: "Cooler",
     category: "Cooler",
-    imageSrc: "/category-images/cooler_new.webp",
+    imageSrc: "/category-images/COOLER.webp",
   },
   {
     label: "Fridge",
     category: "Fridge",
-    imageSrc: "/category-images/fridge_new.webp",
+    imageSrc: "/category-images/FRIDGE.webp",
   },
   {
     label: "Geyser",
     category: "Geyser",
-    imageSrc: "/category-images/geyser_new.webp",
+    imageSrc: "/category-images/GEYSER.webp",
   },
   {
     label: "Mattress",
     category: "Mattress",
-    imageSrc: "/category-images/mattres_new.webp",
+    imageSrc: "/category-images/MATTRESS.webp",
   },
   {
     label: "Washing Machine",
     category: "Washing Machine",
-    imageSrc: "/category-images/washing_machine_new.webp",
+    imageSrc: "/category-images/WASHINGMACHINE.webp",
   },
   {
     label: "Water Purifier",
     category: "Water Purifier",
-    imageSrc: "/category-images/water_purifier_new.webp",
+    imageSrc: "/category-images/WATERPURIFIER.webp",
   },
 ];
 
@@ -76,12 +75,13 @@ export function ApplianceQuickButtons({ className }: ApplianceQuickButtonsProps)
           >
             {item.imageSrc ? (
               <div className="relative h-28 w-full overflow-hidden rounded-2xl shadow-sm transition-all group-hover:-translate-y-0.5 group-hover:shadow-lg sm:h-32">
-                <Image
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
                   src={item.imageSrc}
                   alt={`${item.label} rental category`}
-                  fill
-                  sizes="(max-width: 640px) 176px, 208px"
-                  className="object-cover transition-transform duration-300 group-hover:scale-105"
+                  width={208}
+                  height={128}
+                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />
               </div>
             ) : (
