@@ -51,7 +51,8 @@ export function CityQuickButtons({ className }: CityQuickButtonsProps) {
                   width={800}
                   height={520}
                   loading="lazy"
-                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                  quality={50}
+                  sizes="(max-width: 640px) 43vw, (max-width: 1024px) 31vw, (max-width: 1280px) 23vw, 18vw"
                   className="h-32 w-full object-cover transition-transform duration-300 group-hover:scale-105 sm:h-28 md:h-32"
                 />
               </div>
