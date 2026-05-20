@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { IntentPrefetchLink } from "@/components/intent-prefetch-link";
 import { cn } from "@/lib/utils";
 
@@ -67,6 +68,8 @@ export function ApplianceQuickButtons({ className }: ApplianceQuickButtonsProps)
       )}
     >
       {applianceQuickLinks.map((item) => {
+        const isFirstCard = item.category === applianceQuickLinks[0]?.category;
+
         return (
           <IntentPrefetchLink
             key={item.label}
@@ -75,12 +78,14 @@ export function ApplianceQuickButtons({ className }: ApplianceQuickButtonsProps)
           >
             {item.imageSrc ? (
               <div className="relative h-28 w-full overflow-hidden rounded-2xl shadow-sm transition-all group-hover:-translate-y-0.5 group-hover:shadow-lg sm:h-32">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <Image
                   src={item.imageSrc}
                   alt={`${item.label} rental category`}
                   width={208}
                   height={128}
+                  loading={isFirstCard ? "eager" : "lazy"}
+                  fetchPriority={isFirstCard ? "high" : "auto"}
+                  sizes="(max-width: 640px) 44vw, 208px"
                   className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />
               </div>

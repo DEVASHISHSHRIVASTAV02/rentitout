@@ -3,11 +3,10 @@
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 import { ArrowLeft, ArrowRight, FileCheck2, HousePlus, Megaphone, ShieldCheck, UserRoundSearch } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-const AUTO_CHANGE_MS = 3000;
 const LISTING_CTA_HREF = "/auth/sign-in?next=%2Fmy-account";
 const HOME_NO_PREFETCH_ROUTES = new Set(["/rental-agreement-templates", "/faqs", LISTING_CTA_HREF]);
 
@@ -119,26 +118,11 @@ function wrapIndex(next: number) {
 
 export function HeroCarousel() {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [isAutoRotate, setIsAutoRotate] = useState(true);
-
-  useEffect(() => {
-    if (!isAutoRotate) return;
-
-    const timerId = window.setInterval(() => {
-      setActiveIndex((current) => wrapIndex(current + 1));
-    }, AUTO_CHANGE_MS);
-
-    return () => window.clearInterval(timerId);
-  }, [isAutoRotate]);
-
-  const stopAutoRotate = () => setIsAutoRotate(false);
 
   const showPrevious = () => {
-    stopAutoRotate();
     setActiveIndex((current) => wrapIndex(current - 1));
   };
   const showNext = () => {
-    stopAutoRotate();
     setActiveIndex((current) => wrapIndex(current + 1));
   };
 
@@ -156,7 +140,6 @@ export function HeroCarousel() {
             return (
               <article
                 key={card.title}
-                onClick={stopAutoRotate}
                 className={cn(
                   "relative w-full shrink-0 overflow-hidden rounded-3xl border px-4 py-6 sm:px-7 sm:py-7 lg:px-8 lg:py-8",
                   card.backgroundClass,
@@ -218,10 +201,7 @@ export function HeroCarousel() {
             <button
               key={card.title}
               type="button"
-              onClick={() => {
-                stopAutoRotate();
-                setActiveIndex(index);
-              }}
+              onClick={() => setActiveIndex(index)}
               aria-label={`Show card ${index + 1}`}
               className={cn(
                 "h-2.5 rounded-full transition-all",

@@ -1,11 +1,6 @@
-"use client";
-
 import Image from "next/image";
-import { useEffect, useState } from "react";
 import { Check, ShieldCheck, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const ROTATION_MS = 3000;
 
 const comparisonRows = [
   {
@@ -82,15 +77,6 @@ function StatusMark({ enabled }: StatusMarkProps) {
 }
 
 export function MarketplaceComparisonCard() {
-  const [activeIndex, setActiveIndex] = useState(0);
-
-  useEffect(() => {
-    const timer = window.setInterval(() => {
-      setActiveIndex((current) => (current + 1) % rotatingImages.length);
-    }, ROTATION_MS);
-    return () => window.clearInterval(timer);
-  }, []);
-
   return (
     <section className="pt-6" aria-label="RentItOut comparison">
       <div className="inline-flex items-center gap-2 rounded-full border border-zinc-900/10 bg-zinc-100 px-3 py-1 text-[10px] tracking-[0.14em] text-zinc-700 sm:px-4 sm:text-[11px] sm:tracking-[0.2em]">
@@ -179,20 +165,14 @@ export function MarketplaceComparisonCard() {
 
         <div className="relative overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-100">
           <div className="relative h-full min-h-[260px] sm:min-h-[360px] lg:min-h-[420px]">
-            {rotatingImages.map((image, index) => (
-              <Image
-                key={image.src}
-                src={image.src}
-                alt={image.alt}
-                fill
-                priority={index === 0}
-                sizes="(max-width: 1024px) 100vw, 36vw"
-                className={cn(
-                  "object-cover transition-opacity duration-700 ease-out",
-                  index === activeIndex ? "opacity-100" : "opacity-0",
-                )}
-              />
-            ))}
+            <Image
+              src={rotatingImages[0].src}
+              alt={rotatingImages[0].alt}
+              fill
+              loading="lazy"
+              sizes="(max-width: 1024px) 100vw, 36vw"
+              className="object-cover"
+            />
           </div>
         </div>
       </div>

@@ -3,7 +3,6 @@ import Link from "next/link";
 import { ApplianceQuickButtons } from "@/components/appliance-quick-buttons";
 import { CityQuickButtons } from "@/components/city-quick-buttons";
 import { HeroCarousel } from "@/components/hero-carousel";
-import { HomeRoutePrefetch } from "@/components/home-route-prefetch";
 import { MarketplaceComparisonCard } from "@/components/marketplace-comparison-card";
 import { buildPageMetadata } from "@/lib/seo";
 import { HOMEPAGE_CITY_CATEGORY_INTENTS } from "@/lib/seo-landing-pages";
@@ -64,7 +63,6 @@ export const metadata: Metadata = {
 export default function Home() {
   return (
     <div className="mx-auto w-full max-w-screen-2xl min-w-0 space-y-7 px-4 py-6 sm:space-y-8 sm:px-6 sm:py-12">
-      <HomeRoutePrefetch />
       <HeroCarousel />
 
       <section className="min-w-0 space-y-4" aria-label="Quick appliance buttons">

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { IntentPrefetchLink } from "@/components/intent-prefetch-link";
 import { SUPPORTED_CITIES } from "@/lib/cities";
 import { cn } from "@/lib/utils";
@@ -44,12 +45,13 @@ export function CityQuickButtons({ className }: CityQuickButtonsProps) {
           >
             <div className="flex h-full flex-col gap-2">
               <div className="overflow-hidden rounded-xl">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <Image
                   src={card.image}
                   alt={`${card.monument} in ${city}`}
                   width={800}
                   height={520}
+                  loading="lazy"
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
                   className="h-32 w-full object-cover transition-transform duration-300 group-hover:scale-105 sm:h-28 md:h-32"
                 />
               </div>
