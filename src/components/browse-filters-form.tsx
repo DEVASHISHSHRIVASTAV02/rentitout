@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { SUPPORTED_CITIES } from "@/lib/cities";
 import { type ListableItem, LISTABLE_ITEMS, LISTABLE_ITEMS_WITH_ALL } from "@/lib/listable-items";
+import { type PublicListingSortOrder } from "@/lib/types";
 import {
   CATEGORY_ITEM_INFO_LABEL,
   CATEGORY_ITEM_INFO_PRESET_OPTIONS,
@@ -18,7 +19,7 @@ import {
 const AGREEMENT_MONTH_OPTIONS = Array.from({ length: 24 }, (_, index) => index + 1);
 
 interface BrowseFiltersFormProps {
-  sortOrder: "price_low_to_high" | "price_high_to_low";
+  sortOrder: PublicListingSortOrder;
   category: string;
   subCategory: string;
   itemInfo: string;

@@ -1,8 +1,7 @@
 "use client";
 
 import { Select } from "@/components/ui/select";
-
-type SortOrder = "price_low_to_high" | "price_high_to_low";
+import { type PublicListingSortOrder } from "@/lib/types";
 
 interface SortSelectFormProps {
   city: string;
@@ -14,7 +13,7 @@ interface SortSelectFormProps {
   minPrice: string;
   maxPrice: string;
   agreementMin: string;
-  sortOrder: SortOrder;
+  sortOrder: PublicListingSortOrder;
 }
 
 export function SortSelectForm({
@@ -53,6 +52,8 @@ export function SortSelectForm({
         >
           <option value="price_low_to_high">Price: Low to High</option>
           <option value="price_high_to_low">Price: High to Low</option>
+          <option value="date_latest">Date: Latest First</option>
+          <option value="date_oldest">Date: Oldest First</option>
         </Select>
       </label>
     </form>

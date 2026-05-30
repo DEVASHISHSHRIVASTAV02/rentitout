@@ -10,8 +10,14 @@ import { SortSelectForm } from "@/components/sort-select-form";
 import { Alert } from "@/components/ui/alert";
 import { getPublicListings } from "@/lib/data";
 import { buildPageMetadata } from "@/lib/seo";
+import { type PublicListingSortOrder } from "@/lib/types";
 
-const SORT_OPTIONS = ["price_low_to_high", "price_high_to_low"] as const;
+const SORT_OPTIONS = [
+  "price_low_to_high",
+  "price_high_to_low",
+  "date_latest",
+  "date_oldest",
+] as const satisfies readonly PublicListingSortOrder[];
 const MOBILE_BROWSE_PAGE_SIZE = 12;
 const DESKTOP_BROWSE_PAGE_SIZE = 18;
 
@@ -83,8 +89,8 @@ export default async function BrowsePage({ searchParams }: BrowsePageProps) {
       ? String(parsedAgreementMin)
       : "1";
   const sortParam = typeof query.sort === "string" ? query.sort : "price_low_to_high";
-  const sortOrder = SORT_OPTIONS.includes(sortParam as (typeof SORT_OPTIONS)[number])
-    ? (sortParam as (typeof SORT_OPTIONS)[number])
+  const sortOrder = SORT_OPTIONS.includes(sortParam as PublicListingSortOrder)
+    ? (sortParam as PublicListingSortOrder)
     : "price_low_to_high";
   const minPriceParam = typeof query.minPrice === "string" ? query.minPrice : "";
   const maxPriceParam = typeof query.maxPrice === "string" ? query.maxPrice : "";

@@ -1,6 +1,11 @@
 import { type ListableItem } from "@/lib/listable-items";
 
 export type ListingCategory = ListableItem;
+export type PublicListingSortOrder =
+  | "price_low_to_high"
+  | "price_high_to_low"
+  | "date_latest"
+  | "date_oldest";
 
 export interface Profile {
   id: string;

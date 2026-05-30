@@ -1,5 +1,10 @@
 import { query } from "@/lib/db";
-import { type ApplianceListing, type Profile, type PublicApplianceListing } from "@/lib/types";
+import {
+  type ApplianceListing,
+  type Profile,
+  type PublicApplianceListing,
+  type PublicListingSortOrder,
+} from "@/lib/types";
 
 export interface ListingFilters {
   city?: string;
@@ -12,7 +17,7 @@ export interface ListingFilters {
   minPrice?: number;
   maxPrice?: number;
   minAgreementMonths?: number;
-  sortBy?: "price_low_to_high" | "price_high_to_low";
+  sortBy?: PublicListingSortOrder;
   page?: number;
   pageSize?: number;
 }
@@ -265,7 +270,9 @@ export async function getPublicListings(filters: ListingFilters = {}): Promise<P
       ? "l.price_per_month asc, l.created_at desc"
       : filters.sortBy === "price_high_to_low"
         ? "l.price_per_month desc, l.created_at desc"
-        : "l.created_at desc";
+        : filters.sortBy === "date_oldest"
+          ? "l.created_at asc"
+          : "l.created_at desc";
   const whereClauseSql = whereClauses.join(" and ");
   const limitPlaceholder = `$${values.length + 1}`;
   const offsetPlaceholder = `$${values.length + 2}`;
