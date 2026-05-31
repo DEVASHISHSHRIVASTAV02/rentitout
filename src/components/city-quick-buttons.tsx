@@ -39,7 +39,7 @@ export function CityQuickButtons({ className }: CityQuickButtonsProps) {
             key={city}
             href={getBrowseCityHref(city)}
             className={cn(
-              "group h-full rounded-2xl bg-black p-2 shadow-sm transition-all hover:-translate-y-0.5 hover:bg-zinc-900 hover:shadow-md",
+              "group h-full rounded-xl transition-transform hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-zinc-900",
               tiltClass,
             )}
           >
@@ -57,7 +57,7 @@ export function CityQuickButtons({ className }: CityQuickButtonsProps) {
                 />
               </div>
               <div className="mt-auto px-1 pb-1 text-center">
-                <p className="text-sm font-semibold text-white sm:text-base">{city}</p>
+                <p className="text-sm font-semibold text-zinc-950 sm:text-base">{city}</p>
               </div>
             </div>
           </IntentPrefetchLink>

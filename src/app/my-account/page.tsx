@@ -40,6 +40,7 @@ export default async function MyAccountPage({ searchParams }: MyAccountPageProps
   const queryParams = await searchParams;
   const message = typeof queryParams.message === "string" ? queryParams.message : "";
   const error = typeof queryParams.error === "string" ? queryParams.error : "";
+  const shouldOpenNewListing = queryParams.newListing === "1";
 
   const user = await requireUser();
   await ensureProfile(user);
@@ -78,7 +79,7 @@ export default async function MyAccountPage({ searchParams }: MyAccountPageProps
           <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">My Account</p>
           <h1 className="mt-2 text-2xl font-semibold text-zinc-950 sm:text-3xl">List Items and Manage Listings.</h1>
         </div>
-        <MyAccountHeaderActions defaultContactEmail={user.email ?? ""} />
+        <MyAccountHeaderActions defaultContactEmail={user.email ?? ""} autoOpenListing={shouldOpenNewListing} />
       </div>
 
       {message ? <Alert message={message} type="success" /> : null}

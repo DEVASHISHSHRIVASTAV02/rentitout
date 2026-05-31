@@ -7,7 +7,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-const LISTING_CTA_HREF = "/auth/sign-in?next=%2Fmy-account";
+const LISTING_CTA_HREF = "/list-your-appliance";
 const HOME_NO_PREFETCH_ROUTES = new Set(["/rental-agreement-templates", "/faqs", LISTING_CTA_HREF]);
 
 interface HeroAction {

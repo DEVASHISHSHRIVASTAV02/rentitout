@@ -7,7 +7,9 @@ import { LISTABLE_ITEMS } from "@/lib/listable-items";
 const rentItOutLinks = [
   { label: "About Us", href: "/about-us" },
   { label: "Careers", href: "/careers" },
-  { label: "City + Category Rentals", href: "/rentals" },
+  { label: "List Your Appliance", href: "/list-your-appliance" },
+  { label: "Why Choose Us", href: "/why-choose-us" },
+  { label: "City + Appliances", href: "/rentals" },
   { label: "Rental Agreement Templates", href: "/rental-agreement-templates" },
   { label: "Frequently Asked Questions", href: "/faqs" },
 ];
@@ -42,7 +44,7 @@ const cityLinks = SUPPORTED_CITIES.map((city) => ({
 
 export function SiteFooter() {
   return (
-    <footer className="mt-12 border-t border-zinc-800 bg-black text-white">
+    <footer className="mt-6 border-t border-zinc-800 bg-black text-white sm:mt-8">
       <div className="mx-auto grid w-full gap-8 px-4 py-10 sm:px-6 sm:py-12 sm:grid-cols-2 lg:grid-cols-5">
         <section>
           <h3 className="text-lg font-semibold tracking-wide">Category</h3>

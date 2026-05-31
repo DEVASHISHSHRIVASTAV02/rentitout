@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Check, ShieldCheck, X } from "lucide-react";
+import { Check, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const comparisonRows = [
@@ -79,14 +79,9 @@ function StatusMark({ enabled }: StatusMarkProps) {
 export function MarketplaceComparisonCard() {
   return (
     <section className="pt-6" aria-label="RentItOut comparison">
-      <div className="inline-flex items-center gap-2 rounded-full border border-zinc-900/10 bg-zinc-100 px-3 py-1 text-[10px] tracking-[0.14em] text-zinc-700 sm:px-4 sm:text-[11px] sm:tracking-[0.2em]">
-        <ShieldCheck className="h-3.5 w-3.5" />
-        <span>OWNER-FIRST VALUE</span>
-      </div>
-
-      <h2 className="mt-4 text-2xl font-semibold leading-tight text-zinc-950 sm:text-3xl">
+      <h1 className="text-2xl font-semibold leading-tight text-zinc-950 sm:text-3xl">
         Here&apos;s Why <span className="text-blue-700">RentItOut Is the Better Choice</span>
-      </h2>
+      </h1>
       <p className="mt-2 max-w-3xl text-sm text-zinc-700 sm:text-base">
         Transparent pricing, open access, and full agreement flexibility for renters and owners.
       </p>

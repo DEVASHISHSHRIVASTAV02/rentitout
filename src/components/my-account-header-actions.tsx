@@ -8,9 +8,10 @@ import { Button } from "@/components/ui/button";
 
 interface MyAccountHeaderActionsProps {
   defaultContactEmail: string;
+  autoOpenListing?: boolean;
 }
 
-export function MyAccountHeaderActions({ defaultContactEmail }: MyAccountHeaderActionsProps) {
+export function MyAccountHeaderActions({ defaultContactEmail, autoOpenListing = false }: MyAccountHeaderActionsProps) {
   const menuRef = useRef<HTMLDetailsElement>(null);
   const [isSignOutConfirmOpen, setIsSignOutConfirmOpen] = useState(false);
   const [isDeleteAccountConfirmOpen, setIsDeleteAccountConfirmOpen] = useState(false);
@@ -36,6 +37,7 @@ export function MyAccountHeaderActions({ defaultContactEmail }: MyAccountHeaderA
         <div className="absolute right-0 z-20 mt-2 w-52 rounded-xl border border-zinc-200 bg-white p-1 shadow-lg">
           <MyAccountListingPopup
             defaultContactEmail={defaultContactEmail}
+            autoOpen={autoOpenListing}
             triggerVariant="ghost"
             triggerClassName="w-full justify-start rounded-lg px-3 py-2 text-sm font-medium tracking-normal"
             onTriggerClick={closeActionsMenu}

@@ -1,6 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { CreateListingForm } from "@/components/create-listing-form";
@@ -8,6 +9,7 @@ import { Button } from "@/components/ui/button";
 
 interface MyAccountListingPopupProps {
   defaultContactEmail: string;
+  autoOpen?: boolean;
   triggerLabel?: string;
   triggerVariant?: "primary" | "secondary" | "ghost" | "danger";
   triggerClassName?: string;
@@ -16,13 +18,30 @@ interface MyAccountListingPopupProps {
 
 export function MyAccountListingPopup({
   defaultContactEmail,
+  autoOpen = false,
   triggerLabel = "Create A Listing",
   triggerVariant = "primary",
   triggerClassName,
   onTriggerClick,
 }: MyAccountListingPopupProps) {
-  const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter();
+  const [isOpen, setIsOpen] = useState(autoOpen);
   const isBrowser = typeof document !== "undefined";
+
+  useEffect(() => {
+    if (!autoOpen) {
+      return;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("newListing") !== "1") {
+      return;
+    }
+
+    params.delete("newListing");
+    const query = params.toString();
+    router.replace(`/my-account${query ? `?${query}` : ""}`, { scroll: false });
+  }, [autoOpen, router]);
 
   useEffect(() => {
     document.body.classList.toggle("modal-open", isOpen);

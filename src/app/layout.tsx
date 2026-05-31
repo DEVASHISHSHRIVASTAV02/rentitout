@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Manrope, Sora } from "next/font/google";
+import { ConditionalEarlyPhaseNotice } from "@/components/conditional-early-phase-notice";
 import { ConditionalSiteFooter } from "@/components/conditional-site-footer";
-import { EarlyPhaseNotice } from "@/components/early-phase-notice";
 import { SiteHeader } from "@/components/site-header";
 import { APP_BASE_URL, SITE_NAME } from "@/lib/seo";
 import "./globals.css";
@@ -86,7 +86,7 @@ export default function RootLayout({
       <body className="min-h-full overflow-x-hidden bg-white text-zinc-900">
         <div className="relative flex min-h-screen flex-col">
           <SiteHeader />
-          <EarlyPhaseNotice />
+          <ConditionalEarlyPhaseNotice />
           <main className="flex-1">{children}</main>
           <ConditionalSiteFooter />
         </div>
