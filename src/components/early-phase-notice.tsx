@@ -17,13 +17,6 @@ export function EarlyPhaseNotice() {
             className="underline decoration-amber-700 underline-offset-2 hover:text-amber-800"
           >
             devashishshrivastavwork@gmail.com
-          </a>{" "}
-          or call{" "}
-          <a
-            href="tel:+919968415767"
-            className="underline decoration-amber-700 underline-offset-2 hover:text-amber-800"
-          >
-            9968415767
           </a>
           . We are also open to investor and partnership conversations.
         </p>

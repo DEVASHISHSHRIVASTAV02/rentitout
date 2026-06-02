@@ -120,12 +120,6 @@ export function SiteFooter() {
                 devashishshrivastavwork@gmail.com
               </a>
             </p>
-            <p>
-              Phone:{" "}
-              <a href="tel:9968415767" className="hover:text-white">
-                9968415767
-              </a>
-            </p>
           </div>
         </section>
       </div>
