@@ -1,5 +1,10 @@
 import Link from "next/link";
-import { BriefcaseBusiness, Camera, CirclePlay, MessageCircle } from "lucide-react";
+import {
+  BriefcaseBusiness,
+  Camera,
+  CirclePlay,
+  MessageCircle,
+} from "lucide-react";
 import { IntentPrefetchLink } from "@/components/intent-prefetch-link";
 import { SUPPORTED_CITIES } from "@/lib/cities";
 import { LISTABLE_ITEMS } from "@/lib/listable-items";
@@ -51,7 +56,10 @@ export function SiteFooter() {
           <ul className="mt-4 space-y-2 text-sm text-zinc-300">
             {categoryLinks.map((link) => (
               <li key={link.label}>
-                <IntentPrefetchLink href={link.href} className="hover:text-white">
+                <IntentPrefetchLink
+                  href={link.href}
+                  className="hover:text-white"
+                >
                   {link.label}
                 </IntentPrefetchLink>
               </li>
@@ -64,7 +72,10 @@ export function SiteFooter() {
           <ul className="mt-4 space-y-2 text-sm text-zinc-300">
             {cityLinks.map((link) => (
               <li key={link.label}>
-                <IntentPrefetchLink href={link.href} className="hover:text-white">
+                <IntentPrefetchLink
+                  href={link.href}
+                  className="hover:text-white"
+                >
                   {link.label}
                 </IntentPrefetchLink>
               </li>
@@ -77,7 +88,10 @@ export function SiteFooter() {
           <ul className="mt-4 space-y-2 text-sm text-zinc-300">
             {rentItOutLinks.map((link) => (
               <li key={link.label}>
-                <IntentPrefetchLink href={link.href} className="hover:text-white">
+                <IntentPrefetchLink
+                  href={link.href}
+                  className="hover:text-white"
+                >
                   {link.label}
                 </IntentPrefetchLink>
               </li>
@@ -90,7 +104,10 @@ export function SiteFooter() {
           <ul className="mt-4 space-y-2 text-sm text-zinc-300">
             {policyLinks.map((link) => (
               <li key={link.label}>
-                <IntentPrefetchLink href={link.href} className="hover:text-white">
+                <IntentPrefetchLink
+                  href={link.href}
+                  className="hover:text-white"
+                >
                   {link.label}
                 </IntentPrefetchLink>
               </li>
@@ -116,7 +133,10 @@ export function SiteFooter() {
             <p className="font-medium text-white">Contact</p>
             <p>
               Email:{" "}
-              <a href="mailto:devashishshrivastavwork@gmail.com" className="break-all hover:text-white">
+              <a
+                href="mailto:devashishshrivastavwork@gmail.com"
+                className="break-all hover:text-white"
+              >
                 devashishshrivastavwork@gmail.com
               </a>
             </p>
