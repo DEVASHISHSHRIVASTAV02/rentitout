@@ -19,7 +19,6 @@ export function EarlyPhaseNotice() {
           >
             devashishshrivastavwork@gmail.com
           </a>
-          . We are also open to investor and partnership conversations.
         </p>
       </div>
     </section>
