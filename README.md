@@ -59,6 +59,8 @@ Detailed guides:
 
 - [Setup Guide](docs/SETUP.md)
 - [VPS Deployment Guide](docs/DEPLOYMENT-VPS.md)
+- [Cloudflare Tunnel (Home Hardware)](docs/DEPLOYMENT-CLOUDFLARE-TUNNEL.md)
+- [Home Hosting Daily Ops](HOME-HOSTING.md) — start/stop site, post-reboot commands
 
 ## Scripts
 

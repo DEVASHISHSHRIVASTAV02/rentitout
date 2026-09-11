@@ -1,0 +1,22 @@
+# Copy to your cloudflared config directory and edit paths/hostnames.
+#
+# Windows: %USERPROFILE%\.cloudflared\config.yml
+# Linux:   /etc/cloudflared/config.yml
+#
+# Create tunnel first:
+#   cloudflared tunnel login
+#   cloudflared tunnel create rentitout-laptop
+#
+# Route DNS:
+#   cloudflared tunnel route dns rentitout-laptop rentitout.in
+#   cloudflared tunnel route dns rentitout-laptop www.rentitout.in
+
+tunnel: rentitout-laptop
+credentials-file: C:\Users\you\.cloudflared\YOUR-TUNNEL-ID.json
+
+ingress:
+  - hostname: rentitout.in
+    service: http://127.0.0.1:3000
+  - hostname: www.rentitout.in
+    service: http://127.0.0.1:3000
+  - service: http_status:404
