@@ -7,7 +7,7 @@ RentItOut acts as a connector only. Agreements, deposit terms, insurance, transp
 ## Production
 
 - **Live site:** [https://rentitout.in](https://rentitout.in)
-- **Hosting:** Home hardware (Windows laptop) via **Cloudflare Tunnel** — no VPS, no router port forwarding
+- **Hosting:** This PC, via **Cloudflare Tunnel**. PostgreSQL runs on the same machine.
 - **Daily ops:** [HOME-HOSTING.md](HOME-HOSTING.md) — start/stop the site, post-reboot commands
 
 ## Stack
@@ -49,7 +49,7 @@ RentItOut acts as a connector only. Agreements, deposit terms, insurance, transp
   - Redundant `View Full Listing Page` action removed from contact popup.
 - `2026-05-04`: Contact reveal bot check migrated from custom SVG captcha to Google reCAPTCHA v2 with server-side token verification.
 - `2026-09-11`: Production moved to home hardware with Cloudflare Tunnel (`rentitout.in`), Windows PM2 config (`ecosystem.config.js`, 1 instance), daily ops guide, and reCAPTCHA domain allowlisting for production.
-- `2026-10-02`: Database moved off hosted Postgres onto local PostgreSQL on the home machine.
+- `2026-10-02`: PostgreSQL runs on this PC. The public site is served from this machine through Cloudflare Tunnel.
 
 ## Quick Start
 
@@ -73,14 +73,8 @@ Open `http://localhost:3000`.
 | [Setup Guide](docs/SETUP.md) | First-time setup (local PostgreSQL, Resend, reCAPTCHA, env vars) |
 | [Home Hosting Daily Ops](HOME-HOSTING.md) | **Daily reference** — bring site online/offline, post-reboot commands |
 | [Cloudflare Tunnel Setup](docs/DEPLOYMENT-CLOUDFLARE-TUNNEL.md) | Initial home-hosting setup (tunnel, DNS, reCAPTCHA, PM2) |
-| [VPS Deployment](docs/DEPLOYMENT-VPS.md) | Alternative deploy on Ubuntu with Nginx + Certbot |
 
-### PM2 configs
-
-| File | Platform | Instances |
-|------|----------|-----------|
-| `ecosystem.config.js` | Windows home hosting | 1 (low CPU/RAM footprint) |
-| `ecosystem.config.cjs` | Linux VPS | `WEB_CONCURRENCY` env (default `2`) |
+Production process manager: `ecosystem.config.js` (1 PM2 instance).
 
 ## Scripts
 
@@ -88,14 +82,9 @@ Open `http://localhost:3000`.
 - `npm run build` - production build
 - `npm run start` - production server
 - `npm run lint` - lint check
-- `npm run perf:smoke` - quick `autocannon` run against `http://127.0.0.1:3000/`
-- `npm run perf:max-rps` - ramp connections until latency/error threshold is crossed
-- `npm run perf:max-rps:home` - conservative ramp profile tuned for homepage (`/`)
-- `npm run perf:max-rps:browse` - conservative ramp profile tuned for browse (`/browse`)
 - `npm run db:schema` - apply `db/schema.sql` to the database in `DATABASE_URL`
 - `npm run prod:preflight` - production readiness checks (env vars, node version, upload dir writability)
 - `npm run prod:build` - run preflight, lint, then production build
-- `npm run deploy:prod` - one-command VPS deploy (`git pull`, `npm ci`, `prod:build`, PM2 restart/save)
 
 ## Performance Cache Defaults
 
@@ -106,43 +95,3 @@ For lower DB round-trip pressure on browse and listing reads, the app uses in-me
 - `IN_MEMORY_CACHE_MAX_ENTRIES=300`
 
 Keep TTL values comfortably above `1000` ms in production. Extremely low TTL values effectively disable cache benefits.
-
-## Load Testing With Autocannon
-
-Start the app first (in one terminal):
-
-```bash
-npm run build
-npm run start
-```
-
-Then run load tests from another terminal:
-
-```bash
-npm run perf:smoke
-```
-
-```bash
-npm run perf:max-rps
-```
-
-Run isolated endpoint profiles to compare static/home vs DB-heavy browse:
-
-```bash
-npm run perf:max-rps:home
-```
-
-```bash
-npm run perf:max-rps:browse
-```
-
-Tune ramp test inputs as needed:
-
-```bash
-npm run perf:max-rps -- --url http://127.0.0.1:3000/listings --start 20 --max 400 --step 20 --duration 15 --lag-ms 500 --max-error-pct 1
-```
-
-`perf:max-rps` reports the best stable point (max req/s before crossing the lag threshold) based on:
-
-- `p97.5 latency <= lag-ms`
-- `(errors + non2xx) / (responses + errors) <= max-error-pct`

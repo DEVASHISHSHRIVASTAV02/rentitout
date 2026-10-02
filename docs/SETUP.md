@@ -2,9 +2,8 @@
 
 Use this guide for **local development**. For production hosting, see:
 
-- [HOME-HOSTING.md](../HOME-HOSTING.md) — daily start/stop on home hardware (current production)
+- [HOME-HOSTING.md](../HOME-HOSTING.md) — daily start/stop on this PC
 - [DEPLOYMENT-CLOUDFLARE-TUNNEL.md](DEPLOYMENT-CLOUDFLARE-TUNNEL.md) — first-time Cloudflare Tunnel setup
-- [DEPLOYMENT-VPS.md](DEPLOYMENT-VPS.md) — alternative VPS deploy
 
 ## 1. Install dependencies
 
@@ -37,12 +36,11 @@ DB_POOL_MAX_USES=7500
 PUBLIC_LISTINGS_CACHE_TTL_MS=120000
 LISTING_BY_ID_CACHE_TTL_MS=120000
 IN_MEMORY_CACHE_MAX_ENTRIES=300
-WEB_CONCURRENCY=2
 ```
 
 ### Where to copy each value
 
-- `DATABASE_URL`: local PostgreSQL URL. The database must run on this machine (`127.0.0.1`). Do not use any hosted cloud database URL.
+- `DATABASE_URL`: PostgreSQL on this machine, for example `postgresql://rentitout:password@127.0.0.1:5432/rentitout`.
 - `AUTH_OTP_SECRET`: random long secret for OTP hashing (use at least 32 chars).
 - `NEXT_PUBLIC_RECAPTCHA_SITE_KEY`: Google reCAPTCHA v2 site key (public, browser-side).
 - `RECAPTCHA_SECRET_KEY`: Google reCAPTCHA secret key (server-side only).
@@ -58,7 +56,6 @@ WEB_CONCURRENCY=2
 - `PUBLIC_LISTINGS_CACHE_TTL_MS`: in-memory cache duration for `/browse` query results.
 - `LISTING_BY_ID_CACHE_TTL_MS`: in-memory cache duration for listing detail lookup.
 - `IN_MEMORY_CACHE_MAX_ENTRIES`: maximum in-memory cache entries per app process.
-- `WEB_CONCURRENCY`: PM2 app instances on VPS (`2`, `3`, or `max`). Home hosting uses `ecosystem.config.js` with 1 instance instead.
 
 ## 3. Configure Google reCAPTCHA
 
@@ -138,7 +135,7 @@ After local dev works:
 2. Allowlist your domain in Google reCAPTCHA (see section 3).
 3. Verify your sending domain in Resend.
 4. Run `npm run prod:build`.
-5. Follow [DEPLOYMENT-CLOUDFLARE-TUNNEL.md](DEPLOYMENT-CLOUDFLARE-TUNNEL.md) for home hosting, or [DEPLOYMENT-VPS.md](DEPLOYMENT-VPS.md) for a VPS.
+5. Follow [DEPLOYMENT-CLOUDFLARE-TUNNEL.md](DEPLOYMENT-CLOUDFLARE-TUNNEL.md) to publish this machine with Cloudflare Tunnel.
 6. Use [HOME-HOSTING.md](../HOME-HOSTING.md) for daily start/stop commands.
 
 ## 9. Project Milestones (Day 1 -> Current)
@@ -152,4 +149,4 @@ After local dev works:
   - Redundant quick-view redirect button removed.
 - `2026-05-04`: Contact reveal verification switched to Google reCAPTCHA v2 with backend token verification.
 - `2026-09-11`: Production on home hardware via Cloudflare Tunnel; daily ops guide and Windows PM2 config added.
-- `2026-10-02`: Database moved to local PostgreSQL. Apply schema with `npm run db:schema`.
+- `2026-10-02`: PostgreSQL runs on this PC. Apply the schema with `npm run db:schema`.

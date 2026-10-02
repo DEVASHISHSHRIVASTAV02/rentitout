@@ -1,6 +1,6 @@
 # Home Hosting with Cloudflare Tunnel
 
-This guide runs RentItOut on your own hardware (Windows or Linux) and exposes it through a **Cloudflare Tunnel** (`cloudflared`).
+This guide runs RentItOut on this PC and exposes it through a **Cloudflare Tunnel** (`cloudflared`).
 
 > **Daily reference:** After initial setup, use [HOME-HOSTING.md](../HOME-HOSTING.md) for start/stop commands, post-reboot steps, and the one-page cheat sheet.
 
@@ -10,13 +10,9 @@ Traffic flows:
 Browser → Cloudflare edge (HTTPS) → cloudflared → http://127.0.0.1:3000 → Next.js (PM2)
 ```
 
-You do **not** need:
+Cloudflare terminates HTTPS at the edge. This PC does not need router port forwarding or a local reverse proxy.
 
-- A VPS
-- Router port forwarding
-- Nginx or Certbot (Cloudflare terminates TLS at the edge)
-
-PostgreSQL runs on the same machine as the app. Email still uses Resend.
+PostgreSQL runs on this same PC. Email uses Resend.
 
 ## 1. Prerequisites
 
@@ -184,23 +180,13 @@ npm run prod:build
 
 **PM2 (recommended):**
 
-Windows — use `ecosystem.config.js` (1 instance, low CPU/RAM footprint):
+Use `ecosystem.config.js` (1 instance):
 
 ```bash
 npm install -g pm2
 pm2 start ecosystem.config.js
 pm2 save
 ```
-
-Linux — edit `cwd` in `ecosystem.config.cjs` to your checkout path, then:
-
-```bash
-pm2 start ecosystem.config.cjs
-pm2 save
-pm2 startup
-```
-
-See [README.md](../README.md#pm2-configs) for the config comparison table.
 
 **One-off test:**
 
@@ -268,13 +254,6 @@ With 1 app instance, total DB connections ≈ `DB_POOL_MAX`. Keep the pool insid
 
 To change instance count, edit `instances` in `ecosystem.config.js` and restart PM2.
 
-Load test locally before sharing widely:
-
-```bash
-npm run perf:max-rps:home
-npm run perf:max-rps:browse
-```
-
 ## 12. Troubleshooting
 
 | Symptom | Likely fix |
@@ -297,18 +276,7 @@ pm2 logs next-app
 curl -I http://127.0.0.1:3000/
 ```
 
-## 13. Comparison with VPS deploy
-
-| | VPS (`DEPLOYMENT-VPS.md`) | Cloudflare Tunnel (this guide) |
-|--|--|--|
-| Public IP exposure | Yes | No |
-| Reverse proxy | Nginx | cloudflared |
-| TLS certificates | Certbot | Cloudflare edge |
-| Best for | Dedicated server, high traffic | Home hardware, low ops overhead |
-
-Both approaches run the same Next.js build, a local PostgreSQL database, and Resend for email.
-
-## 14. Home network safety
+## 13. Home network safety
 
 Cloudflare Tunnel uses **outbound-only** connections from your PC — you do not need router port forwarding for the website.
 
@@ -320,11 +288,11 @@ Recommended practices:
 - Keep Windows, Node.js, and `cloudflared` updated.
 - Back up `public/uploads/listing-images` and the local PostgreSQL database (`pg_dump`).
 
-## 15. Project Milestones (Day 1 -> Current)
+## 14. Project Milestones (Day 1 -> Current)
 
 - `2026-04-22`: Day-1 Next.js scaffold committed.
 - `2026-04-25`: RentItOut core import committed.
 - `2026-04-28`: Browse UX shift to quick-view + captcha-gated inline contact reveal with modal-first flow.
 - `2026-05-04`: Contact reveal bot check migrated to Google reCAPTCHA v2.
 - `2026-09-11`: Production live at `rentitout.in` via Cloudflare Tunnel on home hardware; daily ops guide and reCAPTCHA domain setup documented.
-- `2026-10-02`: Postgres runs locally on the home machine. Hosted database services are not used.
+- `2026-10-02`: PostgreSQL runs on this PC. The site is published only through Cloudflare Tunnel.

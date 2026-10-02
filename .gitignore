@@ -43,6 +43,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# local docs and database dumps
+# local notes and database dumps
 /VPS.docx
 /backups/

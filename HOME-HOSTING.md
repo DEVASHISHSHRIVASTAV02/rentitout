@@ -229,17 +229,6 @@ New-Item -ItemType Directory -Force -Path C:\RentAPP\backups | Out-Null
 
 ---
 
-## Load testing (optional)
-
-From `C:\RentAPP` while the app is running:
-
-```powershell
-npm run perf:max-rps:home
-npm run perf:max-rps:browse
-```
-
----
-
 ## reCAPTCHA reminder
 
 If contact reveal shows **"Invalid domain for site key"**, add `rentitout.in` and `www.rentitout.in` in [Google reCAPTCHA Admin](https://www.google.com/recaptcha/admin). No rebuild needed for domain-only changes.
@@ -253,4 +242,3 @@ Sleep or shutdown stops both PM2 and cloudflared. The public site goes offline u
 - [README.md](README.md) — project overview and doc index
 - [docs/DEPLOYMENT-CLOUDFLARE-TUNNEL.md](docs/DEPLOYMENT-CLOUDFLARE-TUNNEL.md) — full tunnel setup, reCAPTCHA, security
 - [docs/SETUP.md](docs/SETUP.md) — local PostgreSQL, Resend, env vars
-- [docs/DEPLOYMENT-VPS.md](docs/DEPLOYMENT-VPS.md) — alternative VPS deploy

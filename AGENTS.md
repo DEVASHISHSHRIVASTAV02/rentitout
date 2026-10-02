@@ -11,5 +11,4 @@ Production runs on home hardware via Cloudflare Tunnel. Key docs:
 - `HOME-HOSTING.md` — daily start/stop commands
 - `docs/DEPLOYMENT-CLOUDFLARE-TUNNEL.md` — tunnel setup
 - `docs/SETUP.md` — local dev and env vars
-- `ecosystem.config.js` — Windows PM2 (1 instance)
-- `ecosystem.config.cjs` — Linux VPS PM2
+- `ecosystem.config.js` — PM2 config for this machine (1 instance)
