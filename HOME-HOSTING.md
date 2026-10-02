@@ -11,53 +11,67 @@ All of these must be running for the public site to work:
 2. **Next.js app** (PM2, port 3000)
 3. **Cloudflare Tunnel** (`cloudflared`, tunnel name: `rentitout-laptop`)
 
-If either is stopped, visitors will see a Cloudflare error (502 / tunnel unavailable).
+If any one of them is stopped, visitors see a Cloudflare error (502 / tunnel unavailable).
 
 ---
 
 ## After shutting down or closing your laptop
 
-When you open the laptop again and want the site **live on the internet**, run these in order:
+Open PowerShell and run these in order. Approve the Windows prompt when it appears for the database.
 
-### Window 1 — Start local PostgreSQL
+### 1. Start PostgreSQL
+
+The database is the Windows service `postgresql-x64-17`. After a full reboot it may already be running. Check first:
 
 ```powershell
-& "C:\Program Files\PostgreSQL\17\bin\pg_ctl.exe" -D C:\PostgreSQLData\17 -l "$env:USERPROFILE\.rentitout\postgres.log" -o "-p 5432" start
+Get-Service postgresql-x64-17
 ```
 
-### Window 2 — Start the web app
+If `Status` is `Stopped`, start it:
+
+```powershell
+Start-Process powershell -Verb RunAs -Wait -ArgumentList "-NoProfile -Command Start-Service postgresql-x64-17"
+Get-Service postgresql-x64-17
+```
+
+`Status` should be `Running`.
+
+### 2. Start the web app
 
 ```powershell
 cd C:\RentAPP
 pm2 start ecosystem.config.js
+pm2 status
 ```
 
-If PM2 already knows the app from a previous session:
+`next-app` should show `online`. If PM2 says it is already running, use:
 
 ```powershell
-cd C:\RentAPP
-pm2 resurrect
+pm2 restart next-app
 ```
 
-### Window 3 — Start the Cloudflare tunnel
+### 3. Start the Cloudflare tunnel
+
+Leave this window open. Closing it takes the public site offline.
 
 ```powershell
 cloudflared tunnel run rentitout-laptop
 ```
 
-Leave this window open unless you installed cloudflared as a Windows service (see below).
+Wait until the log says `Registered tunnel connection`.
 
-### Verify the site is live
+### 4. Confirm the site is live
+
+In a second PowerShell window:
 
 ```powershell
-pm2 status
+$env:PGPASSWORD = (Get-Content "$env:USERPROFILE\.rentitout\pg-app.txt" -Raw).Trim()
 & "C:\Program Files\PostgreSQL\17\bin\psql.exe" -h 127.0.0.1 -U rentitout -d rentitout -tAc "select 1"
 curl.exe -I http://127.0.0.1:3000/
 curl.exe -I https://rentitout.in/
-cloudflared tunnel info rentitout-laptop
 ```
 
-Then open **https://rentitout.in** in your browser.
+The database check should print `1`. Both `curl` commands should show `HTTP/1.1 200 OK`. Then open **https://rentitout.in**.
 
 ---
 
@@ -96,11 +110,14 @@ cloudflared service stop
 
 ### Stop local PostgreSQL (optional)
 
-Use this only if you want to free memory while the site is down.
+Use this only if you want to free memory while the site is down. Approve the Windows prompt.
 
 ```powershell
-& "C:\Program Files\PostgreSQL\17\bin\pg_ctl.exe" -D C:\PostgreSQLData\17 stop
+Start-Process powershell -Verb RunAs -Wait -ArgumentList "-NoProfile -Command Stop-Service postgresql-x64-17 -Force"
+Get-Service postgresql-x64-17
 ```
+
+`Status` should be `Stopped`.
 
 ### Confirm everything is stopped
 
@@ -122,9 +139,9 @@ curl.exe -I https://rentitout.in/
 
 | Goal | Command |
 |------|---------|
-| **Go live** | `pg_ctl start` → `pm2 start ecosystem.config.js` → `cloudflared tunnel run rentitout-laptop` |
+| **Go live** | Start service `postgresql-x64-17` → `pm2 start ecosystem.config.js` → `cloudflared tunnel run rentitout-laptop` |
 | **Go offline** | `pm2 stop next-app` → stop cloudflared (`Ctrl+C` or `Stop-Process -Name cloudflared -Force`) |
-| **Stop local DB** | `pg_ctl stop -D C:\PostgreSQLData\17` |
+| **Stop local DB** | `Stop-Service postgresql-x64-17` (Admin PowerShell) |
 | **Check app** | `pm2 status` |
 | **Check DB** | `psql -h 127.0.0.1 -U rentitout -d rentitout -tAc "select 1"` |
 | **Check tunnel** | `cloudflared tunnel info rentitout-laptop` |
@@ -171,8 +188,9 @@ Tunnel does **not** need a restart for app-only changes.
 Run once in **Admin PowerShell** if you want the site to come back after a reboot without manual commands:
 
 ```powershell
-& "C:\Program Files\PostgreSQL\17\bin\pg_ctl.exe" register -N postgresql-x64-17-local -D C:\PostgreSQLData\17 -S auto
-Start-Service postgresql-x64-17-local
+# PostgreSQL service postgresql-x64-17 is already set to start with Windows.
+# Still confirm after a reboot:
+Get-Service postgresql-x64-17
 
 pm2 startup
 # Run the command PM2 prints, then:
@@ -187,7 +205,6 @@ cloudflared service start
 To disable auto-start later:
 
 ```powershell
-& "C:\Program Files\PostgreSQL\17\bin\pg_ctl.exe" unregister -N postgresql-x64-17-local
 pm2 unstartup
 cloudflared service stop
 cloudflared service uninstall
@@ -199,9 +216,9 @@ cloudflared service uninstall
 
 ## Local database
 
-PostgreSQL runs on this PC at `127.0.0.1:5432` (database `rentitout`). It is not published through the Cloudflare tunnel. Do not forward port 5432 on the router.
+PostgreSQL runs on this PC at `127.0.0.1:5432` (database `rentitout`, Windows service `postgresql-x64-17`). It is not published through the Cloudflare tunnel. Do not forward port 5432 on the router.
 
-In this setup PostgreSQL is started with `pg_ctl` from the Go Live commands above.
+Data directory: `C:\Program Files\PostgreSQL\17\data`
 
 Apply schema changes:
 
@@ -222,7 +239,7 @@ New-Item -ItemType Directory -Force -Path C:\RentAPP\backups | Out-Null
 | Path | Purpose |
 |------|---------|
 | `C:\RentAPP\.env.local` | Production secrets and config |
-| `C:\PostgreSQLData\17` | Local PostgreSQL data directory |
+| `C:\Program Files\PostgreSQL\17\data` | Local PostgreSQL data directory |
 | `C:\Users\apexd\.cloudflared\config.yml` | Tunnel hostnames and local port |
 | `C:\Users\apexd\.cloudflared\abf2b036-c718-4e22-876f-496f63e1eb21.json` | Tunnel credentials |
 | `C:\RentAPP\public\uploads\listing-images` | Uploaded listing images (back up regularly) |
@@ -235,7 +252,7 @@ If contact reveal shows **"Invalid domain for site key"**, add `rentitout.in` an
 
 ## What happens when you close the laptop?
 
-Sleep or shutdown stops both PM2 and cloudflared. The public site goes offline until you run the **Go live** commands again (or install auto-start services in the optional section above).
+Sleep or shutdown stops PM2 and cloudflared. The public site goes offline until you run the start steps above. The PostgreSQL Windows service is set to start with Windows, so after a full boot check it before starting it again.
 
 ## More detail
 
