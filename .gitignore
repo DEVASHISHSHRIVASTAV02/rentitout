@@ -46,3 +46,4 @@ next-env.d.ts
 # local notes and database dumps
 /VPS.docx
 /backups/
+/LOCAL-COMMANDS.md
