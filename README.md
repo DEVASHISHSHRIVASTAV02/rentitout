@@ -20,11 +20,10 @@ Start-Process powershell -Verb RunAs -Wait -ArgumentList "-NoProfile -Command St
 
 cd C:\RentAPP
 pm2 start ecosystem.config.js
-
-cloudflared tunnel run rentitout-laptop
+powershell -NoProfile -File .\scripts\start-tunnel.ps1
 ```
 
-Leave the tunnel window open. Then check:
+The tunnel keeps running after you close that window and after you close Cursor. Then check:
 
 ```powershell
 curl.exe -I http://127.0.0.1:3000/

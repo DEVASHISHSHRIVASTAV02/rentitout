@@ -21,7 +21,7 @@ Open PowerShell and run these in order. Approve the Windows prompt when it appea
 
 ### 1. Start PostgreSQL
 
-The database is the Windows service `postgresql-x64-17`. After a full reboot it may already be running. Check first:
+The database is the Windows service `postgresql-x64-17`. It does not start when the laptop boots. Check first:
 
 ```powershell
 Get-Service postgresql-x64-17
@@ -52,13 +52,14 @@ pm2 restart all
 
 ### 3. Start the Cloudflare tunnel
 
-Leave this window open. Closing it takes the public site offline.
+This starts the tunnel outside the current window, so closing Cursor does not take the public site offline.
 
 ```powershell
-cloudflared tunnel run rentitout-laptop
+cd C:\RentAPP
+powershell -NoProfile -File .\scripts\start-tunnel.ps1
 ```
 
-Wait until the log says `Registered tunnel connection`.
+Wait until `%USERPROFILE%\.cloudflared\tunnel.log` says `Registered tunnel connection`.
 
 ### 4. Confirm the site is live
 
@@ -94,9 +95,7 @@ pm2 save
 
 ### Stop the Cloudflare tunnel
 
-**If tunnel is running in a terminal window:** press `Ctrl+C` in that window.
-
-**If tunnel is running as a background process:**
+The tunnel is not tied to a window. Stop it with:
 
 ```powershell
 Stop-Process -Name cloudflared -Force
@@ -139,7 +138,7 @@ curl.exe -I https://rentitout.in/
 
 | Goal | Command |
 |------|---------|
-| **Go live** | Start service `postgresql-x64-17` → `pm2 start ecosystem.config.js` → `cloudflared tunnel run rentitout-laptop` |
+| **Go live** | Start service `postgresql-x64-17` → `pm2 start ecosystem.config.js` → `powershell -File .\scripts\start-tunnel.ps1` |
 | **Go offline** | `pm2 stop all` → stop cloudflared (`Ctrl+C` or `Stop-Process -Name cloudflared -Force`) |
 | **Stop local DB** | `Stop-Service postgresql-x64-17` (Admin PowerShell) |
 | **Check app** | `pm2 status` |
@@ -190,7 +189,8 @@ Tunnel does **not** need a restart for app-only changes.
 Run once in **Admin PowerShell** if you want the site to come back after a reboot without manual commands:
 
 ```powershell
-# PostgreSQL service postgresql-x64-17 is already set to start with Windows.
+# PostgreSQL is manual. To make it start with Windows instead:
+# Set-Service postgresql-x64-17 -StartupType Automatic
 # Still confirm after a reboot:
 Get-Service postgresql-x64-17
 
@@ -254,7 +254,7 @@ If contact reveal shows **"Invalid domain for site key"**, add `rentitout.in` an
 
 ## What happens when you close the laptop?
 
-Sleep or shutdown stops PM2 and cloudflared. The public site goes offline until you run the start steps above. The PostgreSQL Windows service is set to start with Windows, so after a full boot check it before starting it again.
+Sleep or shutdown stops PM2 and cloudflared. The public site goes offline until you run the start steps above. PostgreSQL does not start with Windows. Start it with the database command after you sign in. Closing Cursor does not stop the database, the website, or the tunnel.
 
 ## More detail
 
