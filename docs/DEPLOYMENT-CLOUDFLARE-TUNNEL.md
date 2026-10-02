@@ -1,6 +1,10 @@
 # Home Hosting with Cloudflare Tunnel
 
-This guide runs RentItOut on your own hardware (Windows or Linux) and exposes it through a **Cloudflare Tunnel** (`cloudflared`). Traffic flows:
+This guide runs RentItOut on your own hardware (Windows or Linux) and exposes it through a **Cloudflare Tunnel** (`cloudflared`).
+
+> **Daily reference:** After initial setup, use [HOME-HOSTING.md](../HOME-HOSTING.md) for start/stop commands, post-reboot steps, and the one-page cheat sheet.
+
+Traffic flows:
 
 ```text
 Browser → Cloudflare edge (HTTPS) → cloudflared → http://127.0.0.1:3000 → Next.js (PM2)
@@ -12,7 +16,7 @@ You do **not** need:
 - Router port forwarding
 - Nginx or Certbot (Cloudflare terminates TLS at the edge)
 
-You **do** still use cloud services for Postgres (Neon) and email (Resend), same as the VPS guide.
+PostgreSQL runs on the same machine as the app. Email still uses Resend.
 
 ## 1. Prerequisites
 
@@ -20,7 +24,7 @@ You **do** still use cloud services for Postgres (Neon) and email (Resend), same
 - Node.js 24 LTS (see `scripts/preflight-prod.mjs`; Node 22 may work for local runs but preflight warns)
 - `cloudflared` installed
 - PM2 optional but recommended for auto-restart
-- Neon database schema applied (`db/schema.sql`)
+- Local PostgreSQL installed and schema applied (`npm run db:schema`)
 - Production env configured (`.env.local` or `.env.production`)
 
 ## 2. Install cloudflared
@@ -108,14 +112,13 @@ Use `.env.local` (or `.env.production`) with your public URL:
 
 ```env
 NEXT_PUBLIC_APP_URL=https://rentitout.in
-DATABASE_URL=postgresql://...
+DATABASE_URL=postgresql://rentitout:replace-with-local-password@127.0.0.1:5432/rentitout
 AUTH_OTP_SECRET=your-long-random-secret
 NEXT_PUBLIC_RECAPTCHA_SITE_KEY=your-recaptcha-site-key
 RECAPTCHA_SECRET_KEY=your-recaptcha-secret-key
 RESEND_API_KEY=re_...
 EMAIL_FROM=RentItOut <noreply@rentitout.in>
 LISTING_PROOF_REVIEW_EMAIL=
-WEB_CONCURRENCY=2
 DB_POOL_MAX=20
 PUBLIC_LISTINGS_CACHE_TTL_MS=120000
 LISTING_BY_ID_CACHE_TTL_MS=120000
@@ -181,7 +184,7 @@ npm run prod:build
 
 **PM2 (recommended):**
 
-Windows — use the repo root config:
+Windows — use `ecosystem.config.js` (1 instance, low CPU/RAM footprint):
 
 ```bash
 npm install -g pm2
@@ -196,6 +199,8 @@ pm2 start ecosystem.config.cjs
 pm2 save
 pm2 startup
 ```
+
+See [README.md](../README.md#pm2-configs) for the config comparison table.
 
 **One-off test:**
 
@@ -251,14 +256,17 @@ mkdir -p public/uploads/listing-images
 
 ## 11. Home hardware tuning
 
-Start conservative on a laptop or small PC:
+The Windows config (`ecosystem.config.js`) runs **1 PM2 instance** to leave CPU/RAM for other programs on a laptop.
+
+Tune DB pool in `.env.local`:
 
 ```env
-WEB_CONCURRENCY=2
 DB_POOL_MAX=20
 ```
 
-Total DB connections ≈ `WEB_CONCURRENCY × DB_POOL_MAX`. Neon free tiers have connection limits — keep this in mind.
+With 1 app instance, total DB connections ≈ `DB_POOL_MAX`. Keep the pool inside what the local PostgreSQL `max_connections` setting allows.
+
+To change instance count, edit `instances` in `ecosystem.config.js` and restart PM2.
 
 Load test locally before sharing widely:
 
@@ -298,4 +306,25 @@ curl -I http://127.0.0.1:3000/
 | TLS certificates | Certbot | Cloudflare edge |
 | Best for | Dedicated server, high traffic | Home hardware, low ops overhead |
 
-Both approaches run the same Next.js build and share Neon + Resend configuration.
+Both approaches run the same Next.js build, a local PostgreSQL database, and Resend for email.
+
+## 14. Home network safety
+
+Cloudflare Tunnel uses **outbound-only** connections from your PC — you do not need router port forwarding for the website.
+
+Recommended practices:
+
+- Do **not** open inbound ports (80, 443, 3389, etc.) on your router for this project.
+- Enable **2FA** on your Cloudflare account.
+- Never commit `.env.local` or `%USERPROFILE%\.cloudflared\*.json` tunnel credentials.
+- Keep Windows, Node.js, and `cloudflared` updated.
+- Back up `public/uploads/listing-images` and the local PostgreSQL database (`pg_dump`).
+
+## 15. Project Milestones (Day 1 -> Current)
+
+- `2026-04-22`: Day-1 Next.js scaffold committed.
+- `2026-04-25`: RentItOut core import committed.
+- `2026-04-28`: Browse UX shift to quick-view + captcha-gated inline contact reveal with modal-first flow.
+- `2026-05-04`: Contact reveal bot check migrated to Google reCAPTCHA v2.
+- `2026-09-11`: Production live at `rentitout.in` via Cloudflare Tunnel on home hardware; daily ops guide and reCAPTCHA domain setup documented.
+- `2026-10-02`: Postgres runs locally on the home machine. Hosted database services are not used.

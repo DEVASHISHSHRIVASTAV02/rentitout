@@ -1,5 +1,8 @@
 # Copy to your cloudflared config directory and edit paths/hostnames.
 #
+# Full setup: docs/DEPLOYMENT-CLOUDFLARE-TUNNEL.md
+# Daily ops:  HOME-HOSTING.md
+#
 # Windows: %USERPROFILE%\.cloudflared\config.yml
 # Linux:   /etc/cloudflared/config.yml
 #

@@ -1,6 +1,8 @@
-# VPS Deployment (Next.js + Neon + Resend)
+# VPS Deployment (Next.js + local PostgreSQL + Resend)
 
 This guide deploys RentItOut on Ubuntu with PM2 + Nginx.
+
+> **Alternative:** Production currently runs on **home hardware** via Cloudflare Tunnel. See [DEPLOYMENT-CLOUDFLARE-TUNNEL.md](DEPLOYMENT-CLOUDFLARE-TUNNEL.md) and [HOME-HOSTING.md](../HOME-HOSTING.md). Use this VPS guide if you prefer a dedicated server instead.
 
 ## 1. Prerequisites
 
@@ -10,7 +12,8 @@ This guide deploys RentItOut on Ubuntu with PM2 + Nginx.
 - Nginx
 - PM2 (`npm i -g pm2`)
 - Domain pointing to VPS public IP
-- Neon database and Resend account ready
+- PostgreSQL 15+ installed on the same machine (localhost only)
+- Resend account ready
 
 ## 2. Install system packages
 
@@ -47,7 +50,7 @@ Required values:
 
 ```env
 NEXT_PUBLIC_APP_URL=https://yourdomain.com
-DATABASE_URL=postgresql://...
+DATABASE_URL=postgresql://rentitout:replace-with-local-password@127.0.0.1:5432/rentitout
 AUTH_OTP_SECRET=your-long-random-secret
 NEXT_PUBLIC_RECAPTCHA_SITE_KEY=your-recaptcha-site-key
 RECAPTCHA_SECRET_KEY=your-recaptcha-secret-key
@@ -71,8 +74,13 @@ Important:
 
 ## 5. Prepare database schema
 
-Run `db/schema.sql` in Neon SQL Editor for your production database.
-It is safe to re-run this file on upgrades because statements are `if not exists` guarded.
+Create the local database, set `DATABASE_URL` in `.env.local`, then apply the schema:
+
+```bash
+npm run db:schema
+```
+
+It is safe to re-run this command on upgrades because statements in `db/schema.sql` are `if not exists` guarded.
 
 ## 6. Run production preflight and build
 
@@ -184,3 +192,5 @@ npm run perf:max-rps:browse
 - `2026-04-25`: RentItOut core import committed.
 - `2026-04-28`: Browse UX shift to quick-view + captcha-gated inline contact reveal with modal-first flow.
 - `2026-05-04`: Contact reveal bot check migrated to Google reCAPTCHA v2.
+- `2026-09-11`: Home hardware + Cloudflare Tunnel path added as primary production option; VPS remains supported via this guide.
+- `2026-10-02`: Database is local PostgreSQL on the host machine. Hosted cloud database services are not used.

@@ -1,4 +1,4 @@
--- Run this file in Neon SQL Editor (or any PostgreSQL 15+ database).
+-- Apply against local PostgreSQL 15+ (npm run db:schema).
 -- Core auth schema requested by product requirements.
 
 create extension if not exists "pgcrypto";

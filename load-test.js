@@ -14,7 +14,7 @@ export const options = {
 };
 
 export default function loadTest() {
-  // Replace with your dynamic Neon-fetching App Router route or API route
+  // Replace with the route or page you want to load test.
   const res = http.get("http://localhost:3000/about-us/");
 
   check(res, {

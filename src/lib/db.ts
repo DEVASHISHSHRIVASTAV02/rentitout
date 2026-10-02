@@ -4,6 +4,31 @@ declare global {
   var __RentItOutPool: Pool | undefined;
 }
 
+function shouldUseSsl(
+  connectionString: string,
+  readBoolean: (value: string | undefined, fallback: boolean) => boolean,
+) {
+  if (process.env.DB_SSL !== undefined && process.env.DB_SSL.trim() !== "") {
+    return readBoolean(process.env.DB_SSL, false);
+  }
+
+  try {
+    const url = new URL(connectionString);
+    const sslmode = url.searchParams.get("sslmode")?.toLowerCase();
+    if (sslmode === "require" || sslmode === "verify-ca" || sslmode === "verify-full") {
+      return true;
+    }
+    if (sslmode === "disable") {
+      return false;
+    }
+
+    const host = url.hostname.replace(/^\[|\]$/g, "").toLowerCase();
+    return host !== "localhost" && host !== "127.0.0.1" && host !== "::1";
+  } catch {
+    return false;
+  }
+}
+
 function createPool() {
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) {
@@ -48,7 +73,8 @@ function createPool() {
   const idleTimeoutMillis = readNonNegativeInt(process.env.DB_POOL_IDLE_TIMEOUT_MS, 10000);
   const connectionTimeoutMillis = readNonNegativeInt(process.env.DB_POOL_CONNECT_TIMEOUT_MS, 5000);
   const maxUses = readPositiveInt(process.env.DB_POOL_MAX_USES, 0);
-  const sslRejectUnauthorized = readBoolean(process.env.DB_SSL_REJECT_UNAUTHORIZED, false);
+  const useSsl = shouldUseSsl(connectionString, readBoolean);
+  const sslRejectUnauthorized = readBoolean(process.env.DB_SSL_REJECT_UNAUTHORIZED, true);
 
   const pool = new Pool({
     connectionString,
@@ -57,12 +83,7 @@ function createPool() {
     idleTimeoutMillis,
     connectionTimeoutMillis,
     ...(maxUses > 0 ? { maxUses } : {}),
-    ssl:
-      process.env.NODE_ENV === "production"
-        ? {
-            rejectUnauthorized: sslRejectUnauthorized,
-          }
-        : undefined,
+    ...(useSsl ? { ssl: { rejectUnauthorized: sslRejectUnauthorized } } : {}),
   });
 
   // Required for node-postgres pools in long-running processes.

@@ -4,14 +4,22 @@ RentItOut is a Next.js appliance rental marketplace where owners publish listing
 
 RentItOut acts as a connector only. Agreements, deposit terms, insurance, transport, and handover are handled offline by both parties.
 
+## Production
+
+- **Live site:** [https://rentitout.in](https://rentitout.in)
+- **Hosting:** Home hardware (Windows laptop) via **Cloudflare Tunnel** — no VPS, no router port forwarding
+- **Daily ops:** [HOME-HOSTING.md](HOME-HOSTING.md) — start/stop the site, post-reboot commands
+
 ## Stack
 
 - Next.js 16 (App Router)
 - React 19
 - TypeScript
 - Tailwind CSS v4
-- Neon Postgres
+- Local PostgreSQL (on the same machine as the app)
 - Resend (emails)
+- Google reCAPTCHA v2 (contact reveal)
+- Cloudflare Tunnel (`cloudflared`) for public HTTPS
 
 ## Current Product Features
 
@@ -40,6 +48,8 @@ RentItOut acts as a connector only. Agreements, deposit terms, insurance, transp
   - Card hover behavior tuned and background effects suppressed while modals are open.
   - Redundant `View Full Listing Page` action removed from contact popup.
 - `2026-05-04`: Contact reveal bot check migrated from custom SVG captcha to Google reCAPTCHA v2 with server-side token verification.
+- `2026-09-11`: Production moved to home hardware with Cloudflare Tunnel (`rentitout.in`), Windows PM2 config (`ecosystem.config.js`, 1 instance), daily ops guide, and reCAPTCHA domain allowlisting for production.
+- `2026-10-02`: Database moved off hosted Postgres onto local PostgreSQL on the home machine.
 
 ## Quick Start
 
@@ -52,15 +62,25 @@ Open `http://localhost:3000`.
 
 ## Required Setup
 
-1. Create `.env.local` from `.env.example`.
-2. Run `db/schema.sql` in Neon SQL editor.
+1. Install PostgreSQL 15+ on this machine and create a database that listens on `127.0.0.1` only.
+2. Set `DATABASE_URL` in `.env.local` to that local database.
+3. Apply the schema: `npm run db:schema`.
 
-Detailed guides:
+## Documentation
 
-- [Setup Guide](docs/SETUP.md)
-- [VPS Deployment Guide](docs/DEPLOYMENT-VPS.md)
-- [Cloudflare Tunnel (Home Hardware)](docs/DEPLOYMENT-CLOUDFLARE-TUNNEL.md)
-- [Home Hosting Daily Ops](HOME-HOSTING.md) — start/stop site, post-reboot commands
+| Guide | Use when |
+|-------|----------|
+| [Setup Guide](docs/SETUP.md) | First-time setup (local PostgreSQL, Resend, reCAPTCHA, env vars) |
+| [Home Hosting Daily Ops](HOME-HOSTING.md) | **Daily reference** — bring site online/offline, post-reboot commands |
+| [Cloudflare Tunnel Setup](docs/DEPLOYMENT-CLOUDFLARE-TUNNEL.md) | Initial home-hosting setup (tunnel, DNS, reCAPTCHA, PM2) |
+| [VPS Deployment](docs/DEPLOYMENT-VPS.md) | Alternative deploy on Ubuntu with Nginx + Certbot |
+
+### PM2 configs
+
+| File | Platform | Instances |
+|------|----------|-----------|
+| `ecosystem.config.js` | Windows home hosting | 1 (low CPU/RAM footprint) |
+| `ecosystem.config.cjs` | Linux VPS | `WEB_CONCURRENCY` env (default `2`) |
 
 ## Scripts
 
@@ -72,6 +92,7 @@ Detailed guides:
 - `npm run perf:max-rps` - ramp connections until latency/error threshold is crossed
 - `npm run perf:max-rps:home` - conservative ramp profile tuned for homepage (`/`)
 - `npm run perf:max-rps:browse` - conservative ramp profile tuned for browse (`/browse`)
+- `npm run db:schema` - apply `db/schema.sql` to the database in `DATABASE_URL`
 - `npm run prod:preflight` - production readiness checks (env vars, node version, upload dir writability)
 - `npm run prod:build` - run preflight, lint, then production build
 - `npm run deploy:prod` - one-command VPS deploy (`git pull`, `npm ci`, `prod:build`, PM2 restart/save)
