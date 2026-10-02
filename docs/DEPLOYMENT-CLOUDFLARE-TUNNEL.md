@@ -180,7 +180,7 @@ npm run prod:build
 
 **PM2 (recommended):**
 
-Use `ecosystem.config.js` (2 app processes, public page cache on port 3000):
+Use `ecosystem.config.js` (1 app process, public page cache on port 3000):
 
 ```bash
 npm install -g pm2
@@ -242,7 +242,7 @@ mkdir -p public/uploads/listing-images
 
 ## 11. Home hardware tuning
 
-The Windows config (`ecosystem.config.js`) runs **2 app processes** on port 3002 and a public cache on port 3000. Anonymous HTML is reused for 2 minutes, static files for a day, and public listing images for 10 minutes. Signed-in page requests skip that cache and reach the app. The tunnel stays pointed at `http://127.0.0.1:3000`.
+The Windows config (`ecosystem.config.js`) runs **1 app process** on port 3002 and a public cache on port 3000. Anonymous HTML is reused for 2 minutes, static files for a day, and public listing images for 10 minutes. Signed-in page requests skip that cache and reach the app. The tunnel stays pointed at `http://127.0.0.1:3000`.
 
 Tune DB pool in `.env.local`:
 
@@ -250,7 +250,7 @@ Tune DB pool in `.env.local`:
 DB_POOL_MAX=20
 ```
 
-With 2 app processes, total DB connections ≈ `2 × DB_POOL_MAX` (40 at the default of 20). Keep that inside PostgreSQL `max_connections` (100 on this PC).
+With 1 app process, total DB connections ≈ `DB_POOL_MAX` (20 by default). Keep that inside PostgreSQL `max_connections` (100 on this PC).
 
 To change instance count, edit `instances` in `ecosystem.config.js` and restart PM2.
 

@@ -44,7 +44,7 @@ pm2 start ecosystem.config.js
 pm2 status
 ```
 
-`next-app` should show two processes `online`, and `public-cache` should show one process `online`. If PM2 says they are already running, use:
+`next-app` should show one process `online`, and `public-cache` should show one process `online`. If PM2 says they are already running, use:
 
 ```powershell
 pm2 restart all
@@ -155,7 +155,7 @@ curl.exe -I https://rentitout.in/
 
 The public site listens on port 3000. That port is a small cache. Anonymous pages are kept for 2 minutes. Static files are kept for a day, and public listing images are kept for 10 minutes. Signed-in visitors skip the page cache. Browsers that accept Brotli get a smaller copy.
 
-Behind it, the app runs **2 PM2 processes** on port 3002. Those two processes build a page when the cache misses.
+Behind it, the app runs **1 PM2 process** on port 3002. That process builds a page when the cache misses.
 
 Config file: `ecosystem.config.js`
 
