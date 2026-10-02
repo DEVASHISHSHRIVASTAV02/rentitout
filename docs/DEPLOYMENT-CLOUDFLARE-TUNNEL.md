@@ -242,7 +242,7 @@ mkdir -p public/uploads/listing-images
 
 ## 11. Home hardware tuning
 
-The Windows config (`ecosystem.config.js`) runs **2 app processes** on port 3002 and a public page cache on port 3000. Anonymous HTML is reused for 2 minutes. Signed-in requests skip that cache and reach the app. The tunnel stays pointed at `http://127.0.0.1:3000`.
+The Windows config (`ecosystem.config.js`) runs **2 app processes** on port 3002 and a public cache on port 3000. Anonymous HTML is reused for 2 minutes, static files for a day, and public listing images for 10 minutes. Signed-in page requests skip that cache and reach the app. The tunnel stays pointed at `http://127.0.0.1:3000`.
 
 Tune DB pool in `.env.local`:
 

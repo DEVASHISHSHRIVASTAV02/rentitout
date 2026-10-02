@@ -154,7 +154,7 @@ curl.exe -I https://rentitout.in/
 
 ## App resource usage
 
-The public site listens on port 3000. That port is a small cache. Anonymous pages are kept for 2 minutes, so repeat visits do not rebuild the page. Signed-in visitors skip the cache.
+The public site listens on port 3000. That port is a small cache. Anonymous pages are kept for 2 minutes. Static files are kept for a day, and public listing images are kept for 10 minutes. Signed-in visitors skip the page cache. Browsers that accept Brotli get a smaller copy.
 
 Behind it, the app runs **2 PM2 processes** on port 3002. Those two processes build a page when the cache misses.
 

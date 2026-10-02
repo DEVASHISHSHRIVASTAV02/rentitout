@@ -4,11 +4,14 @@ import zlib from "node:zlib";
 
 const PORT = Number(process.env.PORT || 3000);
 const ORIGIN_PORT = Number(process.env.ORIGIN_PORT || 3002);
-const TTL_MS = Number(process.env.PUBLIC_CACHE_TTL_MS || 120_000);
-const MAX_ENTRIES = Number(process.env.PUBLIC_CACHE_MAX_ENTRIES || 200);
-const MAX_BODY_BYTES = Number(process.env.PUBLIC_CACHE_MAX_BODY_BYTES || 1_500_000);
+const HTML_TTL_MS = Number(process.env.PUBLIC_CACHE_TTL_MS || 120_000);
+const MEDIA_TTL_MS = Number(process.env.PUBLIC_CACHE_MEDIA_TTL_MS || 600_000);
+const STATIC_TTL_MS = Number(process.env.PUBLIC_CACHE_STATIC_TTL_MS || 86_400_000);
+const MAX_ENTRIES = Number(process.env.PUBLIC_CACHE_MAX_ENTRIES || 500);
+const MAX_BYTES = Number(process.env.PUBLIC_CACHE_MAX_BYTES || 128 * 1024 * 1024);
+const MAX_BODY_BYTES = Number(process.env.PUBLIC_CACHE_MAX_BODY_BYTES || 4_000_000);
 
-const PRIVATE_PREFIXES = ["/api", "/auth", "/dashboard", "/my-account", "/list-your-appliance"];
+const BLOCKED_PREFIXES = ["/auth", "/dashboard", "/my-account", "/list-your-appliance", "/api/contact-gate"];
 const HOP_HEADERS = new Set([
   "connection",
   "keep-alive",
@@ -21,6 +24,7 @@ const HOP_HEADERS = new Set([
 ]);
 
 const cache = new Map();
+let totalBytes = 0;
 
 function isMobileUserAgent(userAgent) {
   if (!userAgent) {
@@ -30,27 +34,41 @@ function isMobileUserAgent(userAgent) {
   return /android|iphone|ipod|blackberry|iemobile|opera mini|mobile/.test(normalized) && !normalized.includes("ipad");
 }
 
-function isPrivatePath(pathname) {
-  return PRIVATE_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
+function requestUrl(req) {
+  return new URL(req.url || "/", "http://127.0.0.1");
+}
+
+function isBlockedPath(pathname) {
+  return BLOCKED_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
+}
+
+function isPublicApi(pathname) {
+  return pathname.startsWith("/api/listings/") || pathname.startsWith("/api/uploads/");
+}
+
+function isImmutableAsset(pathname) {
+  return pathname.startsWith("/_next/static/") || pathname === "/favicon.ico";
 }
 
 function hasSessionCookie(cookieHeader) {
   return String(cookieHeader || "").toLowerCase().includes("rentitout_session=");
 }
 
-function requestUrl(req) {
-  return new URL(req.url || "/", "http://127.0.0.1");
-}
-
 function canCacheRequest(req) {
   if (req.method !== "GET" && req.method !== "HEAD") {
     return false;
   }
+  const url = requestUrl(req);
+  if (isImmutableAsset(url.pathname)) {
+    return true;
+  }
   if (hasSessionCookie(req.headers.cookie)) {
     return false;
   }
-  const url = requestUrl(req);
-  if (isPrivatePath(url.pathname)) {
+  if (isBlockedPath(url.pathname)) {
+    return false;
+  }
+  if (url.pathname.startsWith("/api/") && !isPublicApi(url.pathname)) {
     return false;
   }
   if (url.searchParams.has("message") || url.searchParams.has("error")) {
@@ -59,13 +77,24 @@ function canCacheRequest(req) {
   return true;
 }
 
+function isSharedAsset(pathname) {
+  return (
+    isImmutableAsset(pathname) ||
+    pathname.startsWith("/_next/image") ||
+    pathname.startsWith("/api/uploads/") ||
+    pathname.startsWith("/api/listings/")
+  );
+}
+
 function cacheKey(req) {
   const url = requestUrl(req);
+  if (isSharedAsset(url.pathname)) {
+    return `asset|${url.pathname}${url.search}`;
+  }
   const stateTree = req.headers["next-router-state-tree"];
-  const stateKey = stateTree
-    ? crypto.createHash("sha1").update(String(stateTree)).digest("hex")
-    : "";
+  const stateKey = stateTree ? crypto.createHash("sha1").update(String(stateTree)).digest("hex") : "";
   return [
+    "doc",
     url.pathname + url.search,
     isMobileUserAgent(req.headers["user-agent"]) ? "mobile" : "desktop",
     req.headers.rsc || "",
@@ -75,12 +104,36 @@ function cacheKey(req) {
   ].join("|");
 }
 
+function ttlFor(pathname, contentType) {
+  if (isImmutableAsset(pathname)) {
+    return STATIC_TTL_MS;
+  }
+  if (
+    contentType.startsWith("image/") ||
+    pathname.startsWith("/_next/image") ||
+    pathname.startsWith("/api/uploads/") ||
+    pathname.startsWith("/api/listings/")
+  ) {
+    return MEDIA_TTL_MS;
+  }
+  return HTML_TTL_MS;
+}
+
+function shouldCompress(contentType) {
+  return /text\/|javascript|json|xml|svg/.test(contentType);
+}
+
+function entrySize(entry) {
+  return entry.rawBody.length + (entry.gzipBody?.length || 0) + (entry.brBody?.length || 0);
+}
+
 function readCache(key) {
   const entry = cache.get(key);
   if (!entry) {
     return null;
   }
   if (entry.expiresAt <= Date.now()) {
+    totalBytes -= entrySize(entry);
     cache.delete(key);
     return null;
   }
@@ -90,26 +143,43 @@ function readCache(key) {
 }
 
 function writeCache(key, entry) {
-  cache.delete(key);
+  const previous = cache.get(key);
+  if (previous) {
+    totalBytes -= entrySize(previous);
+    cache.delete(key);
+  }
+  const size = entrySize(entry);
   cache.set(key, entry);
-  while (cache.size > MAX_ENTRIES) {
+  totalBytes += size;
+  while (cache.size > MAX_ENTRIES || totalBytes > MAX_BYTES) {
     const oldest = cache.keys().next().value;
+    if (!oldest) {
+      break;
+    }
+    const evicted = cache.get(oldest);
+    totalBytes -= entrySize(evicted);
     cache.delete(oldest);
   }
 }
 
-function acceptsGzip(req) {
-  return String(req.headers["accept-encoding"] || "").toLowerCase().includes("gzip");
+function encodingChoice(req) {
+  const accept = String(req.headers["accept-encoding"] || "").toLowerCase();
+  if (accept.includes("br")) {
+    return "br";
+  }
+  if (accept.includes("gzip")) {
+    return "gzip";
+  }
+  return "identity";
 }
 
 function sendCached(req, res, entry) {
-  const gzipOk = acceptsGzip(req);
-  const body = gzipOk ? entry.gzipBody : zlib.gunzipSync(entry.gzipBody);
-  const headers = entry.headers.filter(([name]) => {
-    const lowered = name.toLowerCase();
-    return lowered !== "content-length" && lowered !== "content-encoding";
-  });
-  if (gzipOk) {
+  const choice = entry.compressible ? encodingChoice(req) : "identity";
+  const body = choice === "br" ? entry.brBody : choice === "gzip" ? entry.gzipBody : entry.rawBody;
+  const headers = entry.headers.map(([name, value]) => [name, value]);
+  if (choice === "br") {
+    headers.push(["Content-Encoding", "br"]);
+  } else if (choice === "gzip") {
     headers.push(["Content-Encoding", "gzip"]);
   }
   headers.push(["Content-Length", String(body.length)]);
@@ -122,7 +192,20 @@ function sendCached(req, res, entry) {
   res.end(body);
 }
 
-function forward(req, res, cacheable, key) {
+function cacheControlFor(pathname, contentType) {
+  if (isImmutableAsset(pathname)) {
+    return "public, max-age=31536000, immutable";
+  }
+  if (contentType.startsWith("image/") || pathname.startsWith("/api/uploads/") || pathname.startsWith("/_next/image")) {
+    return "public, max-age=600";
+  }
+  if (pathname.startsWith("/api/listings/")) {
+    return "public, max-age=120";
+  }
+  return "public, max-age=0, s-maxage=120, stale-while-revalidate=60";
+}
+
+function forward(req, res) {
   const originReq = http.request(
     {
       hostname: "127.0.0.1",
@@ -133,8 +216,6 @@ function forward(req, res, cacheable, key) {
     },
     (originRes) => {
       const status = originRes.statusCode || 502;
-      const setCookie = originRes.headers["set-cookie"];
-      const contentType = String(originRes.headers["content-type"] || "");
       const chunks = [];
       let size = 0;
       let tooBig = false;
@@ -149,11 +230,9 @@ function forward(req, res, cacheable, key) {
       });
 
       originRes.on("error", () => {
-        if (res.headersSent) {
-          res.end();
-          return;
+        if (!res.headersSent) {
+          res.writeHead(502, { "content-type": "text/plain; charset=utf-8", "X-Public-Cache": "BYPASS" });
         }
-        res.writeHead(502, { "content-type": "text/plain; charset=utf-8", "X-Public-Cache": "BYPASS" });
         res.end("origin unavailable");
       });
 
@@ -167,15 +246,21 @@ function forward(req, res, cacheable, key) {
           return;
         }
 
+        const url = requestUrl(req);
         const encoded = Buffer.concat(chunks);
         const isGzip = String(originRes.headers["content-encoding"] || "").toLowerCase().includes("gzip");
-        const gzipBody = isGzip ? encoded : zlib.gzipSync(encoded);
-        const willStore =
-          cacheable &&
-          req.method === "GET" &&
-          status === 200 &&
-          !setCookie &&
-          contentType.includes("text/html");
+        const rawBody = isGzip ? zlib.gunzipSync(encoded) : encoded;
+        const contentType = String(originRes.headers["content-type"] || "");
+        const setCookie = originRes.headers["set-cookie"];
+        const cacheable = canCacheRequest(req);
+        const compressible = shouldCompress(contentType);
+        const willStore = cacheable && req.method === "GET" && status === 200 && !setCookie && rawBody.length > 0;
+        const gzipBody = compressible ? (isGzip ? encoded : zlib.gzipSync(rawBody)) : null;
+        const brBody = compressible
+          ? zlib.brotliCompressSync(rawBody, {
+              params: { [zlib.constants.BROTLI_PARAM_QUALITY]: 4 },
+            })
+          : null;
 
         const outHeaders = [];
         for (const [name, value] of Object.entries(originRes.headers)) {
@@ -183,10 +268,7 @@ function forward(req, res, cacheable, key) {
             continue;
           }
           const lowered = name.toLowerCase();
-          if (lowered === "content-length" || lowered === "content-encoding") {
-            continue;
-          }
-          if (willStore && lowered === "cache-control") {
+          if (lowered === "content-length" || lowered === "content-encoding" || lowered === "cache-control") {
             continue;
           }
           if (Array.isArray(value)) {
@@ -199,23 +281,38 @@ function forward(req, res, cacheable, key) {
         }
 
         if (willStore) {
-          outHeaders.push(["Cache-Control", "public, max-age=0, s-maxage=120, stale-while-revalidate=60"]);
-          outHeaders.push(["CDN-Cache-Control", "public, s-maxage=120, stale-while-revalidate=60"]);
-          writeCache(key, {
-            expiresAt: Date.now() + TTL_MS,
+          outHeaders.push(["Cache-Control", cacheControlFor(url.pathname, contentType)]);
+          if (contentType.includes("text/html") || contentType.includes("text/x-component")) {
+            outHeaders.push(["CDN-Cache-Control", "public, s-maxage=120, stale-while-revalidate=60"]);
+          }
+          if (compressible) {
+            outHeaders.push(["Vary", "Accept-Encoding"]);
+          }
+          writeCache(cacheKey(req), {
+            expiresAt: Date.now() + ttlFor(url.pathname, contentType),
             statusCode: status,
             headers: outHeaders.map(([name, value]) => [name, value]),
+            compressible,
+            rawBody,
             gzipBody,
+            brBody,
           });
+        } else {
+          const cacheControl = originRes.headers["cache-control"];
+          if (cacheControl) {
+            outHeaders.push(["Cache-Control", String(Array.isArray(cacheControl) ? cacheControl[0] : cacheControl)]);
+          }
         }
 
-        const gzipOk = acceptsGzip(req);
-        const body = gzipOk ? gzipBody : isGzip ? zlib.gunzipSync(encoded) : encoded;
-        if (gzipOk) {
+        const choice = willStore && compressible ? encodingChoice(req) : "identity";
+        const body = choice === "br" ? brBody : choice === "gzip" ? gzipBody : rawBody;
+        if (choice === "br") {
+          outHeaders.push(["Content-Encoding", "br"]);
+        } else if (choice === "gzip") {
           outHeaders.push(["Content-Encoding", "gzip"]);
         }
         outHeaders.push(["Content-Length", String(body.length)]);
-        outHeaders.push(["X-Public-Cache", willStore ? "MISS" : cacheable ? "BYPASS" : "BYPASS"]);
+        outHeaders.push(["X-Public-Cache", willStore ? "MISS" : "BYPASS"]);
         res.writeHead(status, outHeaders);
         if (req.method === "HEAD") {
           res.end();
@@ -240,18 +337,17 @@ function forward(req, res, cacheable, key) {
 
 const server = http.createServer((req, res) => {
   if (!canCacheRequest(req)) {
-    forward(req, res, false, "");
+    forward(req, res);
     return;
   }
 
-  const key = cacheKey(req);
-  const hit = readCache(key);
+  const hit = readCache(cacheKey(req));
   if (hit) {
     sendCached(req, res, hit);
     return;
   }
 
-  forward(req, res, true, key);
+  forward(req, res);
 });
 
 server.listen(PORT, "127.0.0.1", () => {
