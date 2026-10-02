@@ -97,7 +97,7 @@ Open `http://localhost:3000`.
 | [Home Hosting Daily Ops](HOME-HOSTING.md) | **Daily reference** — bring site online/offline, post-reboot commands |
 | [Cloudflare Tunnel Setup](docs/DEPLOYMENT-CLOUDFLARE-TUNNEL.md) | Initial home-hosting setup (tunnel, DNS, reCAPTCHA, PM2) |
 
-Production process manager: `ecosystem.config.js` (1 PM2 instance).
+Production process manager: `ecosystem.config.js` (2 app processes, with a 2-minute cache for anonymous public pages on port 3000).
 
 ## Scripts
 

@@ -44,10 +44,10 @@ pm2 start ecosystem.config.js
 pm2 status
 ```
 
-`next-app` should show `online`. If PM2 says it is already running, use:
+`next-app` should show two processes `online`, and `public-cache` should show one process `online`. If PM2 says they are already running, use:
 
 ```powershell
-pm2 restart next-app
+pm2 restart all
 ```
 
 ### 3. Start the Cloudflare tunnel
@@ -82,13 +82,13 @@ Use this when you want the site **down** and to free CPU/RAM for other programs.
 ### Stop the web app
 
 ```powershell
-pm2 stop next-app
+pm2 stop all
 ```
 
 To fully remove it from PM2’s process list:
 
 ```powershell
-pm2 delete next-app
+pm2 delete all
 pm2 save
 ```
 
@@ -140,7 +140,7 @@ curl.exe -I https://rentitout.in/
 | Goal | Command |
 |------|---------|
 | **Go live** | Start service `postgresql-x64-17` → `pm2 start ecosystem.config.js` → `cloudflared tunnel run rentitout-laptop` |
-| **Go offline** | `pm2 stop next-app` → stop cloudflared (`Ctrl+C` or `Stop-Process -Name cloudflared -Force`) |
+| **Go offline** | `pm2 stop all` → stop cloudflared (`Ctrl+C` or `Stop-Process -Name cloudflared -Force`) |
 | **Stop local DB** | `Stop-Service postgresql-x64-17` (Admin PowerShell) |
 | **Check app** | `pm2 status` |
 | **Check DB** | `psql -h 127.0.0.1 -U rentitout -d rentitout -tAc "select 1"` |
@@ -148,13 +148,15 @@ curl.exe -I https://rentitout.in/
 | **Check local site** | `curl.exe -I http://127.0.0.1:3000/` |
 | **Check public site** | `curl.exe -I https://rentitout.in/` |
 | **App logs** | `pm2 logs next-app` |
-| **Restart app only** | `pm2 restart next-app` |
+| **Restart app and cache** | `pm2 restart all` |
 
 ---
 
 ## App resource usage
 
-The app runs **1 PM2 instance** (1 CPU core footprint) to leave headroom for other programs.
+The public site listens on port 3000. That port is a small cache. Anonymous pages are kept for 2 minutes, so repeat visits do not rebuild the page. Signed-in visitors skip the cache.
+
+Behind it, the app runs **2 PM2 processes** on port 3002. Those two processes build a page when the cache misses.
 
 Config file: `ecosystem.config.js`
 
@@ -162,7 +164,7 @@ To apply config changes:
 
 ```powershell
 cd C:\RentAPP
-pm2 delete next-app
+pm2 delete all
 pm2 start ecosystem.config.js
 pm2 save
 ```
@@ -176,7 +178,7 @@ If you change `.env.local` or pull new code:
 ```powershell
 cd C:\RentAPP
 npm run build
-pm2 restart next-app
+pm2 restart all
 ```
 
 Tunnel does **not** need a restart for app-only changes.
