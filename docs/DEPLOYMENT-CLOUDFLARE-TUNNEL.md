@@ -180,7 +180,7 @@ npm run prod:build
 
 **PM2 (recommended):**
 
-Use `ecosystem.config.js` (2 instances):
+Use `ecosystem.config.js` (1 instance):
 
 ```bash
 npm install -g pm2
@@ -242,7 +242,7 @@ mkdir -p public/uploads/listing-images
 
 ## 11. Home hardware tuning
 
-The Windows config (`ecosystem.config.js`) runs **2 PM2 instances** so the site can use two CPU cores and still leave room for other programs.
+The Windows config (`ecosystem.config.js`) runs **1 PM2 instance** to leave CPU/RAM for other programs on a laptop.
 
 Tune DB pool in `.env.local`:
 

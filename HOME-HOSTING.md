@@ -154,7 +154,7 @@ curl.exe -I https://rentitout.in/
 
 ## App resource usage
 
-The app runs **2 PM2 instances** so browse traffic can use two CPU cores and still leave room for other programs.
+The app runs **1 PM2 instance** (1 CPU core footprint) to leave headroom for other programs.
 
 Config file: `ecosystem.config.js`
 
