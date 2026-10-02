@@ -2,7 +2,7 @@
 
 This guide runs RentItOut on this PC and exposes it through a **Cloudflare Tunnel** (`cloudflared`).
 
-> **Daily reference:** After initial setup, use [HOME-HOSTING.md](../HOME-HOSTING.md) for start/stop commands, post-reboot steps, and the one-page cheat sheet.
+> **Daily reference:** After initial setup, use [HOME-HOSTING.md](../HOME-HOSTING.md). On this PC, start Windows service `postgresql-x64-17`, then `pm2 start ecosystem.config.js`, then `cloudflared tunnel run rentitout-laptop`.
 
 Traffic flows:
 

@@ -10,6 +10,29 @@ RentItOut acts as a connector only. Agreements, deposit terms, insurance, transp
 - **Hosting:** This PC, via **Cloudflare Tunnel**. PostgreSQL runs on the same machine.
 - **Daily ops:** [HOME-HOSTING.md](HOME-HOSTING.md) — start/stop the site, post-reboot commands
 
+## Start the site after opening the laptop
+
+Run these in order. Approve the Windows prompt for PostgreSQL.
+
+```powershell
+Get-Service postgresql-x64-17
+Start-Process powershell -Verb RunAs -Wait -ArgumentList "-NoProfile -Command Start-Service postgresql-x64-17"
+
+cd C:\RentAPP
+pm2 start ecosystem.config.js
+
+cloudflared tunnel run rentitout-laptop
+```
+
+Leave the tunnel window open. Then check:
+
+```powershell
+curl.exe -I http://127.0.0.1:3000/
+curl.exe -I https://rentitout.in/
+```
+
+Both should show `HTTP/1.1 200 OK`. Full stop, backup, and restart steps are in [HOME-HOSTING.md](HOME-HOSTING.md).
+
 ## Stack
 
 - Next.js 16 (App Router)
