@@ -38,17 +38,14 @@ Get-Service postgresql-x64-17
 
 ### 2. Start the web app
 
+This builds the latest code, replaces any app already running, and then starts one app process plus the cache. The build takes a few minutes.
+
 ```powershell
 cd C:\RentAPP
-pm2 start ecosystem.config.js
-pm2 status
+powershell -NoProfile -File .\scripts\start-app.ps1
 ```
 
-`next-app` should show one process `online`, and `public-cache` should show one process `online`. If PM2 says they are already running, use:
-
-```powershell
-pm2 restart all
-```
+`next-app` should show one process `online`, and `public-cache` should show one process `online`.
 
 ### 3. Start the Cloudflare tunnel
 
@@ -138,7 +135,7 @@ curl.exe -I https://rentitout.in/
 
 | Goal | Command |
 |------|---------|
-| **Go live** | Start service `postgresql-x64-17` → `pm2 start ecosystem.config.js` → `powershell -File .\scripts\start-tunnel.ps1` |
+| **Go live** | Start service `postgresql-x64-17` → `powershell -File .\scripts\start-app.ps1` → `powershell -File .\scripts\start-tunnel.ps1` |
 | **Go offline** | `pm2 stop all` → stop cloudflared (`Ctrl+C` or `Stop-Process -Name cloudflared -Force`) |
 | **Stop local DB** | `Stop-Service postgresql-x64-17` (Admin PowerShell) |
 | **Check app** | `pm2 status` |
@@ -147,7 +144,7 @@ curl.exe -I https://rentitout.in/
 | **Check local site** | `curl.exe -I http://127.0.0.1:3000/` |
 | **Check public site** | `curl.exe -I https://rentitout.in/` |
 | **App logs** | `pm2 logs next-app` |
-| **Restart app and cache** | `pm2 restart all` |
+| **Restart app and cache** | `powershell -File .\scripts\start-app.ps1` |
 
 ---
 
@@ -172,12 +169,11 @@ pm2 save
 
 ## After code or env changes
 
-If you change `.env.local` or pull new code:
+Starting the app already builds the latest code. Run the same start command again:
 
 ```powershell
 cd C:\RentAPP
-npm run build
-pm2 restart all
+powershell -NoProfile -File .\scripts\start-app.ps1
 ```
 
 Tunnel does **not** need a restart for app-only changes.
@@ -195,10 +191,9 @@ Run once in **Admin PowerShell** if you want the site to come back after a reboo
 Get-Service postgresql-x64-17
 
 pm2 startup
-# Run the command PM2 prints, then:
+# Run the command PM2 prints, then build and start once:
 cd C:\RentAPP
-pm2 start ecosystem.config.js
-pm2 save
+powershell -NoProfile -File .\scripts\start-app.ps1
 
 cloudflared service install
 cloudflared service start

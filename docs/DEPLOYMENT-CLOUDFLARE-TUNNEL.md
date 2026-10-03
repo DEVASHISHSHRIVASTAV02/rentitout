@@ -2,7 +2,7 @@
 
 This guide runs RentItOut on this PC and exposes it through a **Cloudflare Tunnel** (`cloudflared`).
 
-> **Daily reference:** After initial setup, use [HOME-HOSTING.md](../HOME-HOSTING.md). On this PC, start Windows service `postgresql-x64-17` (it does not start at boot), then `pm2 start ecosystem.config.js`, then `powershell -File .\scripts\start-tunnel.ps1`.
+> **Daily reference:** After initial setup, use [HOME-HOSTING.md](../HOME-HOSTING.md). On this PC, start Windows service `postgresql-x64-17` (it does not start at boot), then `powershell -File .\scripts\start-app.ps1` (this rebuilds the app, then starts it), then `powershell -File .\scripts\start-tunnel.ps1`.
 
 Traffic flows:
 

@@ -19,7 +19,7 @@ Get-Service postgresql-x64-17
 Start-Process powershell -Verb RunAs -Wait -ArgumentList "-NoProfile -Command Start-Service postgresql-x64-17"
 
 cd C:\RentAPP
-pm2 start ecosystem.config.js
+powershell -NoProfile -File .\scripts\start-app.ps1
 powershell -NoProfile -File .\scripts\start-tunnel.ps1
 ```
 
