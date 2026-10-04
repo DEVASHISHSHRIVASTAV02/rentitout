@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
 import { Manrope, Sora } from "next/font/google";
+import Script from "next/script";
 import { ConditionalEarlyPhaseNotice } from "@/components/conditional-early-phase-notice";
 import { ConditionalSiteFooter } from "@/components/conditional-site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { APP_BASE_URL, SITE_NAME } from "@/lib/seo";
 import "./globals.css";
+
+const gaMeasurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+const gaId = gaMeasurementId && /^G-[A-Z0-9]+$/.test(gaMeasurementId) ? gaMeasurementId : null;
 
 const bodyFont = Manrope({
   variable: "--font-manrope",
@@ -91,6 +95,20 @@ export default function RootLayout({
           <ConditionalSiteFooter />
         </div>
       </body>
+      {gaId ? (
+        <Script id="google-analytics" strategy="lazyOnload">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${gaId}');
+            var script = document.createElement('script');
+            script.async = true;
+            script.src = 'https://www.googletagmanager.com/gtag/js?id=${gaId}';
+            document.head.appendChild(script);
+          `}
+        </Script>
+      ) : null}
     </html>
   );
 }

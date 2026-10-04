@@ -11,6 +11,139 @@ interface MyAccountHeaderActionsProps {
   autoOpenListing?: boolean;
 }
 
+const DELETE_ACCOUNT_HOLD_MS = 4000;
+
+function DeleteAccountHoldButton() {
+  const formRef = useRef<HTMLFormElement>(null);
+  const holdStartRef = useRef<number | null>(null);
+  const timeoutRef = useRef<number | null>(null);
+  const frameRef = useRef<number | null>(null);
+  const didSubmitRef = useRef(false);
+  const [progress, setProgress] = useState(0);
+  const [isHolding, setIsHolding] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const clearTimers = () => {
+    if (timeoutRef.current !== null) {
+      window.clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+    if (frameRef.current !== null) {
+      window.cancelAnimationFrame(frameRef.current);
+      frameRef.current = null;
+    }
+  };
+
+  const resetHold = () => {
+    clearTimers();
+    holdStartRef.current = null;
+    setIsHolding(false);
+    setProgress(0);
+  };
+
+  const submitHeldDelete = () => {
+    if (didSubmitRef.current) {
+      return;
+    }
+    const start = holdStartRef.current;
+    if (start === null || performance.now() - start < DELETE_ACCOUNT_HOLD_MS) {
+      return;
+    }
+    didSubmitRef.current = true;
+    clearTimers();
+    setProgress(1);
+    setIsSubmitting(true);
+    formRef.current?.requestSubmit();
+  };
+
+  const tickHold = () => {
+    const start = holdStartRef.current;
+    if (start === null) {
+      return;
+    }
+    const nextProgress = Math.min(1, (performance.now() - start) / DELETE_ACCOUNT_HOLD_MS);
+    setProgress(nextProgress);
+    if (nextProgress < 1) {
+      frameRef.current = window.requestAnimationFrame(tickHold);
+    }
+  };
+
+  const startHold = () => {
+    if (didSubmitRef.current || holdStartRef.current !== null) {
+      return;
+    }
+    holdStartRef.current = performance.now();
+    setIsHolding(true);
+    setProgress(0);
+    frameRef.current = window.requestAnimationFrame(tickHold);
+    timeoutRef.current = window.setTimeout(submitHeldDelete, DELETE_ACCOUNT_HOLD_MS);
+  };
+
+  const stopHold = () => {
+    if (didSubmitRef.current) {
+      return;
+    }
+    const start = holdStartRef.current;
+    const elapsed = start === null ? 0 : performance.now() - start;
+    resetHold();
+    if (elapsed >= DELETE_ACCOUNT_HOLD_MS) {
+      didSubmitRef.current = true;
+      setIsSubmitting(true);
+      formRef.current?.requestSubmit();
+    }
+  };
+
+  useEffect(() => clearTimers, []);
+
+  let label = "Confirm Delete Account";
+  if (isSubmitting) {
+    label = "Deleting account";
+  } else if (isHolding) {
+    label = "Keep holding to delete";
+  }
+
+  return (
+    <form ref={formRef} action={deleteAccountAction} className="w-full">
+      <Button
+        type="button"
+        variant="danger"
+        className="relative w-full touch-none select-none overflow-hidden"
+        disabled={isSubmitting}
+        onPointerDown={(event) => {
+          if (event.button !== 0) {
+            return;
+          }
+          event.currentTarget.setPointerCapture(event.pointerId);
+          startHold();
+        }}
+        onPointerUp={stopHold}
+        onPointerCancel={stopHold}
+        onContextMenu={(event) => event.preventDefault()}
+        onKeyDown={(event) => {
+          if (event.key !== " " && event.key !== "Enter") {
+            return;
+          }
+          event.preventDefault();
+          if (event.repeat) {
+            return;
+          }
+          startHold();
+        }}
+        onKeyUp={(event) => {
+          if (event.key !== " " && event.key !== "Enter") {
+            return;
+          }
+          event.preventDefault();
+          stopHold();
+        }}
+      >
+        <span aria-hidden className="absolute inset-y-0 left-0 bg-white/30" style={{ width: `${progress * 100}%` }} />
+        <span className="relative">{label}</span>
+      </Button>
+    </form>
+  );
+}
+
 export function MyAccountHeaderActions({ defaultContactEmail, autoOpenListing = false }: MyAccountHeaderActionsProps) {
   const menuRef = useRef<HTMLDetailsElement>(null);
   const [isSignOutConfirmOpen, setIsSignOutConfirmOpen] = useState(false);
@@ -134,11 +267,7 @@ export function MyAccountHeaderActions({ defaultContactEmail, autoOpenListing = 
             </p>
 
             <div className="mt-5 space-y-2">
-              <form action={deleteAccountAction} className="w-full">
-                <Button type="submit" variant="danger" className="w-full">
-                  Confirm Delete Account
-                </Button>
-              </form>
+              <DeleteAccountHoldButton />
               <Button
                 type="button"
                 variant="secondary"

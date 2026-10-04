@@ -42,7 +42,7 @@ This builds the latest code, replaces any app already running, and then starts o
 
 ```powershell
 cd C:\RentAPP
-powershell -NoProfile -File .\scripts\start-app.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\start-app.ps1
 ```
 
 `next-app` should show one process `online`, and `public-cache` should show one process `online`.
@@ -53,7 +53,7 @@ This starts the tunnel outside the current window, so closing Cursor does not ta
 
 ```powershell
 cd C:\RentAPP
-powershell -NoProfile -File .\scripts\start-tunnel.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\start-tunnel.ps1
 ```
 
 Wait until `%USERPROFILE%\.cloudflared\tunnel.log` says `Registered tunnel connection`.
@@ -135,7 +135,7 @@ curl.exe -I https://rentitout.in/
 
 | Goal | Command |
 |------|---------|
-| **Go live** | Start service `postgresql-x64-17` → `powershell -File .\scripts\start-app.ps1` → `powershell -File .\scripts\start-tunnel.ps1` |
+| **Go live** | Start service `postgresql-x64-17` → `powershell -ExecutionPolicy Bypass -File .\scripts\start-app.ps1` → `powershell -ExecutionPolicy Bypass -File .\scripts\start-tunnel.ps1` |
 | **Go offline** | `pm2 stop all` → stop cloudflared (`Ctrl+C` or `Stop-Process -Name cloudflared -Force`) |
 | **Stop local DB** | `Stop-Service postgresql-x64-17` (Admin PowerShell) |
 | **Check app** | `pm2 status` |
@@ -144,7 +144,7 @@ curl.exe -I https://rentitout.in/
 | **Check local site** | `curl.exe -I http://127.0.0.1:3000/` |
 | **Check public site** | `curl.exe -I https://rentitout.in/` |
 | **App logs** | `pm2 logs next-app` |
-| **Restart app and cache** | `powershell -File .\scripts\start-app.ps1` |
+| **Restart app and cache** | `powershell -ExecutionPolicy Bypass -File .\scripts\start-app.ps1` |
 
 ---
 
@@ -173,7 +173,7 @@ Starting the app already builds the latest code. Run the same start command agai
 
 ```powershell
 cd C:\RentAPP
-powershell -NoProfile -File .\scripts\start-app.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\start-app.ps1
 ```
 
 Tunnel does **not** need a restart for app-only changes.
@@ -193,7 +193,7 @@ Get-Service postgresql-x64-17
 pm2 startup
 # Run the command PM2 prints, then build and start once:
 cd C:\RentAPP
-powershell -NoProfile -File .\scripts\start-app.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\start-app.ps1
 
 cloudflared service install
 cloudflared service start

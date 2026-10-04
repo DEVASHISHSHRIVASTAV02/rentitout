@@ -209,7 +209,7 @@ export function CreateListingModal({ isSignedIn, defaultContactEmail, autoOpen =
                   </span>
                   <MultiImageUploadInput required />
                 </label>
-                <p className="text-xs text-zinc-500">
+                <p className="!mt-6 text-xs text-zinc-500">
                   Upload up to 4 images (JPG, PNG, WEBP), 8 MB max per image. At least 1 image is mandatory.
                 </p>
               </section>

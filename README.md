@@ -19,8 +19,8 @@ Get-Service postgresql-x64-17
 Start-Process powershell -Verb RunAs -Wait -ArgumentList "-NoProfile -Command Start-Service postgresql-x64-17"
 
 cd C:\RentAPP
-powershell -NoProfile -File .\scripts\start-app.ps1
-powershell -NoProfile -File .\scripts\start-tunnel.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\start-app.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\start-tunnel.ps1
 ```
 
 The tunnel keeps running after you close that window and after you close Cursor. Then check:
