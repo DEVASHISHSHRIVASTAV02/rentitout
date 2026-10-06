@@ -254,6 +254,8 @@ With 1 app process, total DB connections ≈ `DB_POOL_MAX` (20 by default). Keep
 
 To change instance count, edit `instances` in `ecosystem.config.js` and restart PM2.
 
+Load tests are separate from this tunnel. k6 sends the traffic, Prometheus on `127.0.0.1:9090` stores it, and Grafana on `127.0.0.1:3030` draws it. They do not start with Windows. The Grafana Windows service is disabled so it cannot bind port 3000. Start and stop commands are in [HOME-HOSTING.md](../HOME-HOSTING.md).
+
 ## 12. Troubleshooting
 
 | Symptom | Likely fix |
@@ -296,3 +298,4 @@ Recommended practices:
 - `2026-05-04`: Contact reveal bot check migrated to Google reCAPTCHA v2.
 - `2026-09-11`: Production live at `rentitout.in` via Cloudflare Tunnel on home hardware; daily ops guide and reCAPTCHA domain setup documented.
 - `2026-10-02`: PostgreSQL runs on this PC. The site is published only through Cloudflare Tunnel.
+- `2026-10-06`: Load tests on this PC use k6, Prometheus, and Grafana. Grafana is fixed to port 3030.

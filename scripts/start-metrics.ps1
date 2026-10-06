@@ -52,12 +52,21 @@ if (-not $grafanaExe) {
   Write-Error "Grafana was not found under C:\Program Files\GrafanaLabs\grafana"
 }
 
+$grafanaIni = "C:\Program Files\GrafanaLabs\grafana\conf\custom.ini"
+$grafanaPortLocked = $false
+if (Test-Path $grafanaIni) {
+  $grafanaPortLocked = [bool](Select-String -Path $grafanaIni -Pattern "^\s*http_port\s*=\s*3030\s*$" -Quiet)
+}
+if (-not $grafanaPortLocked) {
+  Write-Error "Grafana is not locked to port 3030. Its installer default is port 3000, which belongs to the website."
+}
+
 $grafanaService = Get-Service -Name "Grafana" -ErrorAction SilentlyContinue
 if ($grafanaService -and $grafanaService.Status -eq "Running") {
   try {
     Stop-Service -Name "Grafana" -Force -ErrorAction Stop
     Set-Service -Name "Grafana" -StartupType Manual -ErrorAction Stop
-    Write-Output "Stopped the Grafana Windows service so it does not take port 3000."
+    Write-Output "Stopped the Grafana Windows service. The dashboard is started by this script on port 3030."
   } catch {
     Write-Output "The Grafana Windows service is running and this window could not stop it. Stop it in an Administrator PowerShell: Stop-Service Grafana -Force; Set-Service Grafana -StartupType Manual"
   }

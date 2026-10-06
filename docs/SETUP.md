@@ -138,7 +138,11 @@ After local dev works:
 5. Follow [DEPLOYMENT-CLOUDFLARE-TUNNEL.md](DEPLOYMENT-CLOUDFLARE-TUNNEL.md) to publish this machine with Cloudflare Tunnel.
 6. Use [HOME-HOSTING.md](../HOME-HOSTING.md) for daily start/stop commands.
 
-## 9. Project Milestones (Day 1 -> Current)
+## 9. Load tests
+
+k6, Prometheus, and Grafana measure the site from this PC. They are not part of bringing the website online, and they do not start when Windows starts. Grafana listens on `127.0.0.1:3030`. Prometheus listens on `127.0.0.1:9090` and stores the measurements. Commands, data folders, and the rule that keeps Grafana off port 3000 are in [HOME-HOSTING.md](../HOME-HOSTING.md).
+
+## 10. Project Milestones (Day 1 -> Current)
 
 - `2026-04-22`: Day-1 project scaffold (Next.js base app).
 - `2026-04-25`: Core RentItOut product import (auth, listing CRUD, browse, dashboard, payments table, emails).
@@ -150,3 +154,4 @@ After local dev works:
 - `2026-05-04`: Contact reveal verification switched to Google reCAPTCHA v2 with backend token verification.
 - `2026-09-11`: Production on home hardware via Cloudflare Tunnel; daily ops guide and Windows PM2 config added.
 - `2026-10-02`: PostgreSQL runs on this PC. Apply the schema with `npm run db:schema`.
+- `2026-10-06`: Load tests use k6, Prometheus on port 9090, and Grafana on port 3030. They stay off until you start them.

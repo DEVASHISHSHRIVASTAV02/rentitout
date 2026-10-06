@@ -42,6 +42,7 @@ Both should show `HTTP/1.1 200 OK`. Full stop, backup, and restart steps are in 
 - Resend (emails)
 - Google reCAPTCHA v2 (contact reveal)
 - Cloudflare Tunnel (`cloudflared`) for public HTTPS
+- k6, Prometheus, and Grafana for load tests on this PC (not required for the public site)
 
 ## Current Product Features
 
@@ -72,6 +73,7 @@ Both should show `HTTP/1.1 200 OK`. Full stop, backup, and restart steps are in 
 - `2026-05-04`: Contact reveal bot check migrated from custom SVG captcha to Google reCAPTCHA v2 with server-side token verification.
 - `2026-09-11`: Production moved to home hardware with Cloudflare Tunnel (`rentitout.in`), Windows PM2 config (`ecosystem.config.js`, 1 instance), daily ops guide, and reCAPTCHA domain allowlisting for production.
 - `2026-10-02`: PostgreSQL runs on this PC. The public site is served from this machine through Cloudflare Tunnel.
+- `2026-10-06`: Local load tests use k6, Prometheus on port 9090, and Grafana on port 3030. They do not start with Windows.
 
 ## Quick Start
 
@@ -93,7 +95,7 @@ Open `http://localhost:3000`.
 | Guide | Use when |
 |-------|----------|
 | [Setup Guide](docs/SETUP.md) | First-time setup (local PostgreSQL, Resend, reCAPTCHA, env vars) |
-| [Home Hosting Daily Ops](HOME-HOSTING.md) | **Daily reference** — bring site online/offline, post-reboot commands |
+| [Home Hosting Daily Ops](HOME-HOSTING.md) | **Daily reference** — bring site online/offline, and start or stop Grafana, Prometheus, and k6 |
 | [Cloudflare Tunnel Setup](docs/DEPLOYMENT-CLOUDFLARE-TUNNEL.md) | Initial home-hosting setup (tunnel, DNS, reCAPTCHA, PM2) |
 
 Production process manager: `ecosystem.config.js` (1 app process, with a 2-minute cache for anonymous public pages on port 3000).
