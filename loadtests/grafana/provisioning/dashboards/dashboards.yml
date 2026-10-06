@@ -1,0 +1,11 @@
+apiVersion: 1
+
+providers:
+  - name: RentItOut
+    orgId: 1
+    folder: RentItOut
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    options:
+      path: C:/RentAPP/loadtests/grafana/dashboards
