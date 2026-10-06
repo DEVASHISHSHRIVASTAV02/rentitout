@@ -10,27 +10,7 @@ RentItOut acts as a connector only. Agreements, deposit terms, insurance, transp
 - **Hosting:** This PC, via **Cloudflare Tunnel**. PostgreSQL runs on the same machine.
 - **Daily ops:** [HOME-HOSTING.md](HOME-HOSTING.md) — start/stop the site, post-reboot commands
 
-## Start the site after opening the laptop
-
-Run these in order. Approve the Windows prompt for PostgreSQL.
-
-```powershell
-Get-Service postgresql-x64-17
-Start-Process powershell -Verb RunAs -Wait -ArgumentList "-NoProfile -Command Start-Service postgresql-x64-17"
-
-cd C:\RentAPP
-powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\start-app.ps1
-powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\start-tunnel.ps1
-```
-
-The tunnel keeps running after you close that window and after you close Cursor. Then check:
-
-```powershell
-curl.exe -I http://127.0.0.1:3000/
-curl.exe -I https://rentitout.in/
-```
-
-Both should show `HTTP/1.1 200 OK`. Full stop, backup, and restart steps are in [HOME-HOSTING.md](HOME-HOSTING.md).
+Start, stop, backup, and load-test commands are in [HOME-HOSTING.md](HOME-HOSTING.md).
 
 ## Stack
 
@@ -64,13 +44,8 @@ Both should show `HTTP/1.1 200 OK`. Full stop, backup, and restart steps are in 
 
 - `2026-04-22` (Day 1): Initial Next.js app scaffold.
 - `2026-04-25`: Initial RentItOut import (auth, listings, dashboard, data model, browse flow).
-- `2026-04-28`: Browse UX refresh:
-  - Category click now opens quick-view modal instead of forcing navigation.
-  - Contact reveal can be started from both card and quick-view.
-  - Captcha/details overlays moved to true screen-level popups.
-  - Card hover behavior tuned and background effects suppressed while modals are open.
-  - Redundant `View Full Listing Page` action removed from contact popup.
-- `2026-05-04`: Contact reveal bot check migrated from custom SVG captcha to Google reCAPTCHA v2 with server-side token verification.
+- `2026-04-28`: Browse uses a quick-view modal, and contact reveal can start from the card or that modal.
+- `2026-05-04`: Contact reveal bot check moved to Google reCAPTCHA v2.
 - `2026-09-11`: Production moved to home hardware with Cloudflare Tunnel (`rentitout.in`), Windows PM2 config (`ecosystem.config.js`, 1 instance), daily ops guide, and reCAPTCHA domain allowlisting for production.
 - `2026-10-02`: PostgreSQL runs on this PC. The public site is served from this machine through Cloudflare Tunnel.
 - `2026-10-06`: Local load tests use k6, Prometheus on port 9090, and Grafana on port 3030. They do not start with Windows.
@@ -84,11 +59,7 @@ npm run dev
 
 Open `http://localhost:3000`.
 
-## Required Setup
-
-1. Install PostgreSQL 15+ on this machine and create a database that listens on `127.0.0.1` only.
-2. Set `DATABASE_URL` in `.env.local` to that local database.
-3. Apply the schema: `npm run db:schema`.
+First-time setup, including the single `.env.local` template, is in [docs/SETUP.md](docs/SETUP.md).
 
 ## Documentation
 
@@ -109,13 +80,3 @@ Production process manager: `ecosystem.config.js` (1 app process, with a 2-minut
 - `npm run db:schema` - apply `db/schema.sql` to the database in `DATABASE_URL`
 - `npm run prod:preflight` - production readiness checks (env vars, node version, upload dir writability)
 - `npm run prod:build` - run preflight, lint, then production build
-
-## Performance Cache Defaults
-
-For lower DB round-trip pressure on browse and listing reads, the app uses in-memory data caching per process:
-
-- `PUBLIC_LISTINGS_CACHE_TTL_MS=120000`
-- `LISTING_BY_ID_CACHE_TTL_MS=120000`
-- `IN_MEMORY_CACHE_MAX_ENTRIES=300`
-
-Keep TTL values comfortably above `1000` ms in production. Extremely low TTL values effectively disable cache benefits.

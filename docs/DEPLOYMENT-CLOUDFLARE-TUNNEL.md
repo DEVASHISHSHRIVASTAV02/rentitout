@@ -2,7 +2,7 @@
 
 This guide runs RentItOut on this PC and exposes it through a **Cloudflare Tunnel** (`cloudflared`).
 
-> **Daily reference:** After initial setup, use [HOME-HOSTING.md](../HOME-HOSTING.md). On this PC, start Windows service `postgresql-x64-17` (it does not start at boot), then `powershell -ExecutionPolicy Bypass -File .\scripts\start-app.ps1` (this rebuilds the app, then starts it), then `powershell -ExecutionPolicy Bypass -File .\scripts\start-tunnel.ps1`.
+> **Daily reference:** After initial setup, use [HOME-HOSTING.md](../HOME-HOSTING.md).
 
 Traffic flows:
 
@@ -21,7 +21,7 @@ PostgreSQL runs on this same PC. Email uses Resend.
 - `cloudflared` installed
 - PM2 optional but recommended for auto-restart
 - Local PostgreSQL installed and schema applied (`npm run db:schema`)
-- Production env configured (`.env.local` or `.env.production`)
+- Production env configured in `.env.local` (see [SETUP.md](SETUP.md))
 
 ## 2. Install cloudflared
 
@@ -104,22 +104,7 @@ cloudflared tunnel info rentitout-laptop
 
 ## 6. Configure production environment
 
-Use `.env.local` (or `.env.production`) with your public URL:
-
-```env
-NEXT_PUBLIC_APP_URL=https://rentitout.in
-DATABASE_URL=postgresql://rentitout:replace-with-local-password@127.0.0.1:5432/rentitout
-AUTH_OTP_SECRET=your-long-random-secret
-NEXT_PUBLIC_RECAPTCHA_SITE_KEY=your-recaptcha-site-key
-RECAPTCHA_SECRET_KEY=your-recaptcha-secret-key
-RESEND_API_KEY=re_...
-EMAIL_FROM=RentItOut <noreply@rentitout.in>
-LISTING_PROOF_REVIEW_EMAIL=
-DB_POOL_MAX=20
-PUBLIC_LISTINGS_CACHE_TTL_MS=120000
-LISTING_BY_ID_CACHE_TTL_MS=120000
-IN_MEMORY_CACHE_MAX_ENTRIES=300
-```
+Use the `.env.local` template in [SETUP.md](SETUP.md). For this site, set `NEXT_PUBLIC_APP_URL=https://rentitout.in`. Do not create a second env file.
 
 Also update external services:
 
@@ -289,13 +274,3 @@ Recommended practices:
 - Never commit `.env.local` or `%USERPROFILE%\.cloudflared\*.json` tunnel credentials.
 - Keep Windows, Node.js, and `cloudflared` updated.
 - Back up `public/uploads/listing-images` and the local PostgreSQL database (`pg_dump`).
-
-## 14. Project Milestones (Day 1 -> Current)
-
-- `2026-04-22`: Day-1 Next.js scaffold committed.
-- `2026-04-25`: RentItOut core import committed.
-- `2026-04-28`: Browse UX shift to quick-view + captcha-gated inline contact reveal with modal-first flow.
-- `2026-05-04`: Contact reveal bot check migrated to Google reCAPTCHA v2.
-- `2026-09-11`: Production live at `rentitout.in` via Cloudflare Tunnel on home hardware; daily ops guide and reCAPTCHA domain setup documented.
-- `2026-10-02`: PostgreSQL runs on this PC. The site is published only through Cloudflare Tunnel.
-- `2026-10-06`: Load tests on this PC use k6, Prometheus, and Grafana. Grafana is fixed to port 3030.

@@ -34,7 +34,7 @@ async function loadDatabaseUrl() {
     return process.env.DATABASE_URL.trim();
   }
 
-  for (const relativeFile of [".env.local", ".env.production", ".env"]) {
+  for (const relativeFile of [".env.local"]) {
     try {
       const content = await fs.readFile(path.join(process.cwd(), relativeFile), "utf8");
       const parsed = parseEnvFile(content);

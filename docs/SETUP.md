@@ -13,7 +13,7 @@ npm install
 
 ## 2. Environment variables
 
-Create `.env.local` in project root and copy:
+Create `.env.local` in the project root. That one file is what both `npm run dev` and the production app read. Copy:
 
 ```env
 NEXT_PUBLIC_APP_URL=http://localhost:3000
@@ -26,6 +26,13 @@ RECAPTCHA_SECRET_KEY=
 RESEND_API_KEY=
 EMAIL_FROM=
 LISTING_PROOF_REVIEW_EMAIL=
+NEXT_PUBLIC_GA_MEASUREMENT_ID=
+
+# Leave false until Razorpay is used
+PAYMENTS_ENABLED=false
+RAZORPAY_KEY_ID=
+RAZORPAY_KEY_SECRET=
+RAZORPAY_WEBHOOK_SECRET=
 
 # Optional performance tuning
 DB_POOL_MAX=20
@@ -48,6 +55,8 @@ IN_MEMORY_CACHE_MAX_ENTRIES=300
 - `RESEND_API_KEY`: Resend API key for transactional emails.
 - `EMAIL_FROM`: verified sender in Resend (example: `RentItOut <noreply@yourdomain.com>`).
 - `LISTING_PROOF_REVIEW_EMAIL`: optional comma-separated admin/reviewer emails for listing proof copy.
+- `NEXT_PUBLIC_GA_MEASUREMENT_ID`: optional GA4 id, such as `G-XXXXXXXX`.
+- `PAYMENTS_ENABLED` and the `RAZORPAY_*` keys: leave payments off until Razorpay is used.
 - `DB_POOL_MAX`: max concurrent PostgreSQL connections per app process.
 - `DB_POOL_MIN`: idle connections retained in pool per app process.
 - `DB_POOL_CONNECT_TIMEOUT_MS`: DB connection wait timeout.
@@ -141,17 +150,3 @@ After local dev works:
 ## 9. Load tests
 
 k6, Prometheus, and Grafana measure the site from this PC. They are not part of bringing the website online, and they do not start when Windows starts. Grafana listens on `127.0.0.1:3030`. Prometheus listens on `127.0.0.1:9090` and stores the measurements. Commands, data folders, and the rule that keeps Grafana off port 3000 are in [HOME-HOSTING.md](../HOME-HOSTING.md).
-
-## 10. Project Milestones (Day 1 -> Current)
-
-- `2026-04-22`: Day-1 project scaffold (Next.js base app).
-- `2026-04-25`: Core RentItOut product import (auth, listing CRUD, browse, dashboard, payments table, emails).
-- `2026-04-28`: Browse/contact UX update:
-  - Category now opens a large quick-view modal.
-  - Captcha and contact details use screen-level overlays.
-  - Contact reveal is accessible from both card button and quick-view.
-  - Redundant quick-view redirect button removed.
-- `2026-05-04`: Contact reveal verification switched to Google reCAPTCHA v2 with backend token verification.
-- `2026-09-11`: Production on home hardware via Cloudflare Tunnel; daily ops guide and Windows PM2 config added.
-- `2026-10-02`: PostgreSQL runs on this PC. Apply the schema with `npm run db:schema`.
-- `2026-10-06`: Load tests use k6, Prometheus on port 9090, and Grafana on port 3030. They stay off until you start them.

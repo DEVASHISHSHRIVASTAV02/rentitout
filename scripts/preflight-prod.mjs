@@ -47,7 +47,7 @@ function parseEnvFile(content) {
 }
 
 async function loadEnvFromFiles() {
-  const candidateFiles = [".env.local", ".env.production", ".env"];
+  const candidateFiles = [".env.local"];
   const merged = {};
 
   for (const relativeFile of candidateFiles) {
