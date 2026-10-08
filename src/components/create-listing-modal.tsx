@@ -209,8 +209,10 @@ export function CreateListingModal({ isSignedIn, defaultContactEmail, autoOpen =
                   </span>
                   <MultiImageUploadInput required />
                 </label>
-                <p className="!mt-6 text-xs text-zinc-500">
-                  Upload up to 4 images (JPG, PNG, WEBP, AVIF, HEIC) of any size. Each photo is compressed on the server to about 20 KB and saved as WebP. At least 1 image is mandatory.
+                <p className="!mt-2.5 text-xs text-zinc-500">
+                  Add at least 1 image to continue.
+                  <br />
+                  You can upload up to 4 images. You can also remove or replace images at any time.
                 </p>
               </section>
 

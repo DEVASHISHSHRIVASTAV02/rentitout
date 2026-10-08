@@ -287,10 +287,10 @@ export function CreateListingForm({
               onSelectionChange={(files) => setNewImageCount(files.length)}
             />
           </label>
-          <p className="!mt-6 text-xs text-zinc-500">
-            {editMode
-              ? "Upload JPG, PNG, WEBP, AVIF, or HEIC images of any size. Each photo is compressed on the server to about 20 KB and saved as WebP. You can remove current photos here, but removals only apply after you click Save. Keep at least 1 photo (maximum 4)."
-              : "Upload up to 4 images (JPG, PNG, WEBP, AVIF, HEIC) of any size. Each photo is compressed on the server to about 20 KB and saved as WebP. At least 1 image is mandatory."}
+          <p className="!mt-2.5 text-xs text-zinc-500">
+            Add at least 1 image to continue.
+            <br />
+            You can upload up to 4 images. You can also remove or replace images at any time.
           </p>
         </section>
 

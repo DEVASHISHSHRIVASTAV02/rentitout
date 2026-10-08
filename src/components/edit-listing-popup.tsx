@@ -60,9 +60,10 @@ export function EditListingPopup({
       <div className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-2xl border border-zinc-200 bg-white p-5 shadow-2xl sm:p-6">
         <div className="mb-4 flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">My Account</p>
-            <h2 className="mt-1 text-xl font-semibold text-zinc-950 sm:text-2xl">Edit Listing</h2>
-            <p className="mt-1 break-all font-mono text-xs text-zinc-600">Listing ID: {listing.listingPublicId}</p>
+            <h2 className="text-xl font-semibold text-zinc-950 sm:text-2xl">Edit Listing</h2>
+            <p className="mt-1 break-all font-mono text-sm text-zinc-700 sm:text-base">
+              Listing ID: {listing.listingPublicId}
+            </p>
           </div>
           <button
             type="button"

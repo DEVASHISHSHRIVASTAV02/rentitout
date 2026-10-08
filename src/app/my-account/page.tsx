@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ensureProfile, requireUser } from "@/lib/auth";
 import { query } from "@/lib/db";
+import { ErrorMessagePopup } from "@/components/error-message-popup";
 import { MyAccountHeaderActions } from "@/components/my-account-header-actions";
 import { MyAccountListings, type MyAccountListingCard } from "@/components/my-account-listings";
 import { Alert } from "@/components/ui/alert";
@@ -117,7 +118,7 @@ export default async function MyAccountPage({ searchParams }: MyAccountPageProps
       </div>
 
       {message ? <Alert message={message} type="success" /> : null}
-      {error ? <Alert message={error} type="error" /> : null}
+      {error ? <ErrorMessagePopup message={error} /> : null}
 
       <section className="space-y-3">
         <h2 className="text-xl font-semibold text-zinc-950">My Listed Items</h2>

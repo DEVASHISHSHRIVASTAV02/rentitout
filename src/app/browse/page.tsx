@@ -5,6 +5,7 @@ import { ChevronDown, Filter, Search } from "lucide-react";
 import { ApplianceQuickButtons } from "@/components/appliance-quick-buttons";
 import { AccountCreatedPopup } from "@/components/account-created-popup";
 import { BrowseFiltersForm } from "@/components/browse-filters-form";
+import { ErrorMessagePopup } from "@/components/error-message-popup";
 import { ListingCard } from "@/components/listing-card";
 import { SortSelectForm } from "@/components/sort-select-form";
 import { Alert } from "@/components/ui/alert";
@@ -196,7 +197,7 @@ export default async function BrowsePage({ searchParams }: BrowsePageProps) {
         />
       ) : null}
       {nonPopupMessage ? <Alert message={nonPopupMessage} type="success" /> : null}
-      {error ? <Alert message={error} type="error" /> : null}
+      {error ? <ErrorMessagePopup message={error} /> : null}
 
       <ApplianceQuickButtons />
 

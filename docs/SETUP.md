@@ -126,13 +126,13 @@ Open `http://localhost:3000`.
 ## 7. First functional test checklist
 
 1. Sign up and create an owner profile.
-2. Create a listing with image.
+2. Create a listing from My Account with at least one image (JPG, PNG, WEBP, AVIF, or HEIC). Confirm it stores as a small WebP under `public/uploads/listing-images`.
 3. Open `/browse` in another browser session and confirm the listing card appears.
 4. Click the listing category title to open the quick-view modal.
 5. Click `Contact Details` inside quick view and solve reCAPTCHA.
 6. Confirm contact details render inline in quick view after successful verification.
 7. Also test the card-level `Contact Details` button (second access path).
-8. Verify owner email/phone visibility follows profile settings in dashboard.
+8. From My Account, open Edit on a listing: confirm the listing ID is shown, current photos appear, removals only apply after Save, and at least 1 photo remains.
 9. OTP sign-in works from the sign-in page.
 10. Forgot-password flow works: request reset OTP, set new password, and sign in with new password.
 

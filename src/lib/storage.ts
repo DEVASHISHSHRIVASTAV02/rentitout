@@ -77,31 +77,59 @@ function resolvePublicFilePath(publicUrl: string, expectedAbsoluteRoot: string) 
 /** Hard cap for each stored listing image after backend compression. */
 export const MAX_STORED_LISTING_IMAGE_BYTES = 20 * 1024;
 
-function looksLikeHeifContainer(buffer: Buffer) {
+function getFtypBrand(buffer: Buffer) {
   if (buffer.length < 12) {
-    return false;
+    return null;
   }
   if (buffer.toString("ascii", 4, 8) !== "ftyp") {
-    return false;
+    return null;
   }
+  return buffer.toString("ascii", 8, 12).toLowerCase();
+}
 
-  const brand = buffer.toString("ascii", 8, 12).toLowerCase();
-  return ["heic", "heix", "hevc", "hevx", "heim", "heis", "mif1", "msf1"].includes(brand);
+function looksLikeAvifContainer(buffer: Buffer) {
+  const brand = getFtypBrand(buffer);
+  return brand === "avif" || brand === "avis";
+}
+
+function looksLikeHeicContainer(buffer: Buffer) {
+  const brand = getFtypBrand(buffer);
+  return brand !== null && ["heic", "heix", "hevc", "hevx", "heim", "heis", "mif1", "msf1"].includes(brand);
 }
 
 /**
  * Windows sharp builds often detect HEIF but cannot decode HEVC (iPhone HEIC).
- * Convert those payloads to JPEG first so the shared WebP compressor can run.
+ * AVIF is also reported as HEIF (compression av1) and must stay on the sharp path.
+ * Convert true HEIC/HEIF payloads to JPEG first so the shared WebP compressor can run.
  */
 async function toSharpDecodableBuffer(input: Buffer): Promise<Buffer> {
   const metadata = await sharp(input, { failOn: "none" })
     .metadata()
     .catch(() => null);
-  const format = metadata?.format?.toLowerCase();
-  const needsHeicDecode = format === "heif" || format === "heic" || (!metadata && looksLikeHeifContainer(input));
+  const format = metadata?.format?.toLowerCase() ?? "";
+  const compression = String(metadata?.compression ?? "").toLowerCase();
 
-  if (!needsHeicDecode) {
+  // Sharp labels AVIF as format "heif" + compression "av1". Do not run heic-convert on it.
+  if (format === "avif" || compression === "av1" || looksLikeAvifContainer(input)) {
     return input;
+  }
+
+  const maybeHeic =
+    format === "heic" ||
+    format === "heif" ||
+    compression.includes("hevc") ||
+    (!metadata && looksLikeHeicContainer(input));
+
+  if (!maybeHeic) {
+    return input;
+  }
+
+  // Prefer sharp whenever this build can decode the payload (some HEIF variants work).
+  try {
+    await sharp(input, { failOn: "none" }).rotate().resize(8, 8, { fit: "inside" }).raw().toBuffer();
+    return input;
+  } catch {
+    // Fall through to heic-convert for iPhone HEVC HEIC.
   }
 
   try {
@@ -113,7 +141,7 @@ async function toSharpDecodableBuffer(input: Buffer): Promise<Buffer> {
     return Buffer.from(jpeg);
   } catch (error) {
     const detail = error instanceof Error ? error.message : "unknown error";
-    throw new Error(`Could not read this HEIC/HEIF photo (${detail}). Try exporting it as JPG and upload again.`);
+    throw new Error(`Could not read this photo (${detail}). Try JPG, PNG, WEBP, AVIF, or HEIC and upload again.`);
   }
 }
 

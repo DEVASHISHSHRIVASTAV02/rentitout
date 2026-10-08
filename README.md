@@ -28,8 +28,9 @@ Start, stop, backup, and load-test commands are in [HOME-HOSTING.md](HOME-HOSTIN
 
 - Email/password auth and email OTP sign-in
 - Forgot-password reset via email OTP and new-password confirmation
-- Owner dashboard with listing create/edit and profile-level contact visibility controls
+- My Account listing create/edit in popups (edit shows the public listing ID; photo removals apply only after Save)
 - Public browse page with category/city/price/agreement/listing-id filters and sorting
+- Listing photos: JPG, PNG, WEBP, AVIF, or HEIC (including iPhone); each is compressed on the server to about 20 KB WebP (up to 4 per listing, at least 1 required)
 - Listing cards with:
   - Quick-view modal on category click (large layout with image + details)
   - Card-level `Contact Details` button flow
@@ -37,6 +38,7 @@ Start, stop, backup, and load-test commands are in [HOME-HOSTING.md](HOME-HOSTIN
   - From card button: reCAPTCHA modal -> contact details modal
   - From quick-view modal: reCAPTCHA modal -> inline contact details section
 - Full-screen overlay modals with `X` close buttons and background interaction lock
+- Clear error popups (red **Error** headline) for failed listing create/update and similar My Account / Browse failures
 - Listing proof email notifications and owner posting-payment records (`listing_posting_payments`)
 - Standalone listing detail route (`/listings/[id]`) still available for direct/shared links
 
@@ -49,6 +51,7 @@ Start, stop, backup, and load-test commands are in [HOME-HOSTING.md](HOME-HOSTIN
 - `2026-09-11`: Production moved to home hardware with Cloudflare Tunnel (`rentitout.in`), Windows PM2 config (`ecosystem.config.js`, 1 instance), daily ops guide, and reCAPTCHA domain allowlisting for production.
 - `2026-10-02`: PostgreSQL runs on this PC. The public site is served from this machine through Cloudflare Tunnel.
 - `2026-10-06`: Local load tests use k6, Prometheus on port 9090, and Grafana on port 3030. They do not start with Windows.
+- `2026-10-08`: Listing photos accept HEIC/AVIF and compress to ~20 KB WebP; My Account edit runs in a Save-confirm popup with deferred photo removal.
 
 ## Quick Start
 

@@ -223,7 +223,7 @@ mkdir -p public/uploads/listing-images
 - Sign up / sign in and OTP email delivery
 - Browse listings and quick-view modal
 - reCAPTCHA contact reveal on card and quick-view paths
-- Listing create with image upload
+- Listing create/edit with image upload (JPG/PNG/WEBP/AVIF/HEIC → stored as ~20 KB WebP)
 
 ## 11. Home hardware tuning
 
