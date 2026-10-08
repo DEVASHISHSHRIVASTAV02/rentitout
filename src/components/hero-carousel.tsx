@@ -91,15 +91,15 @@ const heroCards: HeroCard[] = [
     },
   },
   {
-    badge: "LEGAL SAFETY READY",
-    title: "Professional Agreements and Insurance Safety, No Future Legal Trouble.",
+    badge: "AGREEMENT STARTERS",
+    title: "Download Editable Templates and a Handover Checklist.",
     description:
-      "Use professionally prepared agreement and safety terms to protect both sides and reduce legal risks from day one.",
+      "Use our downloadable rental templates as a starting draft. Fill the blanks offline, keep signed copies, and get local legal review when you need it. These files are not legal advice.",
     icon: FileCheck2,
     backgroundClass: "border-lime-200 bg-gradient-to-br from-lime-200 via-green-100 to-white",
     primaryAction: {
       href: "/rental-agreement-templates",
-      label: "Go to Agreements",
+      label: "View Templates",
       className: "bg-lime-700 text-white hover:bg-lime-600",
     },
     secondaryAction: {

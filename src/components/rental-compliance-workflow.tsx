@@ -59,7 +59,7 @@ const REGISTRATION_CHECKS = [
   "Present for registration within the statutory timeline and keep receipt/acknowledgment.",
   "Carry IDs, address proof, photos, witnesses, and supporting annexures.",
   "Match property/address/appliance schedule details with the signed agreement version.",
-  "Keep scanned registered copy and index/reference number in platform records.",
+  "Keep a scanned registered copy and any reference number in your own records.",
 ];
 
 const ESIGN_CHECKS = [
@@ -128,19 +128,19 @@ export function RentalComplianceWorkflow() {
 
   const registrationReason = useMemo(() => {
     if (!isImmovable) {
-      return "Movable appliance rental: registration is usually optional; verify special local rules before execution.";
+      return "For movable appliance rentals, registration is often not used. Confirm any local rule that may still apply.";
     }
 
     const reasons: string[] = [];
-    if (isYearToYear) reasons.push("lease is year-to-year");
-    if (tenureMonths > 12) reasons.push("term exceeds 12 months");
-    if (hasYearlyRent) reasons.push("yearly rent is reserved");
+    if (isYearToYear) reasons.push("year-to-year lease");
+    if (tenureMonths > 12) reasons.push("term over 12 months");
+    if (hasYearlyRent) reasons.push("yearly rent reserved");
 
     if (reasons.length === 0) {
-      return "Current inputs do not trigger compulsory registration criteria under the standard immovable-lease rule, but local practice may still require registration.";
+      return "These inputs may not force registration for an immovable lease, but local practice can still differ. Confirm before signing.";
     }
 
-    return `Compulsory registration likely because ${reasons.join(", ")}.`;
+    return `These inputs often mean registration should be checked: ${reasons.join(", ")}. Confirm with a local advocate.`;
   }, [hasYearlyRent, isImmovable, isYearToYear, tenureMonths]);
 
   const stampDone = stampChecks.filter(Boolean).length;
@@ -156,10 +156,10 @@ export function RentalComplianceWorkflow() {
   return (
     <section className="mt-8 rounded-2xl border border-zinc-200 bg-white p-5">
       <header className="space-y-1 border-b border-zinc-200 pb-4">
-        <h2 className="text-lg font-semibold text-zinc-950 sm:text-xl">India Legal Execution Readiness Checklist</h2>
+        <h2 className="text-lg font-semibold text-zinc-950 sm:text-xl">Optional signing checklist</h2>
         <p className="text-sm leading-6 text-zinc-700">
-          Configure your transaction and complete this checklist before final signing. This does not replace advocate
-          review.
+          Use this browser-only checklist as a reminder before you sign offline. It is not a legal opinion, stamp-duty
+          calculator, or registration service, and it does not replace advocate review.
         </p>
       </header>
 
@@ -240,12 +240,14 @@ export function RentalComplianceWorkflow() {
         </div>
         <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-3">
           <p className="text-xs uppercase tracking-[0.14em] text-zinc-500">Registration Status</p>
-          <p className="mt-1 text-sm font-semibold text-zinc-950">{registrationRequired ? "Likely compulsory" : "Likely optional"}</p>
+          <p className="mt-1 text-sm font-semibold text-zinc-950">
+            {registrationRequired ? "Check local rules" : "Usually not required for appliances"}
+          </p>
         </div>
         <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-3">
-          <p className="text-xs uppercase tracking-[0.14em] text-zinc-500">Overall Readiness</p>
+          <p className="text-xs uppercase tracking-[0.14em] text-zinc-500">Checklist Status</p>
           <p className={cn("mt-1 text-sm font-semibold", overallReady ? "text-emerald-700" : "text-amber-700")}>
-            {overallReady ? "Ready to execute" : "Pending actions"}
+            {overallReady ? "Reminders checked" : "Still open"}
           </p>
         </div>
       </div>
@@ -255,7 +257,7 @@ export function RentalComplianceWorkflow() {
           <span className="font-semibold text-zinc-950">State selected:</span> {stateName}
         </p>
         <p className="mt-1">
-          <span className="font-semibold text-zinc-950">Registration guidance:</span> {registrationReason}
+          <span className="font-semibold text-zinc-950">Registration note:</span> {registrationReason}
         </p>
       </div>
 
@@ -283,8 +285,8 @@ export function RentalComplianceWorkflow() {
           title="E-Sign Readiness Checks"
           description={
             signingMode === "electronic"
-              ? "Complete all points for stronger electronic enforceability evidence."
-              : "Switch execution mode to electronic when you want to run e-sign readiness validation."
+              ? "Use these as reminders when both sides choose electronic signing."
+              : "Switch to electronic only if both sides plan to sign digitally."
           }
           items={ESIGN_CHECKS}
           values={esignChecks}
@@ -293,9 +295,8 @@ export function RentalComplianceWorkflow() {
       </div>
 
       <p className="mt-4 text-xs leading-5 text-zinc-500">
-        Legal references for checklist logic: Indian Contract Act, 1872 (contract essentials), Indian Stamp Act, 1899
-        (duly stamped instrument), Registration Act, 1908 (registration triggers and effects), and Information
-        Technology Act, 2000 (electronic contracts/signatures).
+        This checklist is a practical reminder only. Confirm current stamp, registration, and e-sign rules with a
+        qualified advocate or the local authority for your state before you rely on any document.
       </p>
     </section>
   );

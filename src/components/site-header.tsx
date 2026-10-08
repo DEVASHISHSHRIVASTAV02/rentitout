@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
+import { SiteHeaderBrand } from "@/components/site-header-brand";
 
 export async function SiteHeader() {
   const user = await getCurrentUser();
@@ -8,11 +9,7 @@ export async function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-zinc-800 bg-black/95 backdrop-blur">
       <div className="mx-auto flex w-full items-center justify-between gap-2 px-3 py-3 sm:gap-4 sm:px-6">
-        <Link href="/" className="inline-flex items-center gap-2">
-          <span className="text-sm font-semibold tracking-[0.14em] text-white sm:text-base sm:tracking-[0.22em]">
-            RentItOut
-          </span>
-        </Link>
+        <SiteHeaderBrand />
 
         <div className="flex items-center gap-1.5 sm:gap-2">
           {user ? (
