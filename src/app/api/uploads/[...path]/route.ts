@@ -62,6 +62,8 @@ function getContentTypeFromPath(filePath: string) {
       return "image/png";
     case ".webp":
       return "image/webp";
+    case ".avif":
+      return "image/avif";
     default:
       return "application/octet-stream";
   }

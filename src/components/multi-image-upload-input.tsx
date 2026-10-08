@@ -107,7 +107,7 @@ export function MultiImageUploadInput({ name = "images", required = false, maxFi
         ref={inputRef}
         name={name}
         type="file"
-        accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+        accept=".jpg,.jpeg,.png,.webp,.avif,image/jpeg,image/png,image/webp,image/avif"
         multiple
         required={required && selectedFiles.length === 0}
         onChange={handleFileSelection}

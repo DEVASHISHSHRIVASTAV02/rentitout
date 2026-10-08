@@ -1,6 +1,7 @@
 import path from "path";
 import { promises as fs } from "fs";
 import crypto from "crypto";
+import sharp from "sharp";
 
 function resolveAppRootDir() {
   const fromEnv = process.env.APP_ROOT?.trim();
@@ -72,37 +73,60 @@ function resolvePublicFilePath(publicUrl: string, expectedAbsoluteRoot: string) 
   return absolutePath;
 }
 
-function getNormalizedInputExtension(fileName: string) {
-  const extension = path.extname(fileName || "listing-image");
-  return extension ? extension.toLowerCase() : "";
-}
+/** Hard cap for each stored listing image after backend compression. */
+export const MAX_STORED_LISTING_IMAGE_BYTES = 20 * 1024;
 
-function resolveOutputImageExtension(file: File): ".jpg" | ".png" | ".webp" {
-  const fileType = file.type.trim().toLowerCase();
-  switch (fileType) {
-    case "image/jpg":
-    case "image/jpeg":
-      return ".jpg";
-    case "image/png":
-      return ".png";
-    case "image/webp":
-      return ".webp";
-    default:
-      break;
+async function compressListingImageToBudget(input: Buffer): Promise<Buffer> {
+  let width = 960;
+  let smallest: Buffer | null = null;
+
+  while (width >= 240) {
+    for (let quality = 70; quality >= 18; quality -= 8) {
+      const compressed = await sharp(input, { failOn: "none" })
+        .rotate()
+        .resize({
+          width,
+          height: width,
+          fit: "inside",
+          withoutEnlargement: true,
+        })
+        .webp({ quality, effort: 6, smartSubsample: true })
+        .toBuffer();
+
+      if (!smallest || compressed.length < smallest.length) {
+        smallest = compressed;
+      }
+
+      if (compressed.length <= MAX_STORED_LISTING_IMAGE_BYTES) {
+        return compressed;
+      }
+    }
+
+    width = Math.floor(width * 0.75);
   }
 
-  const extension = getNormalizedInputExtension(file.name);
-  if (extension === ".jpg" || extension === ".jpeg") {
-    return ".jpg";
-  }
-  if (extension === ".png") {
-    return ".png";
-  }
-  if (extension === ".webp") {
-    return ".webp";
+  const lastResort = await sharp(input, { failOn: "none" })
+    .rotate()
+    .resize({
+      width: 160,
+      height: 160,
+      fit: "inside",
+      withoutEnlargement: true,
+    })
+    .webp({ quality: 12, effort: 6, smartSubsample: true })
+    .toBuffer();
+
+  if (lastResort.length <= MAX_STORED_LISTING_IMAGE_BYTES) {
+    return lastResort;
   }
 
-  return ".jpg";
+  if (smallest && smallest.length <= MAX_STORED_LISTING_IMAGE_BYTES) {
+    return smallest;
+  }
+
+  throw new Error(
+    `Could not compress an image to ${MAX_STORED_LISTING_IMAGE_BYTES} bytes or less. Try a simpler photo.`,
+  );
 }
 
 export async function saveListingImage(file: File, listingPublicId: string, sortOrder: number) {
@@ -110,10 +134,9 @@ export async function saveListingImage(file: File, listingPublicId: string, sort
     return null;
   }
 
-  const extension = resolveOutputImageExtension(file);
   const slotNumber = Math.max(1, sortOrder + 1);
   const safeListingId = sanitizeDirectoryName(listingPublicId) || "listing";
-  const finalName = `${slotNumber}-${crypto.randomUUID()}${extension}`;
+  const finalName = `${slotNumber}-${crypto.randomUUID()}.webp`;
   const relativeDir = path.join(LISTING_IMAGES_RELATIVE_ROOT, safeListingId);
   const absoluteDir = path.join(PUBLIC_ROOT_DIR, relativeDir);
   const absoluteFilePath = path.join(absoluteDir, finalName);
@@ -123,7 +146,9 @@ export async function saveListingImage(file: File, listingPublicId: string, sort
   if (fileBuffer.length === 0) {
     return null;
   }
-  await fs.writeFile(absoluteFilePath, fileBuffer);
+
+  const compressedBuffer = await compressListingImageToBudget(fileBuffer);
+  await fs.writeFile(absoluteFilePath, compressedBuffer);
 
   return `/${relativeDir.replace(/\\/g, "/")}/${finalName}`;
 }

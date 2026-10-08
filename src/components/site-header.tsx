@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { UserRound } from "lucide-react";
 import { getCurrentUser } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { SiteHeaderBrand } from "@/components/site-header-brand";
@@ -13,13 +14,12 @@ export async function SiteHeader() {
 
         <div className="flex items-center gap-1.5 sm:gap-2">
           {user ? (
-            <Link href="/my-account">
-              <Button
-                variant="secondary"
-                className="h-8 border-white bg-white px-2.5 text-[11px] text-black hover:bg-zinc-100 sm:h-9 sm:px-3 sm:text-sm"
-              >
-                My Account
-              </Button>
+            <Link
+              href="/my-account"
+              aria-label="My Account"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-white transition-colors hover:bg-white/10 sm:h-9 sm:w-9"
+            >
+              <UserRound className="size-5 sm:size-[1.35rem]" aria-hidden="true" strokeWidth={1.75} />
             </Link>
           ) : (
             <Link href="/auth/sign-in" prefetch={false}>

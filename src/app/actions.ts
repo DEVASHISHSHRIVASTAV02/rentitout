@@ -92,9 +92,8 @@ const passwordResetConfirmSchema = z
   });
 
 const MAX_LISTING_IMAGES = 4;
-const MAX_LISTING_IMAGE_SIZE_BYTES = 8 * 1024 * 1024;
-const ALLOWED_IMAGE_MIME_TYPES = new Set(["image/jpeg", "image/jpg", "image/png", "image/webp"]);
-const ALLOWED_IMAGE_FILE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp"]);
+const ALLOWED_IMAGE_MIME_TYPES = new Set(["image/jpeg", "image/jpg", "image/png", "image/webp", "image/avif"]);
+const ALLOWED_IMAGE_FILE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp", ".avif"]);
 const MAX_LISTING_ID_GENERATION_ATTEMPTS = 40;
 
 interface DeleteListingRow {
@@ -242,10 +241,6 @@ function validateListingImageFiles(files: File[], required: boolean) {
   }
 
   for (const file of files) {
-    if (file.size > MAX_LISTING_IMAGE_SIZE_BYTES) {
-      return "Each image must be 8MB or smaller";
-    }
-
     const normalizedMime = file.type.trim().toLowerCase();
     const normalizedExtension = getNormalizedFileExtension(file.name);
     const hasAllowedMime = normalizedMime.length > 0 && ALLOWED_IMAGE_MIME_TYPES.has(normalizedMime);
@@ -253,12 +248,12 @@ function validateListingImageFiles(files: File[], required: boolean) {
 
     // If browser sends MIME type, it must be in our allowlist.
     if (normalizedMime.length > 0 && !hasAllowedMime) {
-      return "Only JPG, PNG, or WEBP images are allowed (HEIC is not supported)";
+      return "Only JPG, PNG, WEBP, or AVIF images are allowed (HEIC is not supported)";
     }
 
     // If MIME is missing/blank (some devices), fall back to file extension.
     if (normalizedMime.length === 0 && !hasAllowedExtension) {
-      return "Only JPG, PNG, or WEBP images are allowed (HEIC is not supported)";
+      return "Only JPG, PNG, WEBP, or AVIF images are allowed (HEIC is not supported)";
     }
   }
 

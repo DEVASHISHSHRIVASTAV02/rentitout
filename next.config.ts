@@ -5,7 +5,8 @@ const minimalPolyfillPath = "./src/polyfills/next-polyfill-module-minimal.js";
 const nextConfig: NextConfig = {
   experimental: {
     serverActions: {
-      bodySizeLimit: "40mb",
+      // Large phone photos are accepted, then compressed on the server to ~20 KB each.
+      bodySizeLimit: "250mb",
     },
   },
   images: {
