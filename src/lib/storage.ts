@@ -1,6 +1,7 @@
 import path from "path";
 import { promises as fs } from "fs";
 import crypto from "crypto";
+import convert from "heic-convert";
 import sharp from "sharp";
 
 function resolveAppRootDir() {
@@ -76,13 +77,54 @@ function resolvePublicFilePath(publicUrl: string, expectedAbsoluteRoot: string) 
 /** Hard cap for each stored listing image after backend compression. */
 export const MAX_STORED_LISTING_IMAGE_BYTES = 20 * 1024;
 
+function looksLikeHeifContainer(buffer: Buffer) {
+  if (buffer.length < 12) {
+    return false;
+  }
+  if (buffer.toString("ascii", 4, 8) !== "ftyp") {
+    return false;
+  }
+
+  const brand = buffer.toString("ascii", 8, 12).toLowerCase();
+  return ["heic", "heix", "hevc", "hevx", "heim", "heis", "mif1", "msf1"].includes(brand);
+}
+
+/**
+ * Windows sharp builds often detect HEIF but cannot decode HEVC (iPhone HEIC).
+ * Convert those payloads to JPEG first so the shared WebP compressor can run.
+ */
+async function toSharpDecodableBuffer(input: Buffer): Promise<Buffer> {
+  const metadata = await sharp(input, { failOn: "none" })
+    .metadata()
+    .catch(() => null);
+  const format = metadata?.format?.toLowerCase();
+  const needsHeicDecode = format === "heif" || format === "heic" || (!metadata && looksLikeHeifContainer(input));
+
+  if (!needsHeicDecode) {
+    return input;
+  }
+
+  try {
+    const jpeg = await convert({
+      buffer: input,
+      format: "JPEG",
+      quality: 0.9,
+    });
+    return Buffer.from(jpeg);
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : "unknown error";
+    throw new Error(`Could not read this HEIC/HEIF photo (${detail}). Try exporting it as JPG and upload again.`);
+  }
+}
+
 async function compressListingImageToBudget(input: Buffer): Promise<Buffer> {
+  const decodableInput = await toSharpDecodableBuffer(input);
   let width = 960;
   let smallest: Buffer | null = null;
 
   while (width >= 240) {
     for (let quality = 70; quality >= 18; quality -= 8) {
-      const compressed = await sharp(input, { failOn: "none" })
+      const compressed = await sharp(decodableInput, { failOn: "none" })
         .rotate()
         .resize({
           width,
@@ -105,7 +147,7 @@ async function compressListingImageToBudget(input: Buffer): Promise<Buffer> {
     width = Math.floor(width * 0.75);
   }
 
-  const lastResort = await sharp(input, { failOn: "none" })
+  const lastResort = await sharp(decodableInput, { failOn: "none" })
     .rotate()
     .resize({
       width: 160,

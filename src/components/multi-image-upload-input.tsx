@@ -8,6 +8,7 @@ interface MultiImageUploadInputProps {
   name?: string;
   required?: boolean;
   maxFiles?: number;
+  onSelectionChange?: (files: File[]) => void;
 }
 
 function getFileSignature(file: File) {
@@ -29,10 +30,16 @@ function canMutateFileInputList() {
 
 const CAN_MUTATE_FILE_INPUT_LIST = canMutateFileInputList();
 
-export function MultiImageUploadInput({ name = "images", required = false, maxFiles = 4 }: MultiImageUploadInputProps) {
+export function MultiImageUploadInput({
+  name = "images",
+  required = false,
+  maxFiles = 4,
+  onSelectionChange,
+}: MultiImageUploadInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [limitMessage, setLimitMessage] = useState("");
+  const resolvedMaxFiles = Math.max(0, maxFiles);
 
   const syncInputFiles = (files: File[]) => {
     if (!inputRef.current || !CAN_MUTATE_FILE_INPUT_LIST) {
@@ -51,6 +58,13 @@ export function MultiImageUploadInput({ name = "images", required = false, maxFi
     }
   };
 
+  const commitFiles = (files: File[], capped = false) => {
+    setSelectedFiles(files);
+    setLimitMessage(capped ? `You can upload up to ${resolvedMaxFiles} images only.` : "");
+    onSelectionChange?.(files);
+    syncInputFiles(files);
+  };
+
   const handleFileSelection = (event: ChangeEvent<HTMLInputElement>) => {
     const incomingFiles = Array.from(event.currentTarget.files ?? []);
     if (incomingFiles.length === 0) {
@@ -58,10 +72,8 @@ export function MultiImageUploadInput({ name = "images", required = false, maxFi
     }
 
     if (!CAN_MUTATE_FILE_INPUT_LIST) {
-      const cappedFiles = incomingFiles.slice(0, maxFiles);
-      const capped = incomingFiles.length > maxFiles;
-      setSelectedFiles(cappedFiles);
-      setLimitMessage(capped ? `You can upload up to ${maxFiles} images only.` : "");
+      const cappedFiles = incomingFiles.slice(0, resolvedMaxFiles);
+      commitFiles(cappedFiles, incomingFiles.length > resolvedMaxFiles);
       return;
     }
 
@@ -75,7 +87,7 @@ export function MultiImageUploadInput({ name = "images", required = false, maxFi
         continue;
       }
 
-      if (merged.length >= maxFiles) {
+      if (merged.length >= resolvedMaxFiles) {
         capped = true;
         break;
       }
@@ -84,9 +96,7 @@ export function MultiImageUploadInput({ name = "images", required = false, maxFi
       existingSignatures.add(signature);
     }
 
-    setSelectedFiles(merged);
-    setLimitMessage(capped ? `You can upload up to ${maxFiles} images only.` : "");
-    syncInputFiles(merged);
+    commitFiles(merged, capped);
   };
 
   const removeFile = (index: number) => {
@@ -96,9 +106,7 @@ export function MultiImageUploadInput({ name = "images", required = false, maxFi
     }
 
     const nextFiles = selectedFiles.filter((_, currentIndex) => currentIndex !== index);
-    setSelectedFiles(nextFiles);
-    setLimitMessage("");
-    syncInputFiles(nextFiles);
+    commitFiles(nextFiles);
   };
 
   return (
@@ -107,9 +115,10 @@ export function MultiImageUploadInput({ name = "images", required = false, maxFi
         ref={inputRef}
         name={name}
         type="file"
-        accept=".jpg,.jpeg,.png,.webp,.avif,image/jpeg,image/png,image/webp,image/avif"
+        accept=".jpg,.jpeg,.png,.webp,.avif,.heic,.heif,image/jpeg,image/png,image/webp,image/avif,image/heic,image/heif"
         multiple
         required={required && selectedFiles.length === 0}
+        disabled={resolvedMaxFiles <= 0}
         onChange={handleFileSelection}
       />
 

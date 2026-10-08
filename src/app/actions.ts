@@ -92,8 +92,16 @@ const passwordResetConfirmSchema = z
   });
 
 const MAX_LISTING_IMAGES = 4;
-const ALLOWED_IMAGE_MIME_TYPES = new Set(["image/jpeg", "image/jpg", "image/png", "image/webp", "image/avif"]);
-const ALLOWED_IMAGE_FILE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp", ".avif"]);
+const ALLOWED_IMAGE_MIME_TYPES = new Set([
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/webp",
+  "image/avif",
+  "image/heic",
+  "image/heif",
+]);
+const ALLOWED_IMAGE_FILE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp", ".avif", ".heic", ".heif"]);
 const MAX_LISTING_ID_GENERATION_ATTEMPTS = 40;
 
 interface DeleteListingRow {
@@ -243,17 +251,13 @@ function validateListingImageFiles(files: File[], required: boolean) {
   for (const file of files) {
     const normalizedMime = file.type.trim().toLowerCase();
     const normalizedExtension = getNormalizedFileExtension(file.name);
-    const hasAllowedMime = normalizedMime.length > 0 && ALLOWED_IMAGE_MIME_TYPES.has(normalizedMime);
+    // Windows/converters often send HEIC as application/octet-stream (or blank).
+    // Accept when either the MIME or the extension is a known image type.
+    const hasAllowedMime = ALLOWED_IMAGE_MIME_TYPES.has(normalizedMime);
     const hasAllowedExtension = ALLOWED_IMAGE_FILE_EXTENSIONS.has(normalizedExtension);
 
-    // If browser sends MIME type, it must be in our allowlist.
-    if (normalizedMime.length > 0 && !hasAllowedMime) {
-      return "Only JPG, PNG, WEBP, or AVIF images are allowed (HEIC is not supported)";
-    }
-
-    // If MIME is missing/blank (some devices), fall back to file extension.
-    if (normalizedMime.length === 0 && !hasAllowedExtension) {
-      return "Only JPG, PNG, WEBP, or AVIF images are allowed (HEIC is not supported)";
+    if (!hasAllowedMime && !hasAllowedExtension) {
+      return "Only JPG, PNG, WEBP, AVIF, HEIC, or HEIF images are allowed";
     }
   }
 
@@ -757,29 +761,43 @@ export async function updateListingAction(formData: FormData) {
     redirectWithError(imageValidationError);
   }
 
-  if (imageFiles.length > 0) {
-    const { rows: imageStatsRows } = await query<ListingImageStatsRow>(
-      `
-        select
-          count(*)::text as total_images,
-          max(sort_order) as max_sort_order
-        from listing_images
-        where listing_id = $1
-      `,
-      [existingListing.listing_id],
-    );
-    const currentImageCount = Number.parseInt(imageStatsRows[0]?.total_images ?? "0", 10) || 0;
-    const incomingImageCount = imageFiles.length;
-    if (currentImageCount + incomingImageCount > MAX_LISTING_IMAGES) {
-      const remainingSlots = Math.max(0, MAX_LISTING_IMAGES - currentImageCount);
-      if (remainingSlots <= 0) {
-        redirectWithError(`You already have ${MAX_LISTING_IMAGES} images. Remove this listing and recreate to change photos.`);
-      }
-      redirectWithError(`You can add only ${remainingSlots} more image${remainingSlots === 1 ? "" : "s"}.`);
+  const requestedRemoveImageUrls = Array.from(
+    new Set(
+      formData
+        .getAll("removeImageUrl")
+        .map((entry) => (typeof entry === "string" ? entry.trim() : ""))
+        .filter((entry) => entry.length > 0),
+    ),
+  );
+
+  const { rows: currentImageRows } = await query<{ image_url: string; sort_order: number }>(
+    `
+      select image_url, sort_order
+      from listing_images
+      where listing_id = $1
+      order by sort_order asc
+    `,
+    [existingListing.listing_id],
+  );
+  const currentImageUrls = currentImageRows.map((entry) => entry.image_url);
+  const removableImageUrlSet = new Set(currentImageUrls);
+  const removeImageUrls = requestedRemoveImageUrls.filter((url) => removableImageUrlSet.has(url));
+  const keptImageCount = currentImageUrls.length - removeImageUrls.length;
+  const finalImageCount = keptImageCount + imageFiles.length;
+
+  if (finalImageCount < 1) {
+    redirectWithError("Keep at least 1 photo for this listing");
+  }
+  if (finalImageCount > MAX_LISTING_IMAGES) {
+    const remainingSlots = Math.max(0, MAX_LISTING_IMAGES - keptImageCount);
+    if (remainingSlots <= 0) {
+      redirectWithError(`You already have ${MAX_LISTING_IMAGES} images. Remove a photo before adding more.`);
     }
+    redirectWithError(`You can add only ${remainingSlots} more image${remainingSlots === 1 ? "" : "s"}.`);
   }
 
   let appendedImageUrls: string[] = [];
+  let removedImageUrlsForCleanup: string[] = [];
 
   try {
     await withTransaction(async (client) => {
@@ -817,6 +835,20 @@ export async function updateListingAction(formData: FormData) {
 
       if (!rowCount) {
         throw new Error("Could not update listing");
+      }
+
+      if (removeImageUrls.length > 0) {
+        const { rows: deletedImageRows } = await queryWithClient<{ image_url: string }>(
+          client,
+          `
+            delete from listing_images
+            where listing_id = $1
+              and image_url = any($2::text[])
+            returning image_url
+          `,
+          [existingListing.listing_id, removeImageUrls],
+        );
+        removedImageUrlsForCleanup = deletedImageRows.map((entry) => entry.image_url);
       }
 
       if (imageFiles.length === 0) {
@@ -869,6 +901,14 @@ export async function updateListingAction(formData: FormData) {
     }
     const message = error instanceof Error ? error.message : "Could not update listing";
     redirectWithError(message);
+  }
+
+  if (removedImageUrlsForCleanup.length > 0) {
+    try {
+      await removeListingImages(removedImageUrlsForCleanup);
+    } catch {
+      // Best effort cleanup for removed image files after a successful update.
+    }
   }
 
   revalidatePath("/my-account");
