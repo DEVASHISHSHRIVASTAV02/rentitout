@@ -72,27 +72,50 @@ if ($grafanaService -and $grafanaService.Status -eq "Running") {
   }
 }
 
+$grafanaHome = Split-Path (Split-Path $grafanaExe -Parent) -Parent
+# Grafana 13 ships Prometheus under Program Files. If GF_PATHS_DATA alone is overridden,
+# Grafana looks in a user plugins folder that has no Prometheus plugin ("No data").
+# Also, Grafana's background installer tries to update Program Files plugins, fails with
+# Access Denied, and leaves Prometheus unregistered. Copy into a writable plugins dir instead.
+$grafanaPlugins = Join-Path $grafanaData "plugins"
+$installPrometheusPlugin = Join-Path $grafanaHome "data\plugins\prometheus"
+$userPrometheusPlugin = Join-Path $grafanaPlugins "prometheus"
+if (-not (Test-Path $installPrometheusPlugin)) {
+  Write-Error "Grafana Prometheus plugin was not found at $installPrometheusPlugin"
+}
+
 if (Test-PortListening 3030) {
-  Write-Output "Grafana is already listening on 127.0.0.1:3030"
-} else {
-  $grafanaHome = Split-Path (Split-Path $grafanaExe -Parent) -Parent
-  $grafanaLauncher = Join-Path $tools "start-grafana.cmd"
-  Write-Launcher $grafanaLauncher @"
+  Write-Output "Stopping Grafana to refresh the Prometheus plugin"
+  Get-Process grafana, grafana-server -ErrorAction SilentlyContinue | Stop-Process -Force
+  Get-Process | Where-Object { $_.ProcessName -like "gpx_*" } | Stop-Process -Force -ErrorAction SilentlyContinue
+  Start-Sleep -Seconds 2
+}
+
+New-Item -ItemType Directory -Force -Path $grafanaPlugins | Out-Null
+if (-not (Test-Path (Join-Path $userPrometheusPlugin "plugin.json"))) {
+  Write-Output "Copying Grafana Prometheus plugin into $userPrometheusPlugin"
+  Copy-Item -LiteralPath $installPrometheusPlugin -Destination $userPrometheusPlugin -Recurse -Force
+}
+
+$grafanaLauncher = Join-Path $tools "start-grafana.cmd"
+Write-Launcher $grafanaLauncher @"
 @echo off
 set GF_SERVER_HTTP_ADDR=127.0.0.1
 set GF_SERVER_HTTP_PORT=3030
 set GF_PATHS_DATA=$grafanaData
 set GF_PATHS_LOGS=$grafanaLogs
+set GF_PATHS_PLUGINS=$grafanaPlugins
 set GF_PATHS_PROVISIONING=$grafanaProvisioning
+set GF_PLUGINS_PREINSTALL_DISABLED=true
 set GF_AUTH_ANONYMOUS_ENABLED=true
 set GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
 set GF_ANALYTICS_REPORTING_ENABLED=false
 set GF_ANALYTICS_CHECK_FOR_UPDATES=false
 "$grafanaExe" server --homepath "$grafanaHome"
 "@
-  $grafanaLog = Join-Path $grafanaLogs "grafana.log"
-  Start-Detached "cmd.exe /c `"`"$grafanaLauncher`" >> `"$grafanaLog`" 2>&1`""
-  Write-Output "Grafana started at http://127.0.0.1:3030"
-}
+
+$grafanaLog = Join-Path $grafanaLogs "grafana.log"
+Start-Detached "cmd.exe /c `"`"$grafanaLauncher`" >> `"$grafanaLog`" 2>&1`""
+Write-Output "Grafana started at http://127.0.0.1:3030"
 
 Write-Output "Dashboard folder: RentItOut. Prometheus: http://127.0.0.1:9090"

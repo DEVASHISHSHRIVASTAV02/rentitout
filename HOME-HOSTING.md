@@ -146,7 +146,7 @@ curl.exe -I https://rentitout.in/
 | **App logs** | `pm2 logs next-app` |
 | **Restart app and cache** | `powershell -ExecutionPolicy Bypass -File .\scripts\start-app.ps1` |
 | **Start load-test graphs** | `powershell -ExecutionPolicy Bypass -File .\scripts\start-metrics.ps1` |
-| **Run a load test** | `powershell -ExecutionPolicy Bypass -File .\scripts\loadtest.ps1 -Profile browse` |
+| **Run a load test** | `powershell -ExecutionPolicy Bypass -File .\scripts\loadtest.ps1 -Profile browse` (or `-Profile home-max` / `-Profile browse-max`) |
 | **Stop load-test graphs** | `powershell -ExecutionPolicy Bypass -File .\scripts\stop-metrics.ps1` |
 
 ---
@@ -195,18 +195,22 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\start-metrics.ps1
 
 Open http://127.0.0.1:3030/d/rentitout-load/rentitout-load-test . The dashboard is **RentItOut load test** in the RentItOut folder. No login is required to view it. A phone cannot open this address.
 
+If every panel says **No data** while a test is running, restart the graphs with `.\scripts\start-metrics.ps1` (it repairs the Grafana Prometheus plugin path), then run the k6 profile again. k6 must write to Prometheus while the test runs — graphs will not backfill an earlier run that happened before Grafana/Prometheus were healthy.
+
 ### Run a test
 
-The script only requests public pages with GET. It does not sign in, create listings, or delete accounts. `browse` and `capacity` stop early if p99 response time reaches 1 second or more than 1% of requests fail.
+The script only requests public pages with GET. It does not sign in, create listings, or delete accounts. `browse`, `capacity`, `home-max`, and `browse-max` stop early if p99 response time reaches 1 second or more than 1% of requests fail.
 
 ```powershell
 cd C:\RentAPP
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\loadtest.ps1 -Profile smoke
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\loadtest.ps1 -Profile browse
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\loadtest.ps1 -Profile capacity
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\loadtest.ps1 -Profile home-max
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\loadtest.ps1 -Profile browse-max
 ```
 
-`smoke` is about 20 seconds with 2 users. `browse` ramps to 50 users at about 2 requests per second each. `capacity` does not pause between requests and ramps to 100 users.
+`smoke` is about 20 seconds with 2 users. `browse` ramps to 50 users at about 2 requests per second each. `capacity` does not pause between requests and ramps to 100 users. `home-max` hits only `/`, with no pause between requests, and raises virtual users every 30 seconds until p99 exceeds 1s or errors exceed 1% (or it reaches 500 VUs). `browse-max` hits only `/browse` (heaviest page), starts at 50 users, then adds 10 users every 10 seconds until the same limits trip (or 500 VUs).
 
 A test of `http://127.0.0.1:3000` measures this laptop and the local cache. A test of the public site also crosses the home connection and Cloudflare:
 

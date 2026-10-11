@@ -22,6 +22,21 @@ const pages = [
   { name: "sitemap", path: "/sitemap.xml" },
 ];
 
+/** VU targets for home-max: step up every 30s until thresholds abort the run. */
+function buildHomeMaxStages() {
+  const targets = [5, 10, 20, 40, 60, 80, 100, 125, 150, 175, 200, 250, 300, 350, 400, 450, 500];
+  return targets.map((target) => ({ duration: "30s", target }));
+}
+
+/** VU targets for browse-max: start at 50, then +10 every 10s. */
+function buildBrowseMaxStages() {
+  const stages = [];
+  for (let target = 50; target <= 500; target += 10) {
+    stages.push({ duration: "10s", target });
+  }
+  return stages;
+}
+
 const scenarios = {
   smoke: {
     executor: "constant-vus",
@@ -54,10 +69,32 @@ const scenarios = {
     ],
     gracefulRampDown: "15s",
   },
+  "home-max": {
+    executor: "ramping-vus",
+    startVUs: 0,
+    stages: buildHomeMaxStages(),
+    gracefulRampDown: "15s",
+  },
+  "browse-max": {
+    executor: "ramping-vus",
+    startVUs: 0,
+    stages: buildBrowseMaxStages(),
+    gracefulRampDown: "15s",
+  },
 };
 
 const scenario = scenarios[profileName] || scenarios.smoke;
-const abortOnLimit = profileName === "capacity" || profileName === "browse";
+const abortOnLimit =
+  profileName === "capacity" ||
+  profileName === "browse" ||
+  profileName === "home-max" ||
+  profileName === "browse-max";
+const singlePageByProfile = {
+  "home-max": pages.find((page) => page.name === "home"),
+  "browse-max": pages.find((page) => page.name === "browse"),
+};
+const fixedPage = singlePageByProfile[profileName] || null;
+const noThinkTime = profileName === "capacity" || profileName === "home-max" || profileName === "browse-max";
 
 export const options = {
   discardResponseBodies: true,
@@ -67,14 +104,15 @@ export const options = {
       {
         threshold: "rate<0.01",
         abortOnFail: abortOnLimit,
-        delayAbortEval: "20s",
+        // browse-max starts at 50 VUs quickly; evaluate after the first hold.
+        delayAbortEval: profileName === "browse-max" ? "15s" : "20s",
       },
     ],
     http_req_duration: [
       {
         threshold: "p(99)<1000",
         abortOnFail: abortOnLimit,
-        delayAbortEval: "20s",
+        delayAbortEval: profileName === "browse-max" ? "15s" : "20s",
       },
     ],
   },
@@ -82,7 +120,7 @@ export const options = {
 };
 
 export default function () {
-  const page = pages[Math.floor(Math.random() * pages.length)];
+  const page = fixedPage || pages[Math.floor(Math.random() * pages.length)];
   const response = http.get(`${baseUrl}${page.path}`, {
     headers: { "Accept-Encoding": "br, gzip" },
     tags: { name: page.name },
@@ -93,7 +131,7 @@ export default function () {
     "status is ok": (result) => result.status >= 200 && result.status < 400,
   });
 
-  if (profileName !== "capacity") {
+  if (!noThinkTime) {
     sleep(0.5);
   }
 }

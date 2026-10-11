@@ -1,5 +1,5 @@
 param(
-  [ValidateSet("smoke", "browse", "capacity")]
+  [ValidateSet("smoke", "browse", "capacity", "home-max", "browse-max")]
   [string] $Profile = "smoke",
   [string] $BaseUrl = "http://127.0.0.1:3000"
 )
