@@ -26,6 +26,7 @@ interface MyAccountListingRow {
   category: string;
   sub_category: string | null;
   item_info: string | null;
+  additional_details: string | null;
   price_per_month: number;
   min_agreement_months: number;
   image_urls: string[];
@@ -59,6 +60,7 @@ export default async function MyAccountPage({ searchParams }: MyAccountPageProps
         l.category,
         l.sub_category,
         l.item_info,
+        l.additional_details,
         l.price_per_month,
         l.min_agreement_months,
         coalesce(images.image_urls, '{}'::text[]) as image_urls,
@@ -95,6 +97,7 @@ export default async function MyAccountPage({ searchParams }: MyAccountPageProps
         category: listing.category,
         subCategory: listing.sub_category ?? fallbackSubCategory,
         itemInfo: listing.item_info ?? fallbackItemInfo,
+        additionalDetails: listing.additional_details?.trim() || null,
         pricePerMonth: listing.price_per_month,
         minAgreementMonths: listing.min_agreement_months,
         imageUrls: listing.image_urls.filter((entry) => typeof entry === "string" && entry.trim().length > 0),

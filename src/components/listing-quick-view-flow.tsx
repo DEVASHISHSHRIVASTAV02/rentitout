@@ -214,6 +214,12 @@ export function ListingQuickViewFlow({
                           <MapPin className="h-4 w-4" />
                           {listing.city} - PIN {listing.pincode}
                         </p>
+                        <div>
+                          <p className="font-medium text-zinc-800">Additional Details:</p>
+                          <p className="mt-1 whitespace-pre-wrap break-words text-zinc-700">
+                            {listing.additional_details?.trim() ? listing.additional_details.trim() : "Empty"}
+                          </p>
+                        </div>
                       </div>
                     </div>
 

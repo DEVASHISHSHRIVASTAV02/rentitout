@@ -119,6 +119,7 @@ create table if not exists public.listing (
   pincode text not null check (pincode ~ '^\d{6}$'),
   contact_email citext not null,
   phone text,
+  additional_details text,
   is_active boolean not null default true,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
@@ -127,8 +128,20 @@ create table if not exists public.listing (
   constraint listing_item_info_not_blank check (item_info is null or btrim(item_info) <> ''),
   constraint listing_price_per_month_positive check (price_per_month >= 1),
   constraint listing_min_agreement_months_range check (min_agreement_months between 1 and 24),
-  constraint listing_phone_length check (phone is null or char_length(btrim(phone)) between 8 and 20)
+  constraint listing_phone_length check (phone is null or char_length(btrim(phone)) between 8 and 20),
+  constraint listing_additional_details_length check (
+    additional_details is null or char_length(additional_details) <= 350
+  )
 );
+
+alter table public.listing
+  add column if not exists additional_details text;
+
+alter table public.listing drop constraint if exists listing_additional_details_length;
+alter table public.listing
+  add constraint listing_additional_details_length check (
+    additional_details is null or char_length(additional_details) <= 350
+  );
 
 drop trigger if exists listing_set_updated_at on public.listing;
 create trigger listing_set_updated_at
@@ -235,6 +248,7 @@ create table if not exists public.deleted_listing (
   pincode text not null check (pincode ~ '^\d{6}$'),
   contact_email citext not null,
   phone text,
+  additional_details text,
   was_active boolean not null default true,
   listing_created_at timestamptz not null,
   listing_updated_at timestamptz not null,
@@ -246,9 +260,21 @@ create table if not exists public.deleted_listing (
   constraint deleted_listing_price_per_month_positive check (price_per_month >= 1),
   constraint deleted_listing_min_agreement_months_range check (min_agreement_months between 1 and 24),
   constraint deleted_listing_phone_length check (phone is null or char_length(btrim(phone)) between 8 and 20),
+  constraint deleted_listing_additional_details_length check (
+    additional_details is null or char_length(additional_details) <= 350
+  ),
   constraint deleted_listing_deleted_after_listing_created check (deleted_at >= listing_created_at),
   constraint deleted_listing_deleted_after_listing_updated check (deleted_at >= listing_updated_at)
 );
+
+alter table public.deleted_listing
+  add column if not exists additional_details text;
+
+alter table public.deleted_listing drop constraint if exists deleted_listing_additional_details_length;
+alter table public.deleted_listing
+  add constraint deleted_listing_additional_details_length check (
+    additional_details is null or char_length(additional_details) <= 350
+  );
 
 create unique index if not exists deleted_listing_original_row_uidx
   on public.deleted_listing (original_listing_row_id);

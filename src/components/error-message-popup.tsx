@@ -4,7 +4,6 @@ import { X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { Button } from "@/components/ui/button";
 
 interface ErrorMessagePopupProps {
   message: string;
@@ -65,7 +64,7 @@ export function ErrorMessagePopup({ message, clearQueryKeys = ["error"] }: Error
         aria-modal="true"
         aria-labelledby="error-popup-title"
         aria-describedby="error-popup-message"
-        className="w-full max-w-lg rounded-2xl border border-rose-200 bg-white p-6 shadow-2xl"
+        className="w-full max-w-lg rounded-2xl border border-zinc-300 bg-white p-6 shadow-2xl"
       >
         <div className="flex items-start justify-between gap-3">
           <h2 id="error-popup-title" className="text-xl font-semibold text-rose-700">
@@ -74,7 +73,7 @@ export function ErrorMessagePopup({ message, clearQueryKeys = ["error"] }: Error
           <button
             type="button"
             onClick={dismiss}
-            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-rose-200 text-rose-700 hover:bg-rose-50"
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-zinc-300 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
             aria-label="Close error"
           >
             <X className="h-4 w-4" />
@@ -84,16 +83,6 @@ export function ErrorMessagePopup({ message, clearQueryKeys = ["error"] }: Error
         <p id="error-popup-message" className="mt-3 text-sm text-rose-700 sm:text-base">
           {message}
         </p>
-
-        <div className="mt-5 flex justify-end">
-          <Button
-            type="button"
-            className="w-full bg-rose-700 text-white hover:bg-rose-800 sm:w-auto"
-            onClick={dismiss}
-          >
-            Okay
-          </Button>
-        </div>
       </div>
     </div>,
     document.body,

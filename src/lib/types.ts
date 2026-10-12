@@ -25,6 +25,7 @@ interface ApplianceListingBase {
   category: ListingCategory;
   sub_category: string | null;
   item_info: string | null;
+  additional_details: string | null;
   price_per_month: number;
   min_agreement_months: number;
   image_urls: string[];

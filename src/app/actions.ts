@@ -25,11 +25,19 @@ import {
   saveListingImage,
 } from "@/lib/storage";
 
+const MAX_ADDITIONAL_DETAILS_LENGTH = 350;
+
 const listingSchema = z
   .object({
     category: z.enum(LISTABLE_ITEMS),
     subCategory: z.string().trim().min(1, "Sub category is required").max(80),
     itemInfo: z.string().trim().min(1, "Item info is required").max(80),
+    additionalDetails: z
+      .string()
+      .trim()
+      .max(MAX_ADDITIONAL_DETAILS_LENGTH, `Additional details must be ${MAX_ADDITIONAL_DETAILS_LENGTH} characters or less`)
+      .optional()
+      .or(z.literal("")),
     pricePerMonth: z.coerce.number().int().min(1, "Price per month is required"),
     minAgreementMonths: z.coerce.number().int().min(1).max(24),
     city: z.string().trim().min(1, "City is required").max(60),
@@ -111,6 +119,7 @@ interface DeleteListingRow {
   category: string;
   sub_category: string | null;
   item_info: string | null;
+  additional_details: string | null;
   price_per_month: number;
   min_agreement_months: number;
   city: string;
@@ -570,6 +579,7 @@ export async function createListingAction(formData: FormData) {
     category: asString(formData.get("category")),
     subCategory: asString(formData.get("subCategory")),
     itemInfo: asString(formData.get("itemInfo")),
+    additionalDetails: asOptionalString(formData.get("additionalDetails")) ?? "",
     pricePerMonth: asString(formData.get("pricePerMonth")),
     minAgreementMonths: asString(formData.get("minAgreementMonths")),
     city: asString(formData.get("city")),
@@ -583,6 +593,7 @@ export async function createListingAction(formData: FormData) {
     redirectWithError(message);
   }
   const listingInput = parsedListingInput.data as z.infer<typeof listingSchema>;
+  const additionalDetails = listingInput.additionalDetails?.trim() || null;
 
   if (!SUPPORTED_CITIES.some((entry) => entry === listingInput.city)) {
     redirectWithError("Please select a city from the list");
@@ -626,6 +637,7 @@ export async function createListingAction(formData: FormData) {
                 category,
                 sub_category,
                 item_info,
+                additional_details,
                 price_per_month,
                 min_agreement_months,
                 contact_email,
@@ -634,7 +646,7 @@ export async function createListingAction(formData: FormData) {
                 phone
               )
             values
-              ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+              ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
             on conflict (listing_id) do nothing
             returning id, listing_id
           `,
@@ -644,6 +656,7 @@ export async function createListingAction(formData: FormData) {
             listingInput.category,
             listingInput.subCategory,
             listingInput.itemInfo.trim(),
+            additionalDetails,
             listingInput.pricePerMonth,
             listingInput.minAgreementMonths,
             listingInput.contactEmail,
@@ -737,6 +750,7 @@ export async function updateListingAction(formData: FormData) {
     category: asString(formData.get("category")),
     subCategory: asString(formData.get("subCategory")),
     itemInfo: asString(formData.get("itemInfo")),
+    additionalDetails: asOptionalString(formData.get("additionalDetails")) ?? "",
     pricePerMonth: asString(formData.get("pricePerMonth")),
     minAgreementMonths: asString(formData.get("minAgreementMonths")),
     city: asString(formData.get("city")),
@@ -750,6 +764,7 @@ export async function updateListingAction(formData: FormData) {
     redirectWithError(message);
   }
   const listingInput = parsedListingInput.data as z.infer<typeof listingSchema>;
+  const additionalDetails = listingInput.additionalDetails?.trim() || null;
 
   if (!SUPPORTED_CITIES.some((entry) => entry === listingInput.city)) {
     redirectWithError("Please select a city from the list");
@@ -809,19 +824,21 @@ export async function updateListingAction(formData: FormData) {
             category = $1,
             sub_category = $2,
             item_info = $3,
-            price_per_month = $4,
-            min_agreement_months = $5,
-            contact_email = $6,
-            city = $7,
-            pincode = $8,
-            phone = $9
-          where id = $10
-            and owner_id = $11
+            additional_details = $4,
+            price_per_month = $5,
+            min_agreement_months = $6,
+            contact_email = $7,
+            city = $8,
+            pincode = $9,
+            phone = $10
+          where id = $11
+            and owner_id = $12
         `,
         [
           listingInput.category,
           listingInput.subCategory,
           listingInput.itemInfo.trim(),
+          additionalDetails,
           listingInput.pricePerMonth,
           listingInput.minAgreementMonths,
           listingInput.contactEmail,
@@ -943,6 +960,7 @@ export async function deleteListingAction(formData: FormData) {
             category,
             sub_category,
             item_info,
+            additional_details,
             price_per_month,
             min_agreement_months,
             city,
@@ -1001,6 +1019,7 @@ export async function deleteListingAction(formData: FormData) {
               category,
               sub_category,
               item_info,
+              additional_details,
               price_per_month,
               min_agreement_months,
               city,
@@ -1013,7 +1032,7 @@ export async function deleteListingAction(formData: FormData) {
               deleted_by_user_id
             )
           values
-            ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+            ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
           returning id
         `,
         [
@@ -1023,6 +1042,7 @@ export async function deleteListingAction(formData: FormData) {
           listing.category,
           listing.sub_category,
           listing.item_info,
+          listing.additional_details,
           listing.price_per_month,
           listing.min_agreement_months,
           listing.city,

@@ -118,6 +118,12 @@ export default async function ListingDetailPage({ params, searchParams }: Listin
                 {data.listing.city} - PIN {data.listing.pincode}
               </span>
             </p>
+            <div>
+              <p className="font-medium text-zinc-800">Additional Details:</p>
+              <p className="mt-1 whitespace-pre-wrap break-words text-zinc-700">
+                {data.listing.additional_details?.trim() ? data.listing.additional_details.trim() : "Empty"}
+              </p>
+            </div>
           </div>
         </section>
 

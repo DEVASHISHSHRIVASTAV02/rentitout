@@ -12,6 +12,7 @@ export interface EditListingPopupValues {
   category: ListableItem;
   subCategory: string;
   itemInfo: string;
+  additionalDetails: string | null;
   pricePerMonth: number;
   minAgreementMonths: number;
   city: string;
@@ -86,6 +87,7 @@ export function EditListingPopup({
             category: listing.category,
             subCategory: listing.subCategory,
             itemInfo: listing.itemInfo,
+            additionalDetails: listing.additionalDetails,
             pricePerMonth: listing.pricePerMonth,
             minAgreementMonths: listing.minAgreementMonths,
             city: listing.city,

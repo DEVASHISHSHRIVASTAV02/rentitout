@@ -16,6 +16,7 @@ export interface MyAccountListingCard {
   category: ListableItem;
   subCategory: string;
   itemInfo: string;
+  additionalDetails: string | null;
   pricePerMonth: number;
   minAgreementMonths: number;
   imageUrls: string[];
@@ -74,6 +75,7 @@ export function MyAccountListings({
           category: listing.category,
           subCategory: listing.subCategory,
           itemInfo: listing.itemInfo,
+          additionalDetails: listing.additionalDetails,
           pricePerMonth: listing.pricePerMonth,
           minAgreementMonths: listing.minAgreementMonths,
           city: listing.city,

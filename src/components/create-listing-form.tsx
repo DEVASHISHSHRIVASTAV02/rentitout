@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RequiredMark } from "@/components/ui/required-mark";
 import { Select } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { LISTABLE_ITEMS, type ListableItem } from "@/lib/listable-items";
 import { SUPPORTED_CITIES } from "@/lib/cities";
@@ -22,6 +23,7 @@ import {
 
 const AGREEMENT_MONTH_OPTIONS = Array.from({ length: 24 }, (_, index) => index + 1);
 const MAX_LISTING_IMAGES = 4;
+const MAX_ADDITIONAL_DETAILS_LENGTH = 350;
 
 function normalizeListingImageSrc(value: string) {
   const trimmed = value.trim();
@@ -47,6 +49,7 @@ interface CreateListingFormProps {
     category: ListableItem;
     subCategory: string;
     itemInfo: string;
+    additionalDetails?: string | null;
     pricePerMonth: number;
     minAgreementMonths: number;
     city: string;
@@ -79,6 +82,7 @@ export function CreateListingForm({
   const [category, setCategory] = useState<ListableItem>(resolvedInitialCategory);
   const [subCategory, setSubCategory] = useState(initialSubCategory);
   const [itemInfo, setItemInfo] = useState(initialItemInfo);
+  const [additionalDetails, setAdditionalDetails] = useState(initialValues?.additionalDetails?.trim() ?? "");
   const [keptImageUrls, setKeptImageUrls] = useState<string[]>(initialImageUrls);
   const [newImageCount, setNewImageCount] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -185,6 +189,24 @@ export function CreateListingForm({
               </label>
             )}
           </div>
+        </section>
+
+        <section className="space-y-3 rounded-xl border border-zinc-200 bg-zinc-50 p-3.5 sm:p-4">
+          <p className="text-sm font-semibold text-zinc-900">Additional Details</p>
+          <label className="space-y-1 text-sm text-zinc-700">
+            <span>Warranty, renter requirements, or other important info</span>
+            <Textarea
+              name="additionalDetails"
+              rows={4}
+              maxLength={MAX_ADDITIONAL_DETAILS_LENGTH}
+              value={additionalDetails}
+              onChange={(event) => setAdditionalDetails(event.target.value.slice(0, MAX_ADDITIONAL_DETAILS_LENGTH))}
+              placeholder="Optional. Example: 1-year warranty remaining. Renter must provide ID proof and a refundable deposit."
+            />
+            <span className="block text-xs text-zinc-500">
+              {additionalDetails.length}/{MAX_ADDITIONAL_DETAILS_LENGTH} characters
+            </span>
+          </label>
         </section>
 
         <section className="space-y-3 rounded-xl border border-zinc-200 bg-zinc-50 p-3.5 sm:p-4">

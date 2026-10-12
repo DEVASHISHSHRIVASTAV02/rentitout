@@ -9,6 +9,7 @@ import { MultiImageUploadInput } from "@/components/multi-image-upload-input";
 import { Input } from "@/components/ui/input";
 import { RequiredMark } from "@/components/ui/required-mark";
 import { Select } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { LISTABLE_ITEMS, type ListableItem } from "@/lib/listable-items";
 import { SUPPORTED_CITIES } from "@/lib/cities";
@@ -21,6 +22,7 @@ import {
 } from "@/lib/listing-form-config";
 
 const AGREEMENT_MONTH_OPTIONS = Array.from({ length: 24 }, (_, index) => index + 1);
+const MAX_ADDITIONAL_DETAILS_LENGTH = 350;
 
 interface CreateListingModalProps {
   isSignedIn: boolean;
@@ -37,6 +39,7 @@ export function CreateListingModal({ isSignedIn, defaultContactEmail, autoOpen =
   const [category, setCategory] = useState<ListableItem>(initialCategory);
   const [subCategory, setSubCategory] = useState(initialSubCategory);
   const [itemInfo, setItemInfo] = useState(initialItemInfo);
+  const [additionalDetails, setAdditionalDetails] = useState("");
 
   const subCategoryOptions = CATEGORY_SUBCATEGORY_OPTIONS[category];
   const itemInfoPresetOptions = CATEGORY_ITEM_INFO_PRESET_OPTIONS[category] ?? [];
@@ -164,6 +167,24 @@ export function CreateListingModal({ isSignedIn, defaultContactEmail, autoOpen =
                     </label>
                   )}
                 </div>
+              </section>
+
+              <section className="space-y-3 rounded-xl border border-zinc-200 bg-zinc-50 p-4">
+                <p className="text-sm font-semibold text-zinc-900">Additional Details</p>
+                <label className="space-y-1 text-sm text-zinc-700">
+                  <span>Warranty, renter requirements, or other important info</span>
+                  <Textarea
+                    name="additionalDetails"
+                    rows={4}
+                    maxLength={MAX_ADDITIONAL_DETAILS_LENGTH}
+                    value={additionalDetails}
+                    onChange={(event) => setAdditionalDetails(event.target.value.slice(0, MAX_ADDITIONAL_DETAILS_LENGTH))}
+                    placeholder="Optional. Example: 1-year warranty remaining. Renter must provide ID proof and a refundable deposit."
+                  />
+                  <span className="block text-xs text-zinc-500">
+                    {additionalDetails.length}/{MAX_ADDITIONAL_DETAILS_LENGTH} characters
+                  </span>
+                </label>
               </section>
 
               <section className="space-y-3 rounded-xl border border-zinc-200 bg-zinc-50 p-4">
